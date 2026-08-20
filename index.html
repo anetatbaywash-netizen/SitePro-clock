@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShiftClock Pro — Workforce Time Tracking</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#0c0e16;--bg2:#131620;--card:#1a1e2e;--card2:#212638;--border:#2a3048;--fg:#e2e4ea;--muted:#6b7094;--accent:#e8a838;--accent2:#d4922a;--success:#34d399;--danger:#f87171;--info:#38bdf8;--warning:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+.mono{font-family:'JetBrains Mono',monospace}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;transition:border-color .2s}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 30%,var(--border))}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:8px;font-weight:500;font-size:.875rem;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+.btn-primary{background:var(--accent);color:#0c0e16}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-secondary{background:var(--card2);color:var(--fg);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent)}
+.btn-danger{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.3)}.btn-danger:hover{background:rgba(248,113,113,.25)}
+.btn-success{background:rgba(52,211,153,.15);color:var(--success);border:1px solid rgba(52,211,153,.3)}.btn-success:hover{background:rgba(52,211,153,.25)}
+.btn-sm{padding:.4rem .8rem;font-size:.8rem}
+input,select,textarea{background:var(--bg2);border:1px solid var(--border);color:var(--fg);padding:.6rem .8rem;border-radius:8px;font-family:inherit;font-size:.875rem;width:100%;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+select option{background:var(--card);color:var(--fg)}
+label{font-size:.8rem;color:var(--muted);font-weight:500;display:block;margin-bottom:.3rem}
+.sidebar{width:250px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);position:fixed;left:0;top:0;z-index:40;transition:transform .3s}
+.sidebar-link{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.25rem;color:var(--muted);font-size:.875rem;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
+.sidebar-link:hover{color:var(--fg);background:rgba(232,168,56,.05)}
+.sidebar-link.active{color:var(--accent);background:rgba(232,168,56,.08);border-left-color:var(--accent)}
+.main-content{margin-left:250px;min-height:100vh;padding:1.5rem 2rem}
+.stat-card{position:relative;overflow:hidden}.stat-card::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;opacity:.06}
+.toast-container{position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem}
+.toast{padding:.8rem 1.2rem;border-radius:8px;font-size:.85rem;display:flex;align-items:center;gap:.6rem;animation:slideIn .3s ease;min-width:280px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast-success{background:#065f46;border:1px solid #34d399;color:#a7f3d0}
+.toast-error{background:#7f1d1d;border:1px solid #f87171;color:#fecaca}
+.toast-info{background:#0c4a6e;border:1px solid #38bdf8;color:#bae6fd}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.4);opacity:0}}
+.fade-in{animation:fadeIn .3s ease}
+.clock-btn{width:200px;height:200px;border-radius:50%;border:4px solid;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .3s;position:relative;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem}
+.clock-btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.clock-btn:not(:disabled):hover{transform:scale(1.05)}
+.clock-btn.pulse::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px solid;animation:pulse-ring 1.5s infinite}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:540px;max-height:85vh;overflow-y:auto;padding:1.5rem}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:.6rem .8rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}
+td{padding:.6rem .8rem;font-size:.85rem;border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent)}
+tr:hover td{background:rgba(232,168,56,.03)}
+.badge{display:inline-flex;align-items:center;padding:.15rem .5rem;border-radius:20px;font-size:.7rem;font-weight:600}
+.badge-green{background:rgba(52,211,153,.15);color:var(--success)}
+.badge-red{background:rgba(248,113,113,.15);color:var(--danger)}
+.badge-amber{background:rgba(232,168,56,.15);color:var(--accent)}
+.badge-blue{background:rgba(56,189,248,.15);color:var(--info)}
+.gps-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.gps-dot.active{background:var(--success);box-shadow:0 0 8px var(--success)}
+.gps-dot.inactive{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+.gps-dot.pending{background:var(--warning);animation:pulse-ring 1s infinite}
+.bg-pattern{background-image:radial-gradient(circle at 1px 1px,rgba(232,168,56,.04) 1px,transparent 0);background-size:40px 40px}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:1rem}.clock-btn{width:160px;height:160px;font-size:.95rem}}
+.tab-btn{padding:.5rem 1rem;font-size:.85rem;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-btn:hover{color:var(--fg)}
+</style>
+</head>
+<body class="bg-pattern">
+
+<div id="toast-container" class="toast-container"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+  <div class="card w-full max-w-md fade-in" style="border-color:color-mix(in srgb,var(--accent) 20%,var(--border))">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a)">
+        <i class="fas fa-clock text-xl" style="color:#0c0e16"></i>
+      </div>
+      <h1 class="text-2xl font-bold" style="color:var(--fg)">ShiftClock Pro</h1>
+      <p class="text-sm mt-1" style="color:var(--muted)">Workforce Time Tracking</p>
+    </div>
+    <div class="flex mb-6 border-b" style="border-color:var(--border)">
+      <button class="tab-btn active flex-1" onclick="switchLoginTab('admin')"><i class="fas fa-shield-halved mr-1"></i> Admin</button>
+      <button class="tab-btn flex-1" onclick="switchLoginTab('employee')"><i class="fas fa-user mr-1"></i> Employee</button>
+    </div>
+    <div id="login-admin">
+      <div class="mb-4"><label>Username</label><input id="admin-user" type="text" placeholder="admin" autocomplete="off"></div>
+      <div class="mb-5"><label>Password</label><input id="admin-pass" type="password" placeholder="Enter password"></div>
+      <button class="btn btn-primary w-full justify-center" onclick="adminLogin()"><i class="fas fa-right-to-bracket"></i> Sign In</button>
+    </div>
+    <div id="login-employee" class="hidden">
+      <div class="mb-4"><label>Employee ID</label><input id="emp-id" type="text" placeholder="e.g. EMP001" autocomplete="off"></div>
+      <div class="mb-5"><label>PIN</label><input id="emp-pin" type="password" placeholder="4-digit PIN" maxlength="4"></div>
+      <button class="btn btn-primary w-full justify-center" onclick="employeeLogin()"><i class="fas fa-right-to-bracket"></i> Clock In Portal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LAYOUT -->
+<div id="admin-layout" class="hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="p-5 border-b" style="border-color:var(--border)">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)">
+          <i class="fas fa-clock text-sm" style="color:#0c0e16"></i>
+        </div>
+        <div><div class="font-bold text-sm">ShiftClock Pro</div><div class="text-xs" style="color:var(--muted)">Admin Panel</div></div>
+      </div>
+    </div>
+    <nav class="py-3" id="admin-nav">
+      <div class="px-4 py-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Main</div>
+      <a class="sidebar-link active" data-page="dashboard"><i class="fas fa-gauge-high w-5 text-center"></i> Dashboard</a>
+      <a class="sidebar-link" data-page="sites"><i class="fas fa-location-dot w-5 text-center"></i> Sites</a>
+      <a class="sidebar-link" data-page="employees"><i class="fas fa-users w-5 text-center"></i> Employees</a>
+      <a class="sidebar-link" data-page="shifts"><i class="fas fa-calendar-days w-5 text-center"></i> Shifts</a>
+      <div class="px-4 py-2 mt-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Data</div>
+      <a class="sidebar-link" data-page="records"><i class="fas fa-clock-rotate-left w-5 text-center"></i> Clock Records</a>
+      <a class="sidebar-link" data-page="export"><i class="fas fa-file-export w-5 text-center"></i> Export</a>
+      <div class="px-4 py-2 mt-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">System</div>
+      <a class="sidebar-link" data-page="settings"><i class="fas fa-gear w-5 text-center"></i> Settings</a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t" style="border-color:var(--border)">
+      <button class="btn btn-secondary btn-sm w-full justify-center" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</button>
+    </div>
+  </aside>
+  <div class="main-content" id="admin-content"></div>
+  <button class="fixed top-4 left-4 z-50 btn btn-secondary btn-sm md:hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+</div>
+
+<!-- EMPLOYEE LAYOUT -->
+<div id="employee-layout" class="hidden">
+  <div class="min-h-screen flex flex-col">
+    <header class="p-4 flex items-center justify-between border-b" style="border-color:var(--border);background:var(--bg2)">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)">
+          <i class="fas fa-clock text-xs" style="color:#0c0e16"></i>
+        </div>
+        <span class="font-bold text-sm">ShiftClock Pro</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="emp-header-name" class="text-sm hidden sm:inline" style="color:var(--muted)"></span>
+        <button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-right-from-bracket"></i></button>
+      </div>
+    </header>
+    <div class="flex-1 flex">
+      <nav class="w-16 sm:w-48 border-r flex flex-col pt-4" style="border-color:var(--border);background:var(--bg2)" id="emp-nav">
+        <a class="sidebar-link active" data-epage="clock" style="padding:.7rem .5rem;justify-content:center;sm:justify-content:flex-start;flex-direction:column;gap:2px"><i class="fas fa-fingerprint text-lg"></i><span class="text-xs hidden sm:inline mt-1">Clock</span></a>
+        <a class="sidebar-link" data-epage="history" style="padding:.7rem .5rem;justify-content:center;flex-direction:column;gap:2px"><i class="fas fa-history text-lg"></i><span class="text-xs hidden sm:inline mt-1">History</span></a>
+      </nav>
+      <main class="flex-1 p-4 sm:p-6" id="emp-content"></main>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box fade-in" id="modal-box"></div>
+</div>
+
+<script>
+/* ============================================================
+   DATA LAYER — LocalStorage CRUD
+   ============================================================ */
+const DB_KEYS = { sites:'scp_sites', employees:'scp_employees', shifts:'scp_shifts', records:'scp_records', settings:'scp_settings', admin:'scp_admin' };
+
+function dbGet(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
+function dbSet(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+function dbGetObj(key) { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; } }
+function dbSetObj(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function getSites() { return dbGet(DB_KEYS.sites); }
+function getEmployees() { return dbGet(DB_KEYS.employees); }
+function getShifts() { return dbGet(DB_KEYS.shifts); }
+function getRecords() { return dbGet(DB_KEYS.records); }
+function getSettings() { return dbGetObj(DB_KEYS.settings); }
+
+function saveSites(d) { dbSet(DB_KEYS.sites, d); }
+function saveEmployees(d) { dbSet(DB_KEYS.employees, d); }
+function saveShifts(d) { dbSet(DB_KEYS.shifts, d); }
+function saveRecords(d) { dbSet(DB_KEYS.records, d); }
+function saveSettings(d) { dbSetObj(DB_KEYS.settings, d); }
+
+/* ============================================================
+   DEFAULT DATA / SEED
+   ============================================================ */
+function seedData() {
+  if (localStorage.getItem(DB_KEYS.sites)) return;
+  const adminCred = { username:'admin', password:'admin123' };
+  dbSetObj(DB_KEYS.admin, adminCred);
+  const settings = { otThreshold: 2, defaultTarget: 8, defaultBreak: 30, demoMode: false };
+  saveSettings(settings);
+  const sites = [
+    { id: uid(), name:'Main Warehouse', address:'42 Industrial Blvd, Sydney', lat:-33.8688, lng:151.2093, radius:50 },
+    { id: uid(), name:'North Depot', address:'15 Commerce Rd, Melbourne', lat:-37.8136, lng:144.9631, radius:30 }
+  ];
+  saveSites(sites);
+  const emps = [
+    { id: uid(), firstName:'James', lastName:'Carter', employeeId:'EMP001', pin:'1234', siteId:sites[0].id, active:true },
+    { id: uid(), firstName:'Sarah', lastName:'Mitchell', employeeId:'EMP002', pin:'5678', siteId:sites[0].id, active:true },
+    { id: uid(), firstName:'Daniel', lastName:'Nguyen', employeeId:'EMP003', pin:'4321', siteId:sites[1].id, active:true }
+  ];
+  saveEmployees(emps);
+  /* Create some sample shifts for this week */
+  const today = new Date();
+  const shifts = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(today); d.setDate(d.getDate() - d.getDay() + 1 + i);
+    if (d > today) break;
+    const ds = fmtDate(d);
+    emps.forEach(e => {
+      shifts.push({ id: uid(), employeeId: e.id, siteId: e.siteId, date: ds, startTime:'07:00', endTime:'15:30', targetHours:8, breakMinutes:30 });
+    });
+  }
+  saveShifts(shifts);
+  /* A couple of sample records */
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+  const recs = [
+    { id:uid(), employeeId:emps[0].id, siteId:sites[0].id, shiftId:shifts[0]?.id, clockIn:fmtDate(yesterday)+'T07:03:00', clockOut:fmtDate(yesterday)+'T15:18:00', clockInLat:-33.86885, clockInLng:151.20935, clockOutLat:-33.86882, clockOutLng:151.20928, regularHours:7.75, overtimeHours:0.58, doubleTimeHours:0, breakMinutes:30, status:'completed' },
+    { id:uid(), employeeId:emps[1].id, siteId:sites[0].id, shiftId:shifts[1]?.id, clockIn:fmtDate(yesterday)+'T06:55:00', clockOut:fmtDate(yesterday)+'T17:30:00', clockInLat:-33.86890, clockInLng:151.20940, clockOutLat:-33.86888, clockOutLng:151.20932, regularHours:8, overtimeHours:2, doubleTimeHours:0.25, breakMinutes:30, status:'completed' }
+  ];
+  saveRecords(recs);
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  loggedIn: false,
+  role: null, // 'admin' | 'employee'
+  currentPage: 'dashboard',
+  empPage: 'clock',
+  currentEmployee: null,
+  clockState: 'idle', // idle | clocked_in
+  activeRecord: null,
+  gpsStatus: 'pending', // pending | in_range | out_of_range | error
+  gpsDistance: null,
+  gpsLat: null,
+  gpsLng: null,
+  liveTimerInterval: null
+};
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function fmtDate(d) { const dt = d instanceof Date ? d : new Date(d); return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
+function fmtTime(d) { const dt = d instanceof Date ? d : new Date(d); return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0'); }
+function fmtDateTime(d) { return fmtDate(d)+' '+fmtTime(d); }
+function todayStr() { return fmtDate(new Date()); }
+function getSiteName(id) { const s = getSites().find(x=>x.id===id); return s ? s.name : 'Unknown'; }
+function getEmpName(id) { const e = getEmployees().find(x=>x.id===id); return e ? e.firstName+' '+e.lastName : 'Unknown'; }
+function getEmpById(id) { return getEmployees().find(x=>x.id===id); }
+
+/* Haversine distance in meters */
+function haversine(lat1,lon1,lat2,lon2) {
+  const R=6371000, toR=n=>n*Math.PI/180;
+  const dLat=toR(lat2-lat1), dLon=toR(lon2-lon1);
+  const a=Math.sin(dLat/2)**2+Math.cos(toR(lat1))*Math.cos(toR(lat2))*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+/* Calculate hours breakdown */
+function calcHours(clockIn, clockOut, targetHours, breakMinutes, otThreshold) {
+  const totalMs = new Date(clockOut) - new Date(clockIn);
+  let totalMin = Math.max(0, totalMs / 60000 - breakMinutes);
+  const regMin = Math.min(totalMin, targetHours * 60);
+  let remain = totalMin - regMin;
+  const otMin = Math.min(remain, otThreshold * 60);
+  const dtMin = Math.max(0, remain - otMin);
+  return {
+    regularHours: Math.round(regMin/6)/100,
+    overtimeHours: Math.round(otMin/6)/100,
+    doubleTimeHours: Math.round(dtMin/6)/100,
+    totalHours: Math.round(totalMin/6)/100
+  };
+}
+
+/* Toast notifications */
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast toast-'+type;
+  const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
+  t.innerHTML = `<i class="fas ${icons[type]||icons.info}"></i><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.animation='slideOut .3s ease forwards'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+/* Modal */
+function openModal(html) {
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+
+/* Sidebar toggle for mobile */
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+function switchLoginTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', (tab==='admin'&&i===0)||(tab==='employee'&&i===1));
+  });
+  document.getElementById('login-admin').classList.toggle('hidden', tab!=='admin');
+  document.getElementById('login-employee').classList.toggle('hidden', tab!=='employee');
+}
+
+function adminLogin() {
+  const u = document.getElementById('admin-user').value.trim();
+  const p = document.getElementById('admin-pass').value;
+  const admin = dbGetObj(DB_KEYS.admin);
+  if (u === admin.username && p === admin.password) {
+    state.loggedIn = true; state.role = 'admin'; state.currentPage = 'dashboard';
+    showAdmin(); toast('Welcome, Admin','success');
+  } else { toast('Invalid credentials','error'); }
+}
+
+function employeeLogin() {
+  const eid = document.getElementById('emp-id').value.trim().toUpperCase();
+  const pin = document.getElementById('emp-pin').value;
+  const emp = getEmployees().find(e => e.employeeId === eid && e.pin === pin && e.active);
+  if (emp) {
+    state.loggedIn = true; state.role = 'employee'; state.currentEmployee = emp; state.empPage = 'clock';
+    /* Check if already clocked in */
+    const recs = getRecords().filter(r=>r.employeeId===emp.id && r.status==='clocked_in');
+    if (recs.length) { state.clockState='clocked_in'; state.activeRecord=recs[0]; } else { state.clockState='idle'; state.activeRecord=null; }
+    showEmployee(); toast(`Welcome, ${emp.firstName}`,'success');
+  } else { toast('Invalid Employee ID or PIN','error'); }
+}
+
+function logout() {
+  if (state.liveTimerInterval) clearInterval(state.liveTimerInterval);
+  state = { loggedIn:false, role:null, currentPage:'dashboard', empPage:'clock', currentEmployee:null, clockState:'idle', activeRecord:null, gpsStatus:'pending', gpsDistance:null, gpsLat:null, gpsLng:null, liveTimerInterval:null };
+  document.getElementById('admin-layout').classList.add('hidden');
+  document.getElementById('employee-layout').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('admin-user').value=''; document.getElementById('admin-pass').value='';
+  document.getElementById('emp-id').value=''; document.getElementById('emp-pin').value='';
+}
+
+/* ============================================================
+   SHOW LAYOUTS
+   ============================================================ */
+function showAdmin() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('employee-layout').classList.add('hidden');
+  document.getElementById('admin-layout').classList.remove('hidden');
+  navigateAdmin(state.currentPage);
+}
+function showEmployee() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('admin-layout').classList.add('hidden');
+  document.getElementById('employee-layout').classList.remove('hidden');
+  document.getElementById('emp-header-name').textContent = state.currentEmployee.firstName+' '+state.currentEmployee.lastName;
+  navigateEmp(state.empPage);
+}
+
+/* ============================================================
+   ADMIN ROUTER
+   ============================================================ */
+function navigateAdmin(page) {
+  state.currentPage = page;
+  document.querySelectorAll('#admin-nav .sidebar-link').forEach(l=>l.classList.toggle('active', l.dataset.page===page));
+  const el = document.getElementById('admin-content');
+  const renderers = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, shifts:renderShifts, records:renderRecords, export:renderExport, settings:renderSettings };
+  if (renderers[page]) el.innerHTML = renderers[page]();
+  if (page==='dashboard') startDashboardClock();
+}
+
+document.getElementById('admin-nav').addEventListener('click', e=>{
+  const link = e.target.closest('.sidebar-link');
+  if (link && link.dataset.page) { navigateAdmin(link.dataset.page); document.getElementById('sidebar').classList.remove('open'); }
+});
+
+/* ============================================================
+   EMPLOYEE ROUTER
+   ============================================================ */
+function navigateEmp(page) {
+  state.empPage = page;
+  document.querySelectorAll('#emp-nav .sidebar-link').forEach(l=>l.classList.toggle('active', l.dataset.epage===page));
+  const el = document.getElementById('emp-content');
+  if (page==='clock') { el.innerHTML = renderClockPage(); initClockPage(); }
+  else if (page==='history') { el.innerHTML = renderEmpHistory(); }
+}
+document.getElementById('emp-nav').addEventListener('click', e=>{
+  const link = e.target.closest('.sidebar-link');
+  if (link && link.dataset.epage) navigateEmp(link.dataset.epage);
+});
+
+/* ============================================================
+   ADMIN: DASHBOARD
+   ============================================================ */
+let dashClockInterval = null;
+function startDashboardClock() {
+  if (dashClockInterval) clearInterval(dashClockInterval);
+  const update = ()=>{
+    const el = document.getElementById('dash-live-clock');
+    if (el) el.textContent = new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    else clearInterval(dashClockInterval);
+  };
+  update(); dashClockInterval = setInterval(update, 1000);
+}
+
+function renderDashboard() {
+  const emps = getEmployees(), sites = getSites(), shifts = getShifts(), recs = getRecords();
+  const today = todayStr();
+  const todayShifts = shifts.filter(s=>s.date===today);
+  const clockedIn = recs.filter(r=>r.status==='clocked_in');
+  const todayRecs = recs.filter(r=>r.clockIn && r.clockIn.startsWith(today) && r.status==='completed');
+
+  return `<div class="fade-in">
+    <div class="flex items-center justify-between mb-6">
+      <div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">Overview for ${new Date().toLocaleDateString('en-AU',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p></div>
+      <div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="card stat-card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TOTAL EMPLOYEES</div><div class="text-2xl font-bold">${emps.filter(e=>e.active).length}</div><div class="text-xs mt-1" style="color:var(--muted)">${emps.filter(e=>!e.active).length} inactive</div></div>
+      <div class="card stat-card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">ACTIVE SITES</div><div class="text-2xl font-bold">${sites.length}</div><div class="text-xs mt-1" style="color:var(--muted)">locations configured</div></div>
+      <div class="card stat-card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY'S SHIFTS</div><div class="text-2xl font-bold">${todayShifts.length}</div><div class="text-xs mt-1" style="color:var(--muted)">${clockedIn.length} currently clocked in</div></div>
+      <div class="card stat-card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN NOW</div><div class="text-2xl font-bold" style="color:${clockedIn.length?'var(--success)':'var(--muted)'}">${clockedIn.length}</div><div class="text-xs mt-1" style="color:var(--muted)">${todayRecs.length} completed today</div></div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Currently Clocked In</h3>
+        ${clockedIn.length ? clockedIn.map(r=>{
+          const emp = getEmpById(r.employeeId);
+          const start = new Date(r.clockIn);
+          const elapsed = Math.floor((Date.now()-start.getTime())/60000);
+          return `<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)">
+            <div><div class="text-sm font-medium">${emp?emp.firstName+' '+emp.lastName:'Unknown'}</div><div class="text-xs" style="color:var(--muted)">${getSiteName(r.siteId)} &middot; Since ${fmtTime(start)}</div></div>
+            <div class="text-right"><div class="mono text-sm font-semibold" style="color:var(--success)">${Math.floor(elapsed/60)}h ${elapsed%60}m</div><span class="badge badge-green">Active</span></div>
+          </div>`;
+        }).join('') : '<p class="text-sm" style="color:var(--muted)">No employees currently clocked in.</p>'}
+      </div>
+      <div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today's Shifts</h3>
+        ${todayShifts.length ? todayShifts.slice(0,6).map(s=>{
+          const emp = getEmpById(s.employeeId);
+          const rec = recs.find(r=>r.shiftId===s.id);
+          let statusBadge = '<span class="badge badge-amber">Pending</span>';
+          if (rec && rec.status==='clocked_in') statusBadge='<span class="badge badge-green">Clocked In</span>';
+          else if (rec && rec.status==='completed') statusBadge='<span class="badge badge-blue">Completed</span>';
+          return `<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)">
+            <div><div class="text-sm font-medium">${emp?emp.firstName+' '+emp.lastName:'Unknown'}</div><div class="text-xs" style="color:var(--muted)">${getSiteName(s.siteId)} &middot; ${s.startTime} - ${s.endTime}</div></div>
+            ${statusBadge}
+          </div>`;
+        }).join('') : '<p class="text-sm" style="color:var(--muted)">No shifts scheduled for today.</p>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   ADMIN: SITES
+   ============================================================ */
+function renderSites() {
+  const sites = getSites();
+  return `<div class="fade-in">
+    <div class="flex items-center justify-between mb-6">
+      <div><h2 class="text-xl font-bold">Site Locations</h2><p class="text-sm" style="color:var(--muted)">Manage GPS clock-in zones (5-50m radius)</p></div>
+      <button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button>
+    </div>
+    <div class="grid gap-4">
+      ${sites.length ? sites.map(s=>`
+        <div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex-1">
+            <div class="font-semibold">${s.name}</div>
+            <div class="text-sm" style="color:var(--muted)">${s.address}</div>
+            <div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)">
+              <span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i> ${s.lat.toFixed(5)}, ${s.lng.toFixed(5)}</span>
+              <span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i> ${s.radius}m radius</span>
+              <a href="https://www.google.com/maps?q=${s.lat},${s.lng}" target="_blank" class="hover:underline" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>View Map</a>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-secondary btn-sm" onclick="openSiteModal('${s.id}')"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteSite('${s.id}')"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>`).join('') : '<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites configured. Add your first work location.</p></div>'}
+    </div>
+  </div>`;
+}
+
+function openSiteModal(editId) {
+  const sites = getSites();
+  const s = editId ? sites.find(x=>x.id===editId) : null;
+  openModal(`
+    <h3 class="font-bold text-lg mb-4">${s?'Edit':'Add'} Site</h3>
+    <div class="grid gap-4">
+      <div><label>Site Name</label><input id="m-site-name" value="${s?s.name:''}"></div>
+      <div><label>Address</label><input id="m-site-addr" value="${s?s.address:''}"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="${s?s.lat:''}"></div>
+        <div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="${s?s.lng:''}"></div>
+      </div>
+      <div>
+        <label>GPS Radius: <span id="m-radius-val">${s?s.radius:30}</span>m</label>
+        <input id="m-site-radius" type="range" min="5" max="50" value="${s?s.radius:30}" oninput="document.getElementById('m-radius-val').textContent=this.value" class="w-full" style="padding:0;background:transparent;border:none">
+        <div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m (strict)</span><span>50m (lenient)</span></div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Current Location</button>
+      <div class="flex gap-3 mt-2">
+        <button class="btn btn-primary flex-1 justify-center" onclick="saveSite('${editId||''}')">${s?'Update':'Add'} Site</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>`);
+}
+
+function getMyLocation() {
+  if (!navigator.geolocation) { toast('Geolocation not supported','error'); return; }
+  toast('Getting your location...','info');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById('m-site-lat').value = pos.coords.latitude.toFixed(5);
+    document.getElementById('m-site-lng').value = pos.coords.longitude.toFixed(5);
+    toast('Location acquired','success');
+  }, err=>toast('Location error: '+err.message,'error'), {enableHighAccuracy:true});
+}
+
+function saveSite(editId) {
+  const name = document.getElementById('m-site-name').value.trim();
+  const address = document.getElementById('m-site-addr').value.trim();
+  const lat = parseFloat(document.getElementById('m-site-lat').value);
+  const lng = parseFloat(document.getElementById('m-site-lng').value);
+  const radius = parseInt(document.getElementById('m-site-radius').value);
+  if (!name) { toast('Site name required','error'); return; }
+  if (isNaN(lat)||isNaN(lng)) { toast('Valid coordinates required','error'); return; }
+  let sites = getSites();
+  if (editId) {
+    sites = sites.map(s=>s.id===editId?{...s,name,address,lat,lng,radius}:s);
+  } else {
+    sites.push({id:uid(),name,address,lat,lng,radius});
+  }
+  saveSites(sites); closeModal(); navigateAdmin('sites'); toast(editId?'Site updated':'Site added','success');
+}
+
+function deleteSite(id) {
+  const emps = getEmployees().filter(e=>e.siteId===id);
+  if (emps.length) { toast(`Cannot delete: ${emps.length} employee(s) assigned to this site`,'error'); return; }
+  openModal(`<h3 class="font-bold text-lg mb-3">Delete Site?</h3><p class="text-sm mb-4" style="color:var(--muted)">This action cannot be undone.</p>
+    <div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="confirmDeleteSite('${id}')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>`);
+}
+function confirmDeleteSite(id) {
+  saveSites(getSites().filter(s=>s.id!==id)); closeModal(); navigateAdmin('sites'); toast('Site deleted','success');
+}
+
+/* ============================================================
+   ADMIN: EMPLOYEES
+   ============================================================ */
+function renderEmployees() {
+  const emps = getEmployees(), sites = getSites();
+  return `<div class="fade-in">
+    <div class="flex items-center justify-between mb-6">
+      <div><h2 class="text-xl font-bold">Employees</h2><p class="text-sm" style="color:var(--muted)">Manage staff and site assignments</p></div>
+      <button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add Employee</button>
+    </div>
+    <div class="card overflow-x-auto" style="padding:0">
+      <table>
+        <thead><tr><th>Name</th><th>ID</th><th>Site</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${emps.map(e=>`<tr>
+            <td class="font-medium">${e.firstName} ${e.lastName}</td>
+            <td class="mono text-xs">${e.employeeId}</td>
+            <td><span class="badge badge-blue">${getSiteName(e.siteId)}</span></td>
+            <td class="mono text-xs">&bull;&bull;&bull;&bull;</td>
+            <td>${e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>'}</td>
+            <td><div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="openEmpModal('${e.id}')"><i class="fas fa-pen"></i></button>
+              <button class="btn btn-secondary btn-sm" onclick="toggleEmpActive('${e.id}')">${e.active?'<i class="fas fa-ban"></i>':'<i class="fas fa-check"></i>'}</button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      ${!emps.length?'<p class="text-center py-8 text-sm" style="color:var(--muted)">No employees added yet.</p>':''}
+    </div>
+  </div>`;
+}
+
+function openEmpModal(editId) {
+  const emps = getEmployees(), sites = getSites();
+  const e = editId ? emps.find(x=>x.id===editId) : null;
+  if (!sites.length) { toast('Add a site first','error'); return; }
+  openModal(`
+    <h3 class="font-bold text-lg mb-4">${e?'Edit':'Add'} Employee</h3>
+    <div class="grid gap-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div><label>First Name</label><input id="m-emp-fname" value="${e?e.firstName:''}"></div>
+        <div><label>Last Name</label><input id="m-emp-lname" value="${e?e.lastName:''}"></div>
+      </div>
+      <div><label>Employee ID</label><input id="m-emp-eid" value="${e?e.employeeId:''}" ${e?'readonly style="opacity:.6"':''}></div>
+      <div><label>PIN (4 digits)</label><input id="m-emp-pin" type="password" maxlength="4" value="${e?e.pin:''}" placeholder="4-digit PIN"></div>
+      <div><label>Assigned Site</label><select id="m-emp-site">${sites.map(s=>`<option value="${s.id}" ${e&&e.siteId===s.id?'selected':''}>${s.name}</option>`).join('')}</select></div>
+      <div class="flex items-center gap-2"><input id="m-emp-active" type="checkbox" ${!e||e.active?'checked':''} class="w-4 h-4"><label for="m-emp-active" style="margin:0;cursor:pointer">Active</label></div>
+      <div class="flex gap-3 mt-2">
+        <button class="btn btn-primary flex-1 justify-center" onclick="saveEmp('${editId||''}')">${e?'Update':'Add'} Employee</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>`);
+}
+
+function saveEmp(editId) {
+  const firstName = document.getElementById('m-emp-fname').value.trim();
+  const lastName = document.getElementById('m-emp-lname').value.trim();
+  const employeeId = document.getElementById('m-emp-eid').value.trim().toUpperCase();
+  const pin = document.getElementById('m-emp-pin').value;
+  const siteId = document.getElementById('m-emp-site').value;
+  const active = document.getElementById('m-emp-active').checked;
+  if (!firstName||!lastName) { toast('Name required','error'); return; }
+  if (!employeeId) { toast('Employee ID required','error'); return; }
+  if (!/^\d{4}$/.test(pin)) { toast('PIN must be exactly 4 digits','error'); return; }
+  let emps = getEmployees();
+  if (!editId && emps.find(e=>e.employeeId===employeeId)) { toast('Employee ID already exists','error'); return; }
+  if (editId) { emps = emps.map(e=>e.id===editId?{...e,firstName,lastName,employeeId,pin,siteId,active}:e); }
+  else { emps.push({id:uid(),firstName,lastName,employeeId,pin,siteId,active}); }
+  saveEmployees(emps); closeModal(); navigateAdmin('employees'); toast(editId?'Employee updated':'Employee added','success');
+}
+
+function toggleEmpActive(id) {
+  let emps = getEmployees();
+  emps = emps.map(e=>e.id===id?{...e,active:!e.active}:e);
+  saveEmployees(emps); navigateAdmin('employees'); toast('Status updated','success');
+}
+
+/* ============================================================
+   ADMIN: SHIFTS
+   ============================================================ */
+function renderShifts() {
+  const shifts = getShifts(), emps = getEmployees(), sites = getSites();
+  const today = todayStr();
+  /* Group by date */
+  const byDate = {};
+  shifts.forEach(s=>{ if(!byDate[s.date]) byDate[s.date]=[]; byDate[s.date].push(s); });
+  const dates = Object.keys(byDate).sort().reverse();
+
+  return `<div class="fade-in">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <div><h2 class="text-xl font-bold">Shift Schedule</h2><p class="text-sm" style="color:var(--muted)">${shifts.length} shifts total</p></div>
+      <div class="flex gap-2">
+        <button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk Create</button>
+        <button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shift</button>
+      </div>
+    </div>
+    ${dates.length ? dates.map(d=>{
+      const isToday = d===today;
+      return `<div class="mb-4">
+        <div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">${isToday?'<span style="color:var(--accent)">Today</span> — ':''} ${new Date(d+'T12:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</h3><span class="badge ${isToday?'badge-amber':'badge-blue'}">${byDate[d].length} shift${byDate[d].length>1?'s':''}</span></div>
+        <div class="card overflow-x-auto" style="padding:0">
+          <table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Target</th><th>Break</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>${byDate[d].map(s=>{
+            const emp = getEmpById(s.employeeId);
+            const rec = getRecords().find(r=>r.shiftId===s.id);
+            let st = '<span class="badge badge-amber">Scheduled</span>';
+            if (rec && rec.status==='clocked_in') st='<span class="badge badge-green">Clocked In</span>';
+            else if (rec && rec.status==='completed') st='<span class="badge badge-blue">Completed</span>';
+            return `<tr>
+              <td class="font-medium">${emp?emp.firstName+' '+emp.lastName:'—'}</td>
+              <td class="text-xs">${getSiteName(s.siteId)}</td>
+              <td class="mono text-xs">${s.startTime} - ${s.endTime}</td>
+              <td>${s.targetHours}h</td>
+              <td>${s.breakMinutes}m</td>
+              <td>${st}</td>
+              <td><div class="flex gap-1">
+                <button class="btn btn-secondary btn-sm" onclick="openShiftModal('${s.id}')"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteShift('${s.id}')"><i class="fas fa-trash"></i></button>
+              </div></td>
+            </tr>`;
+          }).join('')}</tbody></table>
+        </div>
+      </div>`;
+    }).join('') : '<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts scheduled.</p></div>'}
+  </div>`;
+}
+
+function openShiftModal(editId) {
+  const shifts = getShifts(), emps = getEmployees().filter(e=>e.active), sites = getSites();
+  const s = editId ? shifts.find(x=>x.id===editId) : null;
+  if (!emps.length) { toast('Add employees first','error'); return; }
+  if (!sites.length) { toast('Add sites first','error'); return; }
+  const st = getSettings();
+  openModal(`
+    <h3 class="font-bold text-lg mb-4">${s?'Edit':'Add'} Shift</h3>
+    <div class="grid gap-4">
+      <div><label>Employee</label><select id="m-shift-emp">${emps.map(e=>`<option value="${e.id}" ${s&&s.employeeId===e.id?'selected':''}>${e.firstName} ${e.lastName} (${e.employeeId})</option>`).join('')}</select></div>
+      <div><label>Site</label><select id="m-shift-site">${sites.map(si=>`<option value="${si.id}" ${s&&s.siteId===si.id?'selected':''}>${si.name}</option>`).join('')}</select></div>
+      <div><label>Date</label><input id="m-shift-date" type="date" value="${s?s.date:todayStr()}"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label>Start Time</label><input id="m-shift-start" type="time" value="${s?s.startTime:'07:00'}"></div>
+        <div><label>End Time</label><input id="m-shift-end" type="time" value="${s?s.endTime:'15:30'}"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label>Target Hours</label><input id="m-shift-target" type="number" step="0.5" min="1" max="16" value="${s?s.targetHours:st.defaultTarget}"></div>
+        <div><label>Break (minutes)</label><input id="m-shift-break" type="number" step="5" min="0" max="120" value="${s?s.breakMinutes:st.defaultBreak}"></div>
+      </div>
+      <div class="flex gap-3 mt-2">
+        <button class="btn btn-primary flex-1 justify-center" onclick="saveShift('${editId||''}')">${s?'Update':'Add'} Shift</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>`);
+}
+
+function saveShift(editId) {
+  const employeeId = document.getElementById('m-shift-emp').value;
+  const siteId = document.getElementById('m-shift-site').value;
+  const date = document.getElementById('m-shift-date').value;
+  const startTime = document.getElementById('m-shift-start').value;
+  const endTime = document.getElementById('m-shift-end').value;
+  const targetHours = parseFloat(document.getElementById('m-shift-target').value);
+  const breakMinutes = parseInt(document.getElementById('m-shift-break').value);
+  if (!date||!startTime||!endTime) { toast('All time fields required','error'); return; }
+  if (endTime<=startTime) { toast('End time must be after start time','error'); return; }
+  let shifts = getShifts();
+  if (editId) { shifts = shifts.map(s=>s.id===editId?{...s,employeeId,siteId,date,startTime,endTime,targetHours,breakMinutes}:s); }
+  else { shifts.push({id:uid(),employeeId,siteId,date,startTime,endTime,targetHours,breakMinutes}); }
+  saveShifts(shifts); closeModal(); navigateAdmin('shifts'); toast(editId?'Shift updated':'Shift added','success');
+}
+
+function deleteShift(id) {
+  const rec = getRecords().find(r=>r.shiftId===id);
+  if (rec && rec.status==='clocked_in') { toast('Cannot delete: employee is clocked in','error'); return; }
+  saveShifts(getShifts().filter(s=>s.id!==id)); navigateAdmin('shifts'); toast('Shift deleted','success');
+}
+
+function openBulkShiftModal() {
+  const emps = getEmployees().filter(e=>e.active), sites = getSites();
+  if (!emps.length||!sites.length) { toast('Add employees and sites first','error'); return; }
+  const st = getSettings();
+  openModal(`
+    <h3 class="font-bold text-lg mb-4">Bulk Create Shifts</h3>
+    <p class="text-sm mb-4" style="color:var(--muted)">Create the same shift for a date range.</p>
+    <div class="grid gap-4">
+      <div><label>Employee</label><select id="m-bulk-emp">${emps.map(e=>`<option value="${e.id}">${e.firstName} ${e.lastName} (${e.employeeId})</option>`).join('')}</select></div>
+      <div><label>Site</label><select id="m-bulk-site">${sites.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label>From Date</label><input id="m-bulk-from" type="date" value="${todayStr()}"></div>
+        <div><label>To Date</label><input id="m-bulk-to" type="date" value="${todayStr()}"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label>Start Time</label><input id="m-bulk-start" type="time" value="07:00"></div>
+        <div><label>End Time</label><input id="m-bulk-end" type="time" value="15:30"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label>Target Hours</label><input id="m-bulk-target" type="number" step="0.5" value="${st.defaultTarget}"></div>
+        <div><label>Break (min)</label><input id="m-bulk-break" type="number" step="5" value="${st.defaultBreak}"></div>
+      </div>
+      <div class="flex items-center gap-2"><input id="m-bulk-noweekends" type="checkbox" checked class="w-4 h-4"><label for="m-bulk-noweekends" style="margin:0;cursor:pointer">Exclude weekends</label></div>
+      <div class="flex gap-3 mt-2">
+        <button class="btn btn-primary flex-1 justify-center" onclick="saveBulkShifts()"><i class="fas fa-layer-group"></i> Create Shifts</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>`);
+}
+
+function saveBulkShifts() {
+  const employeeId = document.getElementById('m-bulk-emp').value;
+  const siteId = document.getElementById('m-bulk-site').value;
+  const from = document.getElementById('m-bulk-from').value;
+  const to = document.getElementById('m-bulk-to').value;
+  const startTime = document.getElementById('m-bulk-start').value;
+  const endTime = document.getElementById('m-bulk-end').value;
+  const targetHours = parseFloat(document.getElementById('m-bulk-target').value);
+  const breakMinutes = parseInt(document.getElementById('m-bulk-break').value);
+  const noWeekends = document.getElementById('m-bulk-noweekends').checked;
+  if (!from||!to||!startTime||!endTime) { toast('All fields required','error'); return; }
+  if (to<from) { toast('To date must be after From date','error'); return; }
+  let shifts = getShifts();
+  let d = new Date(from+'T12:00:00'), end = new Date(to+'T12:00:00');
+  let count = 0;
+  while (d<=end) {
+    const dow = d.getDay();
+    if (!noWeekends || (dow!==0 && dow!==6)) {
+      shifts.push({id:uid(),employeeId,siteId,date:fmtDate(d),startTime,endTime,targetHours,breakMinutes});
+      count++;
+    }
+    d.setDate(d.getDate()+1);
+  }
+  saveShifts(shifts); closeModal(); navigateAdmin('shifts'); toast(`${count} shifts created`,'success');
+}
+
+/* ============================================================
+   ADMIN: RECORDS
+   ============================================================ */
+function renderRecords() {
+  let recs = getRecords().slice().reverse();
+  const emps = getEmployees();
+  return `<div class="fade-in">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">${recs.length} records</p></div>
+      <div class="flex gap-2 flex-wrap">
+        <select id="rec-filter-emp" class="text-sm" style="width:auto" onchange="filterRecords()"><option value="">All Employees</option>${emps.map(e=>`<option value="${e.id}">${e.firstName} ${e.lastName}</option>`).join('')}</select>
+        <input id="rec-filter-from" type="date" class="text-sm" style="width:auto" onchange="filterRecords()">
+        <input id="rec-filter-to" type="date" class="text-sm" style="width:auto" onchange="filterRecords()">
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('rec-filter-emp').value='';document.getElementById('rec-filter-from').value='';document.getElementById('rec-filter-to').value='';filterRecords()"><i class="fas fa-rotate"></i> Clear</button>
+      </div>
+    </div>
+    <div class="card overflow-x-auto" style="padding:0">
+      <table>
+        <thead><tr><th>Date</th><th>Employee</th><th>Site</th><th>Clock In</th><th>Clock Out</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody id="rec-tbody">
+          ${renderRecordRows(recs)}
+        </tbody>
+      </table>
+      ${!recs.length?'<p class="text-center py-8 text-sm" style="color:var(--muted)">No clock records yet.</p>':''}
+    </div>
+  </div>`;
+}
+
+function renderRecordRows(recs) {
+  return recs.map(r=>{
+    const emp = getEmpById(r.employeeId);
+    const stBadge = r.status==='clocked_in'?'<span class="badge badge-green">Active</span>':'<span class="badge badge-blue">Done</span>';
+    return `<tr data-emp="${r.employeeId}" data-date="${r.clockIn?r.clockIn.slice(0,10):''}">
+      <td class="text-xs">${r.clockIn?r.clockIn.slice(0,10):'—'}</td>
+      <td class="font-medium text-sm">${emp?emp.firstName+' '+emp.lastName:'—'}</td>
+      <td class="text-xs">${getSiteName(r.siteId)}</td>
+      <td class="mono text-xs">${r.clockIn?fmtTime(r.clockIn):'—'}</td>
+      <td class="mono text-xs">${r.clockOut?fmtTime(r.clockOut):'—'}</td>
+      <td class="mono text-xs">${r.regularHours||0}h</td>
+      <td class="mono text-xs" style="color:var(--warning)">${r.overtimeHours||0}h</td>
+      <td class="mono text-xs" style="color:var(--danger)">${r.doubleTimeHours||0}h</td>
+      <td class="mono text-xs font-semibold">${r.regularHours+r.overtimeHours+r.doubleTimeHours||0}h</td>
+      <td>${stBadge}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterRecords() {
+  const empId = document.getElementById('rec-filter-emp').value;
+  const from = document.getElementById('rec-filter-from').value;
+  const to = document.getElementById('rec-filter-to').value;
+  let recs = getRecords().slice().reverse();
+  if (empId) recs = recs.filter(r=>r.employeeId===empId);
+  if (from) recs = recs.filter(r=>r.clockIn && r.clockIn.slice(0,10)>=from);
+  if (to) recs = recs.filter(r=>r.clockIn && r.clockIn.slice(0,10)<=to);
+  document.getElementById('rec-tbody').innerHTML = renderRecordRows(recs);
+}
+
+/* ============================================================
+   ADMIN: EXPORT (Jarrison Time CSV)
+   ============================================================ */
+function renderExport() {
+  const recs = getRecords().filter(r=>r.status==='completed');
+  return `<div class="fade-in">
+    <div class="mb-6"><h2 class="text-xl font-bold">Export to Jarrison Time</h2><p class="text-sm" style="color:var(--muted)">Generate CSV for import into Jarrison Time</p></div>
+    <div class="card mb-4">
+      <h3 class="font-semibold text-sm mb-3"><i class="fas fa-filter mr-2" style="color:var(--accent)"></i>Filter Range</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+        <div><label>From Date</label><input id="exp-from" type="date" value="${new Date(new Date().setDate(1)).toISOString().slice(0,10)}"></div>
+        <div><label>To Date</label><input id="exp-to" type="date" value="${todayStr()}"></div>
+        <button class="btn btn-primary" onclick="previewExport()"><i class="fas fa-eye"></i> Preview Export</button>
+      </div>
+    </div>
+    <div id="export-preview"></div>
+  </div>`;
+}
+
+function previewExport() {
+  const from = document.getElementById('exp-from').value;
+  const to = document.getElementById('exp-to').value;
+  if (!from||!to) { toast('Select date range','error'); return; }
+  let recs = getRecords().filter(r=>r.status==='completed' && r.clockIn && r.clockIn.slice(0,10)>=from && r.clockIn.slice(0,10)<=to);
+  if (!recs.length) { document.getElementById('export-preview').innerHTML='<div class="card text-center py-8"><p style="color:var(--muted)">No completed records in this range.</p></div>'; return; }
+
+  let totals = {reg:0,ot:0,dt:0,total:0};
+  const rows = recs.map(r=>{
+    const emp = getEmpById(r.employeeId);
+    const reg = r.regularHours||0, ot = r.overtimeHours||0, dt = r.doubleTimeHours||0, tot = reg+ot+dt;
+    totals.reg+=reg; totals.ot+=ot; totals.dt+=dt; totals.total+=tot;
+    return `<tr>
+      <td class="mono text-xs">${emp?emp.employeeId:'—'}</td>
+      <td class="text-xs">${emp?emp.firstName:'—'}</td>
+      <td class="text-xs">${emp?emp.lastName:'—'}</td>
+      <td class="text-xs">${r.clockIn.slice(0,10)}</td>
+      <td class="text-xs">${getSiteName(r.siteId)}</td>
+      <td class="mono text-xs">${fmtTime(r.clockIn)}</td>
+      <td class="mono text-xs">${r.clockOut?fmtTime(r.clockOut):''}</td>
+      <td class="mono text-xs">${r.breakMinutes||0}</td>
+      <td class="mono text-xs">${reg.toFixed(2)}</td>
+      <td class="mono text-xs">${ot.toFixed(2)}</td>
+      <td class="mono text-xs">${dt.toFixed(2)}</td>
+      <td class="mono text-xs font-semibold">${tot.toFixed(2)}</td>
+    </tr>`;
+  });
+
+  document.getElementById('export-preview').innerHTML = `
+    <div class="card mb-3 flex items-center justify-between flex-wrap gap-3">
+      <div class="text-sm"><span style="color:var(--muted)">Showing</span> <strong>${recs.length} records</strong></div>
+      <div class="flex gap-3 text-sm">
+        <span>Regular: <strong class="mono" style="color:var(--fg)">${totals.reg.toFixed(2)}h</strong></span>
+        <span>OT: <strong class="mono" style="color:var(--warning)">${totals.ot.toFixed(2)}h</strong></span>
+        <span>DT: <strong class="mono" style="color:var(--danger)">${totals.dt.toFixed(2)}h</strong></span>
+        <span>Total: <strong class="mono" style="color:var(--accent)">${totals.total.toFixed(2)}h</strong></span>
+      </div>
+      <button class="btn btn-primary" onclick="downloadCSV('${from}','${to}')"><i class="fas fa-download"></i> Download CSV</button>
+    </div>
+    <div class="card overflow-x-auto" style="padding:0">
+      <table>
+        <thead><tr><th>Emp ID</th><th>First</th><th>Last</th><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Break</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th></tr></thead>
+        <tbody>${rows.join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+function downloadCSV(from, to) {
+  let recs = getRecords().filter(r=>r.status==='completed' && r.clockIn && r.clockIn.slice(0,10)>=from && r.clockIn.slice(0,10)<=to);
+  if (!recs.length) { toast('No records to export','error'); return; }
+  const header = 'Employee ID,First Name,Last Name,Date,Site,Clock In,Clock Out,Break (mins),Regular Hours,Overtime Hours (1.5x),Double Time Hours (2x),Total Hours';
+  const rows = recs.map(r=>{
+    const emp = getEmpById(r.employeeId);
+    const reg = (r.regularHours||0).toFixed(2);
+    const ot = (r.overtimeHours||0).toFixed(2);
+    const dt = (r.doubleTimeHours||0).toFixed(2);
+    const tot = (r.regularHours+r.overtimeHours+r.doubleTimeHours||0).toFixed(2);
+    return `${emp?emp.employeeId:''},${emp?emp.firstName:''},${emp?emp.lastName:''},${r.clockIn.slice(0,10)},"${getSiteName(r.siteId)}",${fmtTime(r.clockIn)},${r.clockOut?fmtTime(r.clockOut):''},${r.breakMinutes||0},${reg},${ot},${dt},${tot}`;
+  });
+  const csv = '\uFEFF' + header + '\n' + rows.join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `jarrison_export_${from}_to_${to}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV downloaded successfully','success');
+}
+
+/* ============================================================
+   ADMIN: SETTINGS
+   ============================================================ */
+function renderSettings() {
+  const st = getSettings();
+  const admin = dbGetObj(DB_KEYS.admin);
+  return `<div class="fade-in">
+    <div class="mb-6"><h2 class="text-xl font-bold">Settings</h2><p class="text-sm" style="color:var(--muted)">System configuration</p></div>
+    <div class="grid gap-4 max-w-xl">
+      <div class="card">
+        <h3 class="font-semibold text-sm mb-4"><i class="fas fa-calculator mr-2" style="color:var(--accent)"></i>Hours Calculation</h3>
+        <div class="grid gap-4">
+          <div><label>Default Target Hours (per shift)</label><input id="s-target" type="number" step="0.5" min="1" max="16" value="${st.defaultTarget||8}"></div>
+          <div><label>OT Threshold (hours before double time)</label><input id="s-ot" type="number" step="0.5" min="0.5" max="8" value="${st.otThreshold||2}">
+            <p class="text-xs mt-1" style="color:var(--muted)">After target hours, the next ${st.otThreshold||2}h are overtime (1.5x). Beyond that is double time (2x).</p>
+          </div>
+          <div><label>Default Break (minutes)</label><input id="s-break" type="number" step="5" min="0" max="120" value="${st.defaultBreak||30}"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="font-semibold text-sm mb-4"><i class="fas fa-shield-halved mr-2" style="color:var(--info)"></i>Admin Credentials</h3>
+        <div class="grid gap-4">
+          <div><label>Username</label><input id="s-user" value="${admin.username}"></div>
+          <div><label>New Password</label><input id="s-pass" type="password" placeholder="Leave blank to keep current"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="font-semibold text-sm mb-4"><i class="fas fa-flask mr-2" style="color:var(--warning)"></i>Demo Mode</h3>
+        <div class="flex items-center justify-between">
+          <div><p class="text-sm">Bypass GPS location check</p><p class="text-xs" style="color:var(--muted)">Useful for testing. Disables the 5-50m range requirement.</p></div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input id="s-demo" type="checkbox" ${st.demoMode?'checked':''} class="sr-only peer">
+            <div class="w-11 h-6 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-5 after:w-5 after:transition-all" style="background:var(--border);--tw-peer-checked-bg:var(--accent)" onclick="this.previousElementSibling.click()"></div>
+          </label>
+        </div>
+        <style>.peer:checked~div{background:var(--accent)!important}.peer~div::after{background:var(--fg)}</style>
+      </div>
+      <div class="card">
+        <h3 class="font-semibold text-sm mb-4"><i class="fas fa-database mr-2" style="color:var(--danger)"></i>Data Management</h3>
+        <div class="flex gap-3 flex-wrap">
+          <button class="btn btn-secondary btn-sm" onclick="exportAllData()"><i class="fas fa-download"></i> Backup All Data</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('import-file').click()"><i class="fas fa-upload"></i> Restore Backup</button>
+          <input type="file" id="import-file" accept=".json" class="hidden" onchange="importAllData(event)">
+          <button class="btn btn-danger btn-sm" onclick="resetAllData()"><i class="fas fa-triangle-exclamation"></i> Reset All Data</button>
+        </div>
+      </div>
+      <button class="btn btn-primary justify-center" onclick="saveSettingsPage()"><i class="fas fa-save"></i> Save Settings</button>
+    </div>
+  </div>`;
+}
+
+function saveSettingsPage() {
+  const st = getSettings();
+  st.defaultTarget = parseFloat(document.getElementById('s-target').value) || 8;
+  st.otThreshold = parseFloat(document.getElementById('s-ot').value) || 2;
+  st.defaultBreak = parseInt(document.getElementById('s-break').value) || 30;
+  st.demoMode = document.getElementById('s-demo').checked;
+  saveSettings(st);
+  const admin = dbGetObj(DB_KEYS.admin);
+  admin.username = document.getElementById('s-user').value.trim() || 'admin';
+  const newPass = document.getElementById('s-pass').value;
+  if (newPass) admin.password = newPass;
+  dbSetObj(DB_KEYS.admin, admin);
+  toast('Settings saved','success');
+}
+
+function exportAllData() {
+  const data = {};
+  Object.entries(DB_KEYS).forEach(([k,v])=>{ data[k]=localStorage.getItem(v); });
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`shiftclock_backup_${todayStr()}.json`; a.click();
+  URL.revokeObjectURL(url); toast('Backup downloaded','success');
+}
+
+function importAllData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      Object.entries(DB_KEYS).forEach(([k,v])=>{ if(data[k]) localStorage.setItem(v, data[k]); });
+      toast('Data restored. Reloading...','success');
+      setTimeout(()=>location.reload(), 1000);
+    } catch { toast('Invalid backup file','error'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function resetAllData() {
+  openModal(`<h3 class="font-bold text-lg mb-3" style="color:var(--danger)">Reset All Data?</h3><p class="text-sm mb-4" style="color:var(--muted)">This will delete ALL sites, employees, shifts, and records. This cannot be undone.</p>
+    <div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="confirmReset()"><i class="fas fa-triangle-exclamation"></i> Reset Everything</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>`);
+}
+function confirmReset() {
+  Object.values(DB_KEYS).forEach(k=>localStorage.removeItem(k));
+  closeModal(); seedData(); navigateAdmin('settings'); toast('All data reset to defaults','success');
+}
+
+/* ============================================================
+   EMPLOYEE: CLOCK PAGE
+   ============================================================ */
+function renderClockPage() {
+  const emp = state.currentEmployee;
+  const site = getSites().find(s=>s.id===emp.siteId);
+  const todayShift = getShifts().find(s=>s.employeeId===emp.id && s.date===todayStr());
+  const isClockedIn = state.clockState === 'clocked_in';
+
+  return `<div class="fade-in flex flex-col items-center text-center max-w-lg mx-auto">
+    <div class="mono text-5xl font-bold mb-1" style="color:var(--fg)" id="emp-live-clock"></div>
+    <div class="text-sm mb-6" style="color:var(--muted)">${new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+
+    <div class="card w-full mb-6 text-left">
+      <div class="flex items-center gap-2 mb-3"><i class="fas fa-calendar-check" style="color:var(--accent)"></i><span class="font-semibold text-sm">Today's Shift</span></div>
+      ${todayShift ? `
+        <div class="grid grid-cols-2 gap-y-2 text-sm">
+          <div style="color:var(--muted)">Site:</div><div class="font-medium">${getSiteName(todayShift.siteId)}</div>
+          <div style="color:var(--muted)">Scheduled:</div><div class="mono font-medium">${todayShift.startTime} — ${todayShift.endTime}</div>
+          <div style="color:var(--muted)">Target:</div><div>${todayShift.targetHours} hours</div>
+          <div style="color:var(--muted)">Break:</div><div>${todayShift.breakMinutes} minutes</div>
+        </div>
+      ` : '<p class="text-sm" style="color:var(--muted)">No shift assigned for today.</p>'}
+    </div>
+
+    <div class="card w-full mb-6 text-left">
+      <div class="flex items-center gap-2 mb-3"><i class="fas fa-satellite-dish" style="color:var(--info)"></i><span class="font-semibold text-sm">GPS Status</span></div>
+      <div class="flex items-center gap-3">
+        <span class="gps-dot pending" id="gps-dot"></span>
+        <div>
+          <div class="text-sm font-medium" id="gps-text">Acquiring location...</div>
+          <div class="text-xs" style="color:var(--muted)" id="gps-detail">Checking distance to ${site?site.name:'your site'}</div>
+        </div>
+      </div>
+      <div class="mt-2 text-xs mono" style="color:var(--muted)" id="gps-coords"></div>
+      ${site?`<div class="mt-1 text-xs" style="color:var(--muted)">Required radius: ${site.radius}m</div>`:''}
+    </div>
+
+    ${isClockedIn ? `
+      <div class="card w-full mb-6">
+        <div class="text-xs font-semibold mb-1" style="color:var(--success)">CURRENTLY CLOCKED IN</div>
+        <div class="mono text-3xl font-bold" style="color:var(--success)" id="elapsed-timer">00:00:00</div>
+        <div class="text-xs mt-1" style="color:var(--muted)">Since ${state.activeRecord?fmtTime(state.activeRecord.clockIn):''}</div>
+      </div>
+    ` : ''}
+
+    <div class="mb-6">
+      <button class="clock-btn ${getClockBtnClass()}" id="clock-btn" ${getClockBtnDisabled()} onclick="handleClockAction()">
+        <i class="fas ${isClockedIn?'fa-right-from-bracket':'fa-right-to-bracket'} text-2xl"></i>
+        <span>${isClockedIn?'CLOCK OUT':'CLOCK IN'}</span>
+      </button>
+    </div>
+    <p class="text-xs" style="color:var(--muted);max-width:300px">${getSettings().demoMode?'<span class="badge badge-amber mb-1">Demo Mode</span><br>':' GPS verification is active. You must be within the site radius to clock in or out.'}</p>
+  </div>`;
+}
+
+function getClockBtnClass() {
+  if (state.clockState==='clocked_in') return 'pulse'; // amber for clock out
+  if (state.gpsStatus==='in_range'||getSettings().demoMode) return 'pulse';
+  if (state.gpsStatus==='out_of_range') return '';
+  return '';
+}
+function getClockBtnDisabled() {
+  if (state.clockState==='clocked_in') {
+    if (getSettings().demoMode) return '';
+    return state.gpsStatus!=='in_range'?'disabled':'';
+  }
+  if (getSettings().demoMode) return '';
+  return state.gpsStatus!=='in_range'?'disabled':'';
+}
+
+function initClockPage() {
+  /* Live clock */
+  if (state.liveTimerInterval) clearInterval(state.liveTimerInterval);
+  state.liveTimerInterval = setInterval(()=>{
+    const el = document.getElementById('emp-live-clock');
+    if (el) el.textContent = new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const timer = document.getElementById('elapsed-timer');
+    if (timer && state.activeRecord) {
+      const ms = Date.now() - new Date(state.activeRecord.clockIn).getTime();
+      const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000);
+      timer.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+  }, 1000);
+
+  /* Update clock button styles */
+  updateClockBtnStyle();
+
+  /* GPS check */
+  if (getSettings().demoMode) {
+    state.gpsStatus = 'in_range';
+    updateGPSDisplay();
+    updateClockBtnStyle();
+    return;
+  }
+  checkGPS();
+}
+
+function checkGPS() {
+  if (!navigator.geolocation) {
+    state.gpsStatus='error'; updateGPSDisplay(); updateClockBtnStyle(); return;
+  }
+  updateGPSDisplay();
+  navigator.geolocation.getCurrentPosition(pos=>{
+    state.gpsLat = pos.coords.latitude;
+    state.gpsLng = pos.coords.longitude;
+    const site = getSites().find(s=>s.id===state.currentEmployee.siteId);
+    if (!site) { state.gpsStatus='error'; updateGPSDisplay(); updateClockBtnStyle(); return; }
+    const dist = haversine(state.gpsLat, state.gpsLng, site.lat, site.lng);
+    state.gpsDistance = Math.round(dist);
+    state.gpsStatus = dist <= site.radius ? 'in_range' : 'out_of_range';
+    updateGPSDisplay(); updateClockBtnStyle();
+  }, err=>{
+    state.gpsStatus='error';
+    state.gpsDistance=null;
+    updateGPSDisplay(); updateClockBtnStyle();
+  }, {enableHighAccuracy:true, timeout:10000, maximumAge:0});
+}
+
+function updateGPSDisplay() {
+  const dot = document.getElementById('gps-dot');
+  const text = document.getElementById('gps-text');
+  const detail = document.getElementById('gps-detail');
+  const coords = document.getElementById('gps-coords');
+  if (!dot) return;
+  const st = getSettings();
+  if (st.demoMode) {
+    dot.className='gps-dot active'; text.textContent='Demo Mode — GPS bypassed'; detail.textContent='Location check disabled';
+    if(coords) coords.textContent=''; return;
+  }
+  const states = {
+    pending: {cls:'gps-dot pending', txt:'Acquiring location...', det:'Please allow location access'},
+    in_range: {cls:'gps-dot active', txt:'Within range', det:`${state.gpsDistance}m from site`},
+    out_of_range: {cls:'gps-dot inactive', txt:'Out of range', det:`${state.gpsDistance}m from site — move closer`},
+    error: {cls:'gps-dot inactive', txt:'Location error', det:'Could not get your position. Check permissions.'}
+  };
+  const s = states[state.gpsStatus] || states.pending;
+  dot.className = s.cls; text.textContent = s.txt; detail.textContent = s.det;
+  if (coords) coords.textContent = state.gpsLat!=null ? `${state.gpsLat.toFixed(6)}, ${state.gpsLng.toFixed(6)}` : '';
+}
+
+function updateClockBtnStyle() {
+  const btn = document.getElementById('clock-btn');
+  if (!btn) return;
+  const isIn = state.clockState==='clocked_in';
+  const demo = getSettings().demoMode;
+  const inRange = state.gpsStatus==='in_range';
+  const canAct = isIn ? (demo||inRange) : (demo||inRange);
+
+  if (isIn) {
+    btn.style.borderColor = canAct ? 'var(--accent)' : 'var(--border)';
+    btn.style.color = canAct ? 'var(--accent)' : 'var(--muted)';
+    btn.style.background = canAct ? 'rgba(232,168,56,.08)' : 'var(--card)';
+    if (canAct) btn.classList.add('pulse'); else btn.classList.remove('pulse');
+    btn.style.setProperty('--pulse-color','var(--accent)');
+  } else {
+    btn.style.borderColor = canAct ? 'var(--success)' : 'var(--border)';
+    btn.style.color = canAct ? 'var(--success)' : 'var(--muted)';
+    btn.style.background = canAct ? 'rgba(52,211,153,.08)' : 'var(--card)';
+    if (canAct) btn.classList.add('pulse'); else btn.classList.remove('pulse');
+    btn.style.setProperty('--pulse-color','var(--success)');
+  }
+  btn.disabled = !canAct;
+  /* Pulse ring color */
+  btn.style.cssText += `--pulse-c:${isIn?'var(--accent)':'var(--success)'}`;
+}
+
+function handleClockAction() {
+  const demo = getSettings().demoMode;
+  if (state.clockState === 'idle') {
+    /* Clock IN */
+    const site = getSites().find(s=>s.id===state.currentEmployee.siteId);
+    if (!demo) {
+      if (state.gpsStatus!=='in_range') { toast('You must be within site range to clock in','error'); return; }
+    }
+    const todayShift = getShifts().find(s=>s.employeeId===state.currentEmployee.id && s.date===todayStr());
+    const now = new Date().toISOString();
+    const rec = {
+      id: uid(),
+      employeeId: state.currentEmployee.id,
+      siteId: state.currentEmployee.siteId,
+      shiftId: todayShift ? todayShift.id : null,
+      clockIn: now,
+      clockOut: null,
+      clockInLat: demo ? (site?site.lat:0) : state.gpsLat,
+      clockInLng: demo ? (site?site.lng:0) : state.gpsLng,
+      clockOutLat: null,
+      clockOutLng: null,
+      regularHours: 0,
+      overtimeHours: 0,
+      doubleTimeHours: 0,
+      breakMinutes: todayShift ? todayShift.breakMinutes : getSettings().defaultBreak,
+      status: 'clocked_in'
+    };
+    let recs = getRecords(); recs.push(rec); saveRecords(recs);
+    state.clockState = 'clocked_in'; state.activeRecord = rec;
+    toast('Clocked in successfully','success');
+    navigateEmp('clock');
+  } else {
+    /* Clock OUT */
+    const site = getSites().find(s=>s.id===state.currentEmployee.siteId);
+    if (!demo) {
+      if (state.gpsStatus!=='in_range') { toast('You must be within site range to clock out','error'); return; }
+    }
+    const now = new Date().toISOString();
+    const st = getSettings();
+    let recs = getRecords();
+    recs = recs.map(r=>{
+      if (r.id === state.activeRecord.id) {
+        const todayShift = getShifts().find(s=>s.id===r.shiftId);
+        const target = todayShift ? todayShift.targetHours : st.defaultTarget;
+        const hours = calcHours(r.clockIn, now, target, r.breakMinutes||0, st.otThreshold);
+        return {
+          ...r,
+          clockOut: now,
+          clockOutLat: demo ? (site?site.lat:0) : state.gpsLat,
+          clockOutLng: demo ? (site?site.lng:0) : state.gpsLng,
+          ...hours,
+          status: 'completed'
+        };
+      }
+      return r;
+    });
+    saveRecords(recs);
+    state.clockState = 'idle'; state.activeRecord = null;
+    toast('Clocked out successfully','success');
+    navigateEmp('clock');
+  }
+}
+
+/* ============================================================
+   EMPLOYEE: HISTORY
+   ============================================================ */
+function renderEmpHistory() {
+  const recs = getRecords().filter(r=>r.employeeId===state.currentEmployee.id).reverse();
+  return `<div class="fade-in max-w-2xl mx-auto">
+    <h2 class="text-xl font-bold mb-1">My History</h2>
+    <p class="text-sm mb-6" style="color:var(--muted)">${recs.length} clock records</p>
+    ${recs.length ? recs.map(r=>{
+      const total = (r.regularHours||0)+(r.overtimeHours||0)+(r.doubleTimeHours||0);
+      const isComplete = r.status==='completed';
+      return `<div class="card mb-3">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-semibold text-sm">${r.clockIn?new Date(r.clockIn+'Z').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}):'—'}</div>
+          ${isComplete?'<span class="badge badge-blue">Completed</span>':'<span class="badge badge-green">Active</span>'}
+        </div>
+        <div class="grid grid-cols-2 gap-y-1 text-sm">
+          <div style="color:var(--muted)">Site:</div><div>${getSiteName(r.siteId)}</div>
+          <div style="color:var(--muted)">Clock In:</div><div class="mono">${r.clockIn?fmtTime(r.clockIn):'—'}</div>
+          <div style="color:var(--muted)">Clock Out:</div><div class="mono">${r.clockOut?fmtTime(r.clockOut):'—'}</div>
+          <div style="color:var(--muted)">Break:</div><div>${r.breakMinutes||0} min</div>
+        </div>
+        ${isComplete?`<div class="flex gap-4 mt-3 pt-3 border-t text-sm" style="border-color:var(--border)">
+          <div><span style="color:var(--muted)">Regular:</span> <strong class="mono">${r.regularHours}h</strong></div>
+          <div><span style="color:var(--muted)">OT 1.5x:</span> <strong class="mono" style="color:var(--warning)">${r.overtimeHours}h</strong></div>
+          <div><span style="color:var(--muted)">DT 2x:</span> <strong class="mono" style="color:var(--danger)">${r.doubleTimeHours}h</strong></div>
+          <div><span style="color:var(--muted)">Total:</span> <strong class="mono" style="color:var(--accent)">${total}h</strong></div>
+        </div>`:''}
+      </div>`;
+    }).join('') : '<div class="card text-center py-12"><i class="fas fa-history text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No clock records yet.</p></div>'}
+  </div>`;
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+seedData();
+
+/* Handle enter key on login */
+document.getElementById('admin-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') adminLogin(); });
+document.getElementById('emp-pin').addEventListener('keydown', e=>{ if(e.key==='Enter') employeeLogin(); });
+
+/* Close sidebar on outside click (mobile) */
+document.addEventListener('click', e=>{
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !e.target.closest('[onclick*="toggleSidebar"]')) {
+    sidebar.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>
