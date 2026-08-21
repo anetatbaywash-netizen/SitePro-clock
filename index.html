@@ -522,7 +522,7 @@ function openSiteModal(editId){
     <div><label>Site Name</label><input id="m-site-name" value="${s?s.name:''}"></div>
     <div><label>Address</label><input id="m-site-addr" value="${s?s.address:''}"></div>
     <div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="${s?s.lat:''}"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="${s?s.lng:''}"></div></div>
-    <div><label>GPS Radius: <span id="m-radius-val">${s?s.radius:30}</span>m</label><input id="m-site-radius" type="range" min="5" max="50" value="${s?s.radius:30}" oninput="document.getElementById('m-radius-val').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m strict</span><span>50m lenient</span></div></div>
+    <div><label>GPS Radius: <span id="m-radius-val">${s?s.radius:30}</span>m</label><input id="m-site-radius" type="range" min="5" max="100" value="${s?s.radius:30}" oninput="document.getElementById('m-radius-val').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m strict</span><span>300m lenient</span></div></div>
     <button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Current Location</button>
     <div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite('${editId||''}')">${s?'Update':'Add'}</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>`);
 }
