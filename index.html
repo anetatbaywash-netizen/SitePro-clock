@@ -56,6 +56,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
 .badge-red{background:rgba(248,113,113,.15);color:var(--danger)}
 .badge-amber{background:rgba(232,168,56,.15);color:var(--accent)}
 .badge-blue{background:rgba(56,189,248,.15);color:var(--info)}
+.badge-purple{background:rgba(168,85,247,.15);color:#c084fc}
 .gps-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
 .gps-dot.active{background:var(--success);box-shadow:0 0 8px var(--success)}
 .gps-dot.inactive{background:var(--danger);box-shadow:0 0 8px var(--danger)}
@@ -75,26 +76,20 @@ tr:hover td{background:rgba(232,168,56,.03)}
 <body class="bg-pattern">
 <div id="toast-container" class="toast-container"></div>
 
-<!-- FIREBASE SETUP SCREEN -->
 <div id="setup-screen" class="hidden min-h-screen flex items-center justify-center p-4">
   <div class="card w-full max-w-2xl fade-in" style="border-color:color-mix(in srgb,var(--accent) 20%,var(--border))">
     <div class="text-center mb-6">
-      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a)">
-        <i class="fas fa-cloud-arrow-up text-xl" style="color:#0c0e16"></i>
-      </div>
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-cloud-arrow-up text-xl" style="color:#0c0e16"></i></div>
       <h1 class="text-2xl font-bold">Connect to Firebase</h1>
-      <p class="text-sm mt-1" style="color:var(--muted)">One-time setup to sync data across all devices</p>
+      <p class="text-sm mt-1" style="color:var(--muted)">One-time setup to sync across all devices</p>
     </div>
-    <div class="grid gap-4 mb-6">
+    <div class="grid gap-3 mb-6">
       <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">1</span><div><p class="text-sm font-medium">Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent);text-decoration:underline">console.firebase.google.com</a></p></div></div>
-      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">2</span><div><p class="text-sm font-medium">Click <strong>"Create a project"</strong> — name it anything — Create Project</p></div></div>
-      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">3</span><div><p class="text-sm font-medium">Left sidebar: <strong>Databases & Storage → Realtime Database</strong> (lightning bolt icon, NOT Firestore) → Create Database → test mode → Enable</p></div></div>
-      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">4</span><div><p class="text-sm font-medium">Gear icon <strong>⚙️ Settings</strong> (bottom of sidebar) → scroll down → click <strong>&lt;/&gt;</strong> Web icon → Register app → copy the firebaseConfig block</p></div></div>
-      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">5</span><div><p class="text-sm font-medium">Paste it below:</p></div></div>
+      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">2</span><div><p class="text-sm font-medium">Create a project → <strong>Databases & Storage → Realtime Database</strong> (lightning bolt) → Create Database → test mode</p></div></div>
+      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">3</span><div><p class="text-sm font-medium">⚙️ Settings (bottom of sidebar) → scroll down → <strong>&lt;/&gt;</strong> Web icon → Register → copy firebaseConfig</p></div></div>
+      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">4</span><div><p class="text-sm font-medium">Paste it below:</p></div></div>
     </div>
-    <div class="mb-4">
-      <label>Paste your firebaseConfig here</label>
-      <textarea id="fb-config-paste" rows="8" style="font-family:'JetBrains Mono',monospace;font-size:.75rem;resize:vertical" placeholder='const firebaseConfig = {
+    <div class="mb-4"><label>Paste your firebaseConfig here</label><textarea id="fb-config-paste" rows="8" style="font-family:'JetBrains Mono',monospace;font-size:.75rem;resize:vertical" placeholder='const firebaseConfig = {
   apiKey: "AIzaSy...",
   authDomain: "your-project.firebaseapp.com",
   databaseURL: "https://your-project-default-rtdb.firebaseio.com",
@@ -102,19 +97,16 @@ tr:hover td{background:rgba(232,168,56,.03)}
   storageBucket: "your-project.appspot.com",
   messagingSenderId: "123456789",
   appId: "1:123:web:abc"
-};'></textarea>
-    </div>
+};'></textarea></div>
     <div id="fb-config-status" class="text-sm mb-4 hidden"></div>
     <button class="btn btn-primary w-full justify-center" onclick="connectFirebase()" id="fb-connect-btn"><i class="fas fa-plug"></i> Connect & Initialize</button>
   </div>
 </div>
 
-<!-- LOADING SCREEN -->
 <div id="loading-screen" class="hidden min-h-screen flex items-center justify-center">
-  <div class="text-center"><div class="inline-block w-10 h-10 border-3 border-t-transparent rounded-full animate-spin mb-3" style="border-color:var(--accent);border-top-color:transparent;border-width:3px"></div><p class="text-sm" style="color:var(--muted)">Syncing data...</p></div>
+  <div class="text-center"><div class="inline-block w-10 h-10 rounded-full animate-spin mb-3" style="border:3px solid var(--accent);border-top-color:transparent"></div><p class="text-sm" style="color:var(--muted)">Syncing data...</p></div>
 </div>
 
-<!-- LOGIN SCREEN -->
 <div id="login-screen" class="hidden min-h-screen flex items-center justify-center p-4">
   <div class="card w-full max-w-md fade-in" style="border-color:color-mix(in srgb,var(--accent) 20%,var(--border))">
     <div class="text-center mb-6">
@@ -139,15 +131,9 @@ tr:hover td{background:rgba(232,168,56,.03)}
   </div>
 </div>
 
-<!-- ADMIN LAYOUT -->
 <div id="admin-layout" class="hidden">
   <aside class="sidebar" id="sidebar">
-    <div class="p-5 border-b" style="border-color:var(--border)">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-sm" style="color:#0c0e16"></i></div>
-        <div><div class="font-bold text-sm">ShiftClock Pro</div><div class="text-xs flex items-center gap-1.5" style="color:var(--muted)"><span class="conn-dot on" id="admin-conn-dot"></span>Synced</div></div>
-      </div>
-    </div>
+    <div class="p-5 border-b" style="border-color:var(--border)"><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-sm" style="color:#0c0e16"></i></div><div><div class="font-bold text-sm">ShiftClock Pro</div><div class="text-xs flex items-center gap-1.5" style="color:var(--muted)"><span class="conn-dot on" id="admin-conn-dot"></span><span id="admin-conn-label">Synced</span></div></div></div></div>
     <nav class="py-3" id="admin-nav">
       <div class="px-4 py-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Main</div>
       <a class="sidebar-link active" data-page="dashboard"><i class="fas fa-gauge-high w-5 text-center"></i> Dashboard</a>
@@ -160,27 +146,17 @@ tr:hover td{background:rgba(232,168,56,.03)}
       <div class="px-4 py-2 mt-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">System</div>
       <a class="sidebar-link" data-page="settings"><i class="fas fa-gear w-5 text-center"></i> Settings</a>
     </nav>
-    <div class="absolute bottom-0 left-0 right-0 p-4 border-t" style="border-color:var(--border)">
-      <button class="btn btn-secondary btn-sm w-full justify-center" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</button>
-    </div>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t" style="border-color:var(--border)"><button class="btn btn-secondary btn-sm w-full justify-center" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</button></div>
   </aside>
   <div class="main-content" id="admin-content"></div>
   <button class="fixed top-4 left-4 z-50 btn btn-secondary btn-sm md:hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 </div>
 
-<!-- EMPLOYEE LAYOUT -->
 <div id="employee-layout" class="hidden">
   <div class="min-h-screen flex flex-col">
     <header class="p-4 flex items-center justify-between border-b" style="border-color:var(--border);background:var(--bg2)">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xs" style="color:#0c0e16"></i></div>
-        <span class="font-bold text-sm">ShiftClock Pro</span>
-        <span class="conn-dot on" id="emp-conn-dot"></span>
-      </div>
-      <div class="flex items-center gap-3">
-        <span id="emp-header-name" class="text-sm hidden sm:inline" style="color:var(--muted)"></span>
-        <button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-right-from-bracket"></i></button>
-      </div>
+      <div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xs" style="color:#0c0e16"></i></div><span class="font-bold text-sm">ShiftClock Pro</span><span class="conn-dot on" id="emp-conn-dot"></span></div>
+      <div class="flex items-center gap-3"><span id="emp-header-name" class="text-sm hidden sm:inline" style="color:var(--muted)"></span><button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-right-from-bracket"></i></button></div>
     </header>
     <div class="flex-1 flex">
       <nav class="w-16 sm:w-48 border-r flex flex-col pt-4" style="border-color:var(--border);background:var(--bg2)" id="emp-nav">
@@ -192,30 +168,16 @@ tr:hover td{background:rgba(232,168,56,.03)}
   </div>
 </div>
 
-<!-- MODAL -->
-<div id="modal-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
-  <div class="modal-box fade-in" id="modal-box"></div>
-</div>
+<div id="modal-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()"><div class="modal-box fade-in" id="modal-box"></div></div>
 
 <script>
-/* ============================================================
-   FIREBASE DATA LAYER
-   ============================================================ */
-var db = null;
-var fbConnected = false;
-var dataLoaded = 0;
-var initialLoadDone = false;
-
-/* Local cache — updated by real-time listeners */
+/* ===== FIREBASE ===== */
+var db = null, fbConnected = false, dataLoaded = 0, initialLoadDone = false;
 var D = { sites:[], employees:[], shifts:[], records:[], settings:{}, admin:{} };
 
 function initFirebase(config) {
-  firebase.initializeApp(config);
-  db = firebase.database();
-  db.ref('.info/connected').on('value', function(snap) {
-    fbConnected = snap.val() === true;
-    updateConnDots();
-  });
+  firebase.initializeApp(config); db = firebase.database();
+  db.ref('.info/connected').on('value', function(s) { fbConnected = s.val() === true; updateConnDots(); });
   db.ref('sites').on('value', function(s) { D.sites = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
   db.ref('employees').on('value', function(s) { D.employees = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
   db.ref('shifts').on('value', function(s) { D.shifts = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
@@ -235,624 +197,342 @@ function checkAllLoaded() {
 
 function updateConnDots() {
   var cls = fbConnected ? 'conn-dot on' : 'conn-dot off';
-  var labels = fbConnected ? 'Synced' : 'Offline';
+  var lbl = fbConnected ? 'Synced' : 'Offline';
   document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot').forEach(function(d) { d.className = cls; });
-  var adminLabel = document.querySelector('#admin-conn-dot') && document.querySelector('#admin-conn-dot').nextElementSibling;
-  if (adminLabel) adminLabel.textContent = labels;
+  var el = document.getElementById('admin-conn-label'); if (el) el.textContent = lbl;
 }
 
-function fbSet(path, data) { if (!db) return; db.ref(path).set(data).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
-function fbUpdate(path, data) { if (!db) return; db.ref(path).update(data).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
-function fbRemove(path) { if (!db) return; db.ref(path).remove().catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
+function fbSet(p, d) { if (!db) return; db.ref(p).set(d).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
+function fbUpdate(p, d) { if (!db) return; db.ref(p).update(d).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
+function fbRemove(p) { if (!db) return; db.ref(p).remove().catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
 
 function getSites() { return D.sites || []; }
 function getEmployees() { return D.employees || []; }
 function getShifts() { return D.shifts || []; }
 function getRecords() { return D.records || []; }
 function getSettings() { return D.settings || {}; }
+function getHolidays() { return (D.settings && D.settings.holidays) ? D.settings.holidays : []; }
 
 function seedFirebase() {
   fbSet('admin', { username:'admin', password:'admin123' });
-  fbSet('settings', { otThreshold:2, defaultTarget:8, defaultBreak:30, demoMode:false });
-  var s1 = db.ref('sites').push().key;
-  var s2 = db.ref('sites').push().key;
-  fbSet('sites/' + s1, { id:s1, name:'Main Warehouse', address:'42 Industrial Blvd, Sydney', lat:-33.8688, lng:151.2093, radius:100 });
-  fbSet('sites/' + s2, { id:s2, name:'North Depot', address:'15 Commerce Rd, Melbourne', lat:-37.8136, lng:144.9631, radius:100 });
-  var e1 = db.ref('employees').push().key;
-  var e2 = db.ref('employees').push().key;
-  var e3 = db.ref('employees').push().key;
-  fbSet('employees/' + e1, { id:e1, firstName:'James', lastName:'Carter', employeeId:'EMP001', pin:'1234', siteId:s1, active:true });
-  fbSet('employees/' + e2, { id:e2, firstName:'Sarah', lastName:'Mitchell', employeeId:'EMP002', pin:'5678', siteId:s1, active:true });
-  fbSet('employees/' + e3, { id:e3, firstName:'Daniel', lastName:'Nguyen', employeeId:'EMP003', pin:'4321', siteId:s2, active:true });
+  fbSet('settings', { weeklyRegularHours:45, defaultBreak:30, demoMode:false, holidays:[
+    '2025-01-01','2025-01-26','2025-04-18','2025-04-21','2025-04-25','2025-05-05','2025-06-09','2025-12-25','2025-12-26',
+    '2026-01-01','2026-01-26','2026-04-03','2026-04-06','2026-04-25','2026-05-04','2026-06-08','2026-12-25','2026-12-26'
+  ]});
+  var s1 = db.ref('sites').push().key, s2 = db.ref('sites').push().key;
+  fbSet('sites/'+s1, { id:s1, name:'Main Warehouse', address:'42 Industrial Blvd', lat:-33.8688, lng:151.2093, radius:100 });
+  fbSet('sites/'+s2, { id:s2, name:'North Depot', address:'15 Commerce Rd', lat:-37.8136, lng:144.9631, radius:100 });
+  var e1 = db.ref('employees').push().key, e2 = db.ref('employees').push().key, e3 = db.ref('employees').push().key;
+  fbSet('employees/'+e1, { id:e1, firstName:'James', lastName:'Carter', employeeId:'EMP001', pin:'1234', siteId:s1, active:true });
+  fbSet('employees/'+e2, { id:e2, firstName:'Sarah', lastName:'Mitchell', employeeId:'EMP002', pin:'5678', siteId:s1, active:true });
+  fbSet('employees/'+e3, { id:e3, firstName:'Daniel', lastName:'Nguyen', employeeId:'EMP003', pin:'4321', siteId:s2, active:true });
 }
 
-/* ============================================================
-   FIREBASE SETUP WIZARD
-   ============================================================ */
+/* ===== SETUP WIZARD ===== */
 function parseFirebaseConfig(text) {
-  var config = {};
-  var keys = ['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId'];
-  keys.forEach(function(key) {
-    var regex = new RegExp(key + '\\s*:\\s*["\'`]([^"\'`]+)["\'`]');
-    var match = text.match(regex);
-    if (match) config[key] = match[1];
-  });
+  var config = {}, keys = ['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId'];
+  keys.forEach(function(key) { var m = text.match(new RegExp(key+'\\s*:\\s*["\'`]([^"\'`]+)["\'`]')); if (m) config[key] = m[1]; });
   return config;
 }
-
 function connectFirebase() {
-  var text = document.getElementById('fb-config-paste').value.trim();
-  var statusEl = document.getElementById('fb-config-status');
-  var btn = document.getElementById('fb-connect-btn');
-  if (!text) { statusEl.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Please paste your firebaseConfig</span>'; statusEl.classList.remove('hidden'); return; }
+  var text = document.getElementById('fb-config-paste').value.trim(), statusEl = document.getElementById('fb-config-status'), btn = document.getElementById('fb-connect-btn');
+  if (!text) { statusEl.innerHTML='<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Paste your firebaseConfig</span>'; statusEl.classList.remove('hidden'); return; }
   var config = parseFirebaseConfig(text);
   var missing = ['apiKey','authDomain','databaseURL','projectId'].filter(function(k) { return !config[k]; });
-  if (missing.length) { statusEl.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Missing: ' + missing.join(', ') + '. Paste the full config block.</span>'; statusEl.classList.remove('hidden'); return; }
-  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
-  try {
-    initFirebase(config);
-    localStorage.setItem('scp_fb_config', JSON.stringify(config));
-    showScreen('loading-screen');
-    setTimeout(function() {
-      if (dataLoaded < 6) {
-        statusEl.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Timed out. Check databaseURL and that Realtime Database is in test mode.</span>';
-        statusEl.classList.remove('hidden');
-        btn.disabled = false; btn.innerHTML = '<i class="fas fa-plug"></i> Connect & Initialize';
-      }
-    }, 10000);
-  } catch(e) {
-    statusEl.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Error: ' + e.message + '</span>';
-    statusEl.classList.remove('hidden');
-    btn.disabled = false; btn.innerHTML = '<i class="fas fa-plug"></i> Connect & Initialize';
-  }
+  if (missing.length) { statusEl.innerHTML='<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Missing: '+missing.join(', ')+'</span>'; statusEl.classList.remove('hidden'); return; }
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Connecting...';
+  try { initFirebase(config); localStorage.setItem('scp_fb_config', JSON.stringify(config)); showScreen('loading-screen');
+    setTimeout(function() { if (dataLoaded<6) { localStorage.removeItem('scp_fb_config'); showScreen('setup-screen'); statusEl.innerHTML='<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Timed out</span>'; statusEl.classList.remove('hidden'); btn.disabled=false; btn.innerHTML='<i class="fas fa-plug"></i> Connect & Initialize'; }}, 10000);
+  } catch(e) { statusEl.innerHTML='<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> '+e.message+'</span>'; statusEl.classList.remove('hidden'); btn.disabled=false; btn.innerHTML='<i class="fas fa-plug"></i> Connect & Initialize'; }
 }
+function showScreen(id) { ['setup-screen','loading-screen','login-screen','admin-layout','employee-layout'].forEach(function(s) { document.getElementById(s).classList.toggle('hidden', s!==id); }); }
 
-function showScreen(id) {
-  ['setup-screen','loading-screen','login-screen','admin-layout','employee-layout'].forEach(function(s) {
-    document.getElementById(s).classList.toggle('hidden', s !== id);
-  });
-}
+/* ===== STATE ===== */
+var state = { loggedIn:false, role:null, currentPage:'dashboard', empPage:'clock', currentEmployee:null, clockState:'idle', activeRecord:null, gpsStatus:'pending', gpsDistance:null, gpsLat:null, gpsLng:null, liveTimerInterval:null };
 
-/* ============================================================
-   STATE
-   ============================================================ */
-var state = {
-  loggedIn:false, role:null, currentPage:'dashboard', empPage:'clock',
-  currentEmployee:null, clockState:'idle', activeRecord:null,
-  gpsStatus:'pending', gpsDistance:null, gpsLat:null, gpsLng:null,
-  liveTimerInterval:null
-};
-
-/* ============================================================
-   UTILITIES
-   ============================================================ */
+/* ===== UTILITIES ===== */
 function fmtDate(d) { var dt=d instanceof Date?d:new Date(d); return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
 function fmtTime(d) { var dt=d instanceof Date?d:new Date(d); return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0'); }
 function todayStr() { return fmtDate(new Date()); }
 function getSiteName(id) { var s=getSites().find(function(x){return x.id===id;}); return s?s.name:'Unknown'; }
-function getEmpName(id) { var e=getEmployees().find(function(x){return x.id===id;}); return e?e.firstName+' '+e.lastName:'Unknown'; }
 function getEmpById(id) { return getEmployees().find(function(x){return x.id===id;}); }
+function haversine(lat1,lon1,lat2,lon2) { var R=6371000,t=function(n){return n*Math.PI/180;},dLat=t(lat2-lat1),dLon=t(lon2-lon1),a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(t(lat1))*Math.cos(t(lat2))*Math.sin(dLon/2)*Math.sin(dLon/2); return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
 
-function haversine(lat1,lon1,lat2,lon2) {
-  var R=6371000, toR=function(n){return n*Math.PI/180;};
-  var dLat=toR(lat2-lat1), dLon=toR(lon2-lon1);
-  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(toR(lat1))*Math.cos(toR(lat2))*Math.sin(dLon/2)*Math.sin(dLon/2);
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+/* ===== HOURS CALCULATION — WEEKLY + SUNDAY/HOLIDAY ===== */
+function isSunday(dateStr) { return new Date(dateStr+'T12:00:00').getDay() === 0; }
+function isHoliday(dateStr) { return getHolidays().indexOf(dateStr) !== -1; }
+function getDayType(dateStr) { if (isSunday(dateStr)) return 'Sunday'; if (isHoliday(dateStr)) return 'Holiday'; return 'Weekday'; }
+
+function getWeekStart(dateStr) {
+  var d = new Date(dateStr+'T12:00:00'), day = d.getDay();
+  d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  return fmtDate(d);
 }
 
-function calcHours(clockIn, clockOut, targetHours, breakMinutes, otThreshold) {
+function getEmployeeWeekRegularHours(employeeId, currentDate) {
+  var weekStart = getWeekStart(currentDate);
+  var weekEnd = new Date(weekStart+'T12:00:00'); weekEnd.setDate(weekEnd.getDate()+6);
+  var weekEndStr = fmtDate(weekEnd);
+  return getRecords().filter(function(r) {
+    return r.employeeId===employeeId && r.status==='completed' && r.clockIn && r.clockIn.slice(0,10)>=weekStart && r.clockIn.slice(0,10)<=weekEndStr;
+  }).reduce(function(sum, r) { return sum + (r.regularHours||0); }, 0);
+}
+
+function calcHours(clockIn, clockOut, breakMinutes, weekRegularSoFar, dayType, weeklyCap) {
   var totalMs = new Date(clockOut) - new Date(clockIn);
   var totalMin = Math.max(0, totalMs / 60000 - breakMinutes);
-  var regMin = Math.min(totalMin, targetHours * 60);
-  var remain = totalMin - regMin;
-  var otMin = Math.min(remain, otThreshold * 60);
-  var dtMin = Math.max(0, remain - otMin);
-  return { regularHours:Math.round(regMin/6)/100, overtimeHours:Math.round(otMin/6)/100, doubleTimeHours:Math.round(dtMin/6)/100, totalHours:Math.round(totalMin/6)/100 };
-}
+  var totalHrs = Math.round(totalMin / 6) / 100;
 
-function toast(msg, type) {
-  type = type || 'info';
-  var c = document.getElementById('toast-container');
-  var t = document.createElement('div');
-  t.className = 'toast toast-' + type;
-  var icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
-  t.innerHTML = '<i class="fas ' + (icons[type]||icons.info) + '"></i><span>' + msg + '</span>';
-  c.appendChild(t);
-  setTimeout(function() { t.style.animation='slideOut .3s ease forwards'; setTimeout(function() { t.remove(); }, 300); }, 3500);
-}
+  /* Sunday or Public Holiday = ALL double time */
+  if (dayType === 'Sunday' || dayType === 'Holiday') {
+    return { regularHours:0, overtimeHours:0, doubleTimeHours:totalHrs, totalHours:totalHrs };
+  }
 
-function openModal(html) { document.getElementById('modal-box').innerHTML = html; document.getElementById('modal-overlay').classList.remove('hidden'); }
-function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-
-/* ============================================================
-   AUTH
-   ============================================================ */
-function switchLoginTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(function(b,i) { b.classList.toggle('active', (tab==='admin'&&i===0)||(tab==='employee'&&i===1)); });
-  document.getElementById('login-admin').classList.toggle('hidden', tab!=='admin');
-  document.getElementById('login-employee').classList.toggle('hidden', tab!=='employee');
-}
-
-function adminLogin() {
-  var u = document.getElementById('admin-user').value.trim(), p = document.getElementById('admin-pass').value;
-  if (u === D.admin.username && p === D.admin.password) {
-    state.loggedIn = true; state.role = 'admin'; state.currentPage = 'dashboard';
-    showAdmin(); toast('Welcome, Admin', 'success');
-  } else { toast('Invalid credentials', 'error'); }
-}
-
-function employeeLogin() {
-  var eid = document.getElementById('emp-id').value.trim().toUpperCase(), pin = document.getElementById('emp-pin').value;
-  var emp = getEmployees().find(function(e) { return e.employeeId === eid && e.pin === pin && e.active; });
-  if (emp) {
-    state.loggedIn = true; state.role = 'employee'; state.currentEmployee = emp; state.empPage = 'clock';
-    var recs = getRecords().filter(function(r) { return r.employeeId === emp.id && r.status === 'clocked_in'; });
-    if (recs.length) { state.clockState = 'clocked_in'; state.activeRecord = recs[0]; } else { state.clockState = 'idle'; state.activeRecord = null; }
-    showEmployee(); toast('Welcome, ' + emp.firstName, 'success');
-  } else { toast('Invalid Employee ID or PIN', 'error'); }
-}
-
-function logout() {
-  if (state.liveTimerInterval) clearInterval(state.liveTimerInterval);
-  state = { loggedIn:false, role:null, currentPage:'dashboard', empPage:'clock', currentEmployee:null, clockState:'idle', activeRecord:null, gpsStatus:'pending', gpsDistance:null, gpsLat:null, gpsLng:null, liveTimerInterval:null };
-  document.getElementById('admin-layout').classList.add('hidden');
-  document.getElementById('employee-layout').classList.add('hidden');
-  showScreen('login-screen');
-  document.getElementById('admin-user').value = ''; document.getElementById('admin-pass').value = '';
-  document.getElementById('emp-id').value = ''; document.getElementById('emp-pin').value = '';
-}
-
-function showAdmin() { showScreen('admin-layout'); navigateAdmin(state.currentPage); }
-function showEmployee() { showScreen('employee-layout'); document.getElementById('emp-header-name').textContent = state.currentEmployee.firstName + ' ' + state.currentEmployee.lastName; navigateEmp(state.empPage); }
-
-/* ============================================================
-   ADMIN ROUTER
-   ============================================================ */
-function navigateAdmin(page) {
-  state.currentPage = page;
-  document.querySelectorAll('#admin-nav .sidebar-link').forEach(function(l) { l.classList.toggle('active', l.dataset.page === page); });
-  var el = document.getElementById('admin-content');
-  var R = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, shifts:renderShifts, records:renderRecords, export:renderExport, settings:renderSettings };
-  if (R[page]) el.innerHTML = R[page]();
-  if (page === 'dashboard') startDashClock();
-}
-document.getElementById('admin-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.page) { navigateAdmin(l.dataset.page); document.getElementById('sidebar').classList.remove('open'); } });
-
-function navigateEmp(page) {
-  state.empPage = page;
-  document.querySelectorAll('#emp-nav .sidebar-link').forEach(function(l) { l.classList.toggle('active', l.dataset.epage === page); });
-  var el = document.getElementById('emp-content');
-  if (page === 'clock') { el.innerHTML = renderClockPage(); initClockPage(); }
-  else if (page === 'history') { el.innerHTML = renderEmpHistory(); }
-}
-document.getElementById('emp-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.epage) navigateEmp(l.dataset.epage); });
-
-/* ============================================================
-   ADMIN: DASHBOARD
-   ============================================================ */
-var dashCI = null;
-function startDashClock() { if (dashCI) clearInterval(dashCI); var u = function() { var e = document.getElementById('dash-live-clock'); if (e) e.textContent = new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit',second:'2-digit'}); else clearInterval(dashCI); }; u(); dashCI = setInterval(u, 1000); }
-
-function renderDashboard() {
-  var emps = getEmployees(), sites = getSites(), shifts = getShifts(), recs = getRecords(), today = todayStr();
-  var todayShifts = shifts.filter(function(s) { return s.date === today; });
-  var clockedIn = recs.filter(function(r) { return r.status === 'clocked_in'; });
-  var todayRecs = recs.filter(function(r) { return r.clockIn && r.clockIn.startsWith(today) && r.status === 'completed'; });
-  var html = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-2"><div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">' + new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + '</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div></div>';
-  html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">';
-  html += '<div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">' + emps.filter(function(e){return e.active;}).length + '</div></div>';
-  html += '<div class="card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">' + sites.length + '</div></div>';
-  html += '<div class="card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY SHIFTS</div><div class="text-2xl font-bold">' + todayShifts.length + '</div></div>';
-  html += '<div class="card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:' + (clockedIn.length ? 'var(--success)' : 'var(--muted)') + '">' + clockedIn.length + '</div></div></div>';
-  html += '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">';
-  html += '<div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now</h3>';
-  if (clockedIn.length) { clockedIn.forEach(function(r) { var emp = getEmpById(r.employeeId); var start = new Date(r.clockIn); var el = Math.floor((Date.now() - start.getTime()) / 60000); html += '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">' + (emp ? emp.firstName + ' ' + emp.lastName : 'Unknown') + '</div><div class="text-xs" style="color:var(--muted)">' + getSiteName(r.siteId) + ' &middot; Since ' + fmtTime(start) + '</div></div><div class="text-right"><div class="mono text-sm font-semibold" style="color:var(--success)">' + Math.floor(el/60) + 'h ' + (el%60) + 'm</div><span class="badge badge-green">Active</span></div></div>'; }); }
-  else { html += '<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>'; }
-  html += '</div><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today\'s Shifts</h3>';
-  if (todayShifts.length) { todayShifts.slice(0,6).forEach(function(s) { var emp = getEmpById(s.employeeId); var rec = recs.find(function(r) { return r.shiftId === s.id; }); var st = '<span class="badge badge-amber">Pending</span>'; if (rec && rec.status === 'clocked_in') st = '<span class="badge badge-green">Clocked In</span>'; else if (rec && rec.status === 'completed') st = '<span class="badge badge-blue">Done</span>'; html += '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">' + (emp ? emp.firstName + ' ' + emp.lastName : '—') + '</div><div class="text-xs" style="color:var(--muted)">' + getSiteName(s.siteId) + ' &middot; ' + s.startTime + '-' + s.endTime + '</div></div>' + st + '</div>'; }); }
-  else { html += '<p class="text-sm" style="color:var(--muted)">No shifts today.</p>'; }
-  html += '</div></div></div>';
-  return html;
-}
-
-/* ============================================================
-   ADMIN: SITES
-   ============================================================ */
-function renderSites() {
-  var sites = getSites();
-  var html = '<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2><p class="text-sm" style="color:var(--muted)">GPS clock-in zones (5-300m radius)</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-4">';
-  if (sites.length) { sites.forEach(function(s) { html += '<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">' + s.name + '</div><div class="text-sm" style="color:var(--muted)">' + s.address + '</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>' + s.lat.toFixed(5) + ', ' + s.lng.toFixed(5) + '</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>' + s.radius + 'm</span><a href="https://www.google.com/maps?q=' + s.lat + ',' + s.lng + '" target="_blank" class="hover:underline" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\'' + s.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite(\'' + s.id + '\')"><i class="fas fa-trash"></i></button></div></div>'; }); }
-  else { html += '<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites yet.</p></div>'; }
-  html += '</div></div>';
-  return html;
-}
-
-function openSiteModal(editId) {
-  var s = editId ? getSites().find(function(x) { return x.id === editId; }) : null;
-  openModal('<h3 class="font-bold text-lg mb-4">' + (s ? 'Edit' : 'Add') + ' Site</h3><div class="grid gap-4">' +
-    '<div><label>Site Name</label><input id="m-site-name" value="' + (s ? s.name : '') + '"></div>' +
-    '<div><label>Address</label><input id="m-site-addr" value="' + (s ? s.address : '') + '"></div>' +
-    '<div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="' + (s ? s.lat : '') + '"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="' + (s ? s.lng : '') + '"></div></div>' +
-    '<div><label>GPS Radius: <span id="m-radius-val">' + (s ? s.radius : 100) + '</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="' + (s ? s.radius : 100) + '" oninput="document.getElementById(\'m-radius-val\').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m strict</span><span>300m lenient</span></div></div>' +
-    '<button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Current Location</button>' +
-    '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\'' + (editId || '') + '\')">' + (s ? 'Update' : 'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-}
-
-function getMyLocation() {
-  if (!navigator.geolocation) { toast('Geolocation not supported', 'error'); return; }
-  toast('Getting location...', 'info');
-  navigator.geolocation.getCurrentPosition(function(p) { document.getElementById('m-site-lat').value = p.coords.latitude.toFixed(5); document.getElementById('m-site-lng').value = p.coords.longitude.toFixed(5); toast('Location acquired', 'success'); }, function(e) { toast('Error: ' + e.message, 'error'); }, { enableHighAccuracy: true });
-}
-
-function saveSite(editId) {
-  var name = document.getElementById('m-site-name').value.trim(), address = document.getElementById('m-site-addr').value.trim(), lat = parseFloat(document.getElementById('m-site-lat').value), lng = parseFloat(document.getElementById('m-site-lng').value), radius = parseInt(document.getElementById('m-site-radius').value);
-  if (!name) { toast('Name required', 'error'); return; }
-  if (isNaN(lat) || isNaN(lng)) { toast('Valid coordinates required', 'error'); return; }
-  if (editId) { fbUpdate('sites/' + editId, { name:name, address:address, lat:lat, lng:lng, radius:radius }); }
-  else { var id = db.ref('sites').push().key; fbSet('sites/' + id, { id:id, name:name, address:address, lat:lat, lng:lng, radius:radius }); }
-  closeModal(); navigateAdmin('sites'); toast(editId ? 'Site updated' : 'Site added', 'success');
-}
-
-function deleteSite(id) {
-  if (getEmployees().filter(function(e) { return e.siteId === id; }).length) { toast('Cannot delete: employees assigned', 'error'); return; }
-  openModal('<h3 class="font-bold text-lg mb-3">Delete Site?</h3><p class="text-sm mb-4" style="color:var(--muted)">This cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRemove(\'sites/' + id + '\');closeModal();navigateAdmin(\'sites\');toast(\'Site deleted\',\'success\')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
-}
-
-/* ============================================================
-   ADMIN: EMPLOYEES
-   ============================================================ */
-function renderEmployees() {
-  var emps = getEmployees();
-  var html = '<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Employees</h2><p class="text-sm" style="color:var(--muted)">' + emps.length + ' total</p></div><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add Employee</button></div>';
-  html += '<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-  emps.forEach(function(e) {
-    html += '<tr><td class="font-medium">' + e.firstName + ' ' + e.lastName + '</td><td class="mono text-xs">' + e.employeeId + '</td><td><span class="badge badge-blue">' + getSiteName(e.siteId) + '</span></td><td class="mono text-xs">&bull;&bull;&bull;&bull;</td><td>' + (e.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Inactive</span>') + '</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openEmpModal(\'' + e.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-secondary btn-sm" onclick="toggleEmp(\'' + e.id + '\')">' + (e.active ? '<i class="fas fa-ban" style="color:var(--danger)"></i>' : '<i class="fas fa-check" style="color:var(--success)"></i>') + '</button></div></td></tr>';
-  });
-  html += '</tbody></table>' + (!emps.length ? '<p class="text-center py-8 text-sm" style="color:var(--muted)">No employees yet.</p>' : '') + '</div></div>';
-  return html;
-}
-
-function openEmpModal(editId) {
-  var emps = getEmployees(), sites = getSites(), e = editId ? emps.find(function(x) { return x.id === editId; }) : null;
-  if (!sites.length) { toast('Add a site first', 'error'); return; }
-  var siteOpts = ''; sites.forEach(function(s) { siteOpts += '<option value="' + s.id + '" ' + (e && e.siteId === s.id ? 'selected' : '') + '>' + s.name + '</option>'; });
-  openModal('<h3 class="font-bold text-lg mb-4">' + (e ? 'Edit' : 'Add') + ' Employee</h3><div class="grid gap-4">' +
-    '<div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="' + (e ? e.firstName : '') + '"></div><div><label>Last Name</label><input id="m-emp-ln" value="' + (e ? e.lastName : '') + '"></div></div>' +
-    '<div><label>Employee ID</label><input id="m-emp-eid" value="' + (e ? e.employeeId : '') + '" ' + (e ? 'readonly style="opacity:.6"' : '') + '></div>' +
-    '<div><label>PIN (4 digits)</label><input id="m-emp-pin" type="password" maxlength="4" value="' + (e ? e.pin : '') + '" placeholder="4-digit PIN"></div>' +
-    '<div><label>Assigned Site</label><select id="m-emp-site">' + siteOpts + '</select></div>' +
-    '<div class="flex items-center gap-2"><input id="m-emp-active" type="checkbox" ' + (!e || e.active ? 'checked' : '') + ' class="w-4 h-4"><label for="m-emp-active" style="margin:0;cursor:pointer">Active</label></div>' +
-    '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\'' + (editId || '') + '\')">' + (e ? 'Update' : 'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-}
-
-function saveEmp(editId) {
-  var fn = document.getElementById('m-emp-fn').value.trim(), ln = document.getElementById('m-emp-ln').value.trim(), eid = document.getElementById('m-emp-eid').value.trim().toUpperCase(), pin = document.getElementById('m-emp-pin').value, siteId = document.getElementById('m-emp-site').value, active = document.getElementById('m-emp-active').checked;
-  if (!fn || !ln) { toast('Name required', 'error'); return; }
-  if (!eid) { toast('Employee ID required', 'error'); return; }
-  if (!/^\d{4}$/.test(pin)) { toast('PIN must be 4 digits', 'error'); return; }
-  if (!editId && getEmployees().find(function(e) { return e.employeeId === eid; })) { toast('Employee ID already exists', 'error'); return; }
-  if (editId) { fbUpdate('employees/' + editId, { firstName:fn, lastName:ln, employeeId:eid, pin:pin, siteId:siteId, active:active }); }
-  else { var id = db.ref('employees').push().key; fbSet('employees/' + id, { id:id, firstName:fn, lastName:ln, employeeId:eid, pin:pin, siteId:siteId, active:active }); }
-  closeModal(); navigateAdmin('employees'); toast(editId ? 'Updated' : 'Employee added', 'success');
-}
-
-function toggleEmp(id) { var e = getEmployees().find(function(x) { return x.id === id; }); if (e) fbUpdate('employees/' + id, { active: !e.active }); navigateAdmin('employees'); toast('Status updated', 'success'); }
-
-/* ============================================================
-   ADMIN: SHIFTS
-   ============================================================ */
-function renderShifts() {
-  var shifts = getShifts(), byDate = {};
-  shifts.forEach(function(s) { if (!byDate[s.date]) byDate[s.date] = []; byDate[s.date].push(s); });
-  var dates = Object.keys(byDate).sort().reverse();
-  var html = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Shift Schedule</h2><p class="text-sm" style="color:var(--muted)">' + shifts.length + ' shifts</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shift</button></div></div>';
-  if (dates.length) {
-    dates.forEach(function(d) {
-      var isToday = d === todayStr();
-      html += '<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">' + (isToday ? '<span style="color:var(--accent)">Today</span> — ' : '') + new Date(d + 'T12:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) + '</h3><span class="badge ' + (isToday ? 'badge-amber' : 'badge-blue') + '">' + byDate[d].length + '</span></div>';
-      html += '<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Target</th><th>Break</th><th>Status</th><th></th></tr></thead><tbody>';
-      byDate[d].forEach(function(s) {
-        var emp = getEmpById(s.employeeId); var rec = getRecords().find(function(r) { return r.shiftId === s.id; });
-        var st = '<span class="badge badge-amber">Scheduled</span>'; if (rec && rec.status === 'clocked_in') st = '<span class="badge badge-green">Clocked In</span>'; else if (rec && rec.status === 'completed') st = '<span class="badge badge-blue">Done</span>';
-        html += '<tr><td class="font-medium text-sm">' + (emp ? emp.firstName + ' ' + emp.lastName : '—') + '</td><td class="text-xs">' + getSiteName(s.siteId) + '</td><td class="mono text-xs">' + s.startTime + '-' + s.endTime + '</td><td>' + s.targetHours + 'h</td><td>' + s.breakMinutes + 'm</td><td>' + st + '</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-sm" onclick="openShiftModal(\'' + s.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteShift(\'' + s.id + '\')"><i class="fas fa-trash"></i></button></div></td></tr>';
-      });
-      html += '</tbody></table></div></div>';
-    });
-  } else { html += '<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts scheduled.</p></div>'; }
-  html += '</div>';
-  return html;
-}
-
-function openShiftModal(editId) {
-  var s = editId ? getShifts().find(function(x) { return x.id === editId; }) : null;
-  var emps = getEmployees().filter(function(e) { return e.active; }), sites = getSites(), st = getSettings();
-  if (!emps.length || !sites.length) { toast('Add employees and sites first', 'error'); return; }
-  var empOpts = ''; emps.forEach(function(e) { empOpts += '<option value="' + e.id + '" ' + (s && s.employeeId === e.id ? 'selected' : '') + '>' + e.firstName + ' ' + e.lastName + ' (' + e.employeeId + ')</option>'; });
-  var siteOpts = ''; sites.forEach(function(si) { siteOpts += '<option value="' + si.id + '" ' + (s && s.siteId === si.id ? 'selected' : '') + '>' + si.name + '</option>'; });
-  openModal('<h3 class="font-bold text-lg mb-4">' + (s ? 'Edit' : 'Add') + ' Shift</h3><div class="grid gap-4">' +
-    '<div><label>Employee</label><select id="m-shift-emp">' + empOpts + '</select></div>' +
-    '<div><label>Site</label><select id="m-shift-site">' + siteOpts + '</select></div>' +
-    '<div><label>Date</label><input id="m-shift-date" type="date" value="' + (s ? s.date : todayStr()) + '"></div>' +
-    '<div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="m-shift-start" type="time" value="' + (s ? s.startTime : '07:00') + '"></div><div><label>End</label><input id="m-shift-end" type="time" value="' + (s ? s.endTime : '15:30') + '"></div></div>' +
-    '<div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-shift-target" type="number" step="0.5" min="1" max="16" value="' + (s ? s.targetHours : st.defaultTarget || 8) + '"></div><div><label>Break (min)</label><input id="m-shift-break" type="number" step="5" min="0" max="120" value="' + (s ? s.breakMinutes : st.defaultBreak || 30) + '"></div></div>' +
-    '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\'' + (editId || '') + '\')">' + (s ? 'Update' : 'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-}
-
-function saveShift(editId) {
-  var employeeId = document.getElementById('m-shift-emp').value, siteId = document.getElementById('m-shift-site').value, date = document.getElementById('m-shift-date').value, startTime = document.getElementById('m-shift-start').value, endTime = document.getElementById('m-shift-end').value, targetHours = parseFloat(document.getElementById('m-shift-target').value), breakMinutes = parseInt(document.getElementById('m-shift-break').value);
-  if (!date || !startTime || !endTime) { toast('All time fields required', 'error'); return; }
-  if (endTime <= startTime) { toast('End must be after start', 'error'); return; }
-  var data = { employeeId:employeeId, siteId:siteId, date:date, startTime:startTime, endTime:endTime, targetHours:targetHours, breakMinutes:breakMinutes };
-  if (editId) { fbUpdate('shifts/' + editId, data); }
-  else { var id = db.ref('shifts').push().key; fbSet('shifts/' + id, { id:id, employeeId:data.employeeId, siteId:data.siteId, date:data.date, startTime:data.startTime, endTime:data.endTime, targetHours:data.targetHours, breakMinutes:data.breakMinutes }); }
-  closeModal(); navigateAdmin('shifts'); toast(editId ? 'Updated' : 'Shift added', 'success');
-}
-
-function deleteShift(id) { if (getRecords().find(function(r) { return r.shiftId === id && r.status === 'clocked_in'; })) { toast('Cannot delete: employee clocked in', 'error'); return; } fbRemove('shifts/' + id); navigateAdmin('shifts'); toast('Deleted', 'success'); }
-
-function openBulkShiftModal() {
-  var emps = getEmployees().filter(function(e) { return e.active; }), sites = getSites(), st = getSettings();
-  if (!emps.length || !sites.length) { toast('Add employees and sites first', 'error'); return; }
-  var empOpts = ''; emps.forEach(function(e) { empOpts += '<option value="' + e.id + '">' + e.firstName + ' ' + e.lastName + ' (' + e.employeeId + ')</option>'; });
-  var siteOpts = ''; sites.forEach(function(s) { siteOpts += '<option value="' + s.id + '">' + s.name + '</option>'; });
-  var defaultTo = new Date(); defaultTo.setDate(defaultTo.getDate() + 7);
-  openModal('<h3 class="font-bold text-lg mb-4">Bulk Create Shifts</h3><p class="text-sm mb-4" style="color:var(--muted)">Same shift across a date range.</p><div class="grid gap-4">' +
-    '<div><label>Employee</label><select id="m-bulk-emp">' + empOpts + '</select></div>' +
-    '<div><label>Site</label><select id="m-bulk-site">' + siteOpts + '</select></div>' +
-    '<div class="grid grid-cols-2 gap-3"><div><label>From Date</label><input id="m-bulk-from" type="date" value="' + todayStr() + '"></div><div><label>To Date</label><input id="m-bulk-to" type="date" value="' + fmtDate(defaultTo) + '"></div></div>' +
-    '<div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-bulk-start" type="time" value="07:00"></div><div><label>End Time</label><input id="m-bulk-end" type="time" value="15:30"></div></div>' +
-    '<div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-bulk-target" type="number" step="0.5" value="' + (st.defaultTarget || 8) + '"></div><div><label>Break (min)</label><input id="m-bulk-break" type="number" step="5" value="' + (st.defaultBreak || 30) + '"></div></div>' +
-    '<div class="flex items-center gap-2"><input id="m-bulk-noweekends" type="checkbox" checked class="w-4 h-4"><label for="m-bulk-noweekends" style="margin:0;cursor:pointer">Exclude weekends</label></div>' +
-    '<div id="bulk-preview" class="text-sm" style="color:var(--muted)"></div>' +
-    '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveBulkShifts()"><i class="fas fa-layer-group"></i> Create</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-  /* Auto-preview */
-  setTimeout(updateBulkPreview, 100);
-  ['m-bulk-from','m-bulk-to','m-bulk-noweekends'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('change', updateBulkPreview);
-    if (el) el.addEventListener('input', updateBulkPreview);
-  });
-}
-
-function updateBulkPreview() {
-  var from = document.getElementById('m-bulk-from').value;
-  var to = document.getElementById('m-bulk-to').value;
-  var noWeekends = document.getElementById('m-bulk-noweekends').checked;
-  var el = document.getElementById('bulk-preview');
-  if (!el) return;
-  if (!from || !to) { el.innerHTML = ''; return; }
-  if (to < from) { el.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> "To" date must be after "From" date</span>'; return; }
-  var d = new Date(from + 'T12:00:00'), end = new Date(to + 'T12:00:00'), count = 0;
-  while (d <= end) { var dow = d.getDay(); if (!noWeekends || (dow !== 0 && dow !== 6)) count++; d.setDate(d.getDate() + 1); }
-  if (count === 0) { el.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> No weekdays in this range — uncheck "Exclude weekends" or pick different dates</span>'; }
-  else { el.innerHTML = '<span style="color:var(--success)"><i class="fas fa-circle-check"></i> Will create <strong>' + count + ' shifts</strong></span>'; }
-}
-function saveBulkShifts() {
-  var employeeId = document.getElementById('m-bulk-emp').value, siteId = document.getElementById('m-bulk-site').value, from = document.getElementById('m-bulk-from').value, to = document.getElementById('m-bulk-to').value, startTime = document.getElementById('m-bulk-start').value, endTime = document.getElementById('m-bulk-end').value, targetHours = parseFloat(document.getElementById('m-bulk-target').value), breakMinutes = parseInt(document.getElementById('m-bulk-break').value), noWeekends = document.getElementById('m-bulk-noweekends').checked;
-  if (!from || !to || !startTime || !endTime) { toast('All fields required', 'error'); return; }
-  if (to < from) { toast('To date must be after From date', 'error'); return; }
-  if (endTime <= startTime) { toast('End time must be after start time', 'error'); return; }
-  var d = new Date(from + 'T12:00:00'), end = new Date(to + 'T12:00:00'), count = 0, updates = {};
-  while (d <= end) { var dow = d.getDay(); if (!noWeekends || (dow !== 0 && dow !== 6)) { var id = db.ref('shifts').push().key; updates['shifts/' + id] = { id:id, employeeId:employeeId, siteId:siteId, date:fmtDate(d), startTime:startTime, endTime:endTime, targetHours:targetHours, breakMinutes:breakMinutes }; count++; } d.setDate(d.getDate() + 1); }
-  if (count === 0) { toast('No weekdays in this range — uncheck "Exclude weekends"', 'error'); return; }
-  fbUpdate(updates);
-  closeModal(); navigateAdmin('shifts'); toast(count + ' shifts created', 'success');
-}
-
-/* ============================================================
-   ADMIN: RECORDS
-   ============================================================ */
-function renderRecords() {
-  var recs = getRecords().slice().reverse(), emps = getEmployees();
-  var empOpts = '<option value="">All Employees</option>'; emps.forEach(function(e) { empOpts += '<option value="' + e.id + '">' + e.firstName + ' ' + e.lastName + '</option>'; });
-  return '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">' + recs.length + ' records</p></div><div class="flex gap-2 flex-wrap"><select id="rec-femp" class="text-sm" style="width:auto" onchange="filterRecs()">' + empOpts + '</select><input id="rec-ffrom" type="date" class="text-sm" style="width:auto" onchange="filterRecs()"><input id="rec-fto" type="date" class="text-sm" style="width:auto" onchange="filterRecs()"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'rec-femp\').value=\'\';document.getElementById(\'rec-ffrom\').value=\'\';document.getElementById(\'rec-fto\').value=\'\';filterRecs()"><i class="fas fa-rotate"></i></button></div></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>Employee</th><th>Site</th><th>In</th><th>Out</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th></tr></thead><tbody id="rec-tbody">' + recRows(recs) + '</tbody></table>' + (!recs.length ? '<p class="text-center py-8 text-sm" style="color:var(--muted)">No records.</p>' : '') + '</div></div>';
-}
-
-function recRows(recs) {
-  return recs.map(function(r) {
-    var emp = getEmpById(r.employeeId); var st = r.status === 'clocked_in' ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-blue">Done</span>';
-    var total = ((r.regularHours || 0) + (r.overtimeHours || 0) + (r.doubleTimeHours || 0)).toFixed(2);
-    return '<tr data-emp="' + r.employeeId + '" data-date="' + (r.clockIn ? r.clockIn.slice(0,10) : '') + '"><td class="text-xs">' + (r.clockIn ? r.clockIn.slice(0,10) : '—') + '</td><td class="font-medium text-sm">' + (emp ? emp.firstName + ' ' + emp.lastName : '—') + '</td><td class="text-xs">' + getSiteName(r.siteId) + '</td><td class="mono text-xs">' + (r.clockIn ? fmtTime(r.clockIn) : '—') + '</td><td class="mono text-xs">' + (r.clockOut ? fmtTime(r.clockOut) : '—') + '</td><td class="mono text-xs">' + (r.regularHours || 0) + 'h</td><td class="mono text-xs" style="color:var(--warning)">' + (r.overtimeHours || 0) + 'h</td><td class="mono text-xs" style="color:var(--danger)">' + (r.doubleTimeHours || 0) + 'h</td><td class="mono text-xs font-semibold">' + total + 'h</td><td>' + st + '</td></tr>';
-  }).join('');
-}
-
-function filterRecs() {
-  var empId = document.getElementById('rec-femp').value, from = document.getElementById('rec-ffrom').value, to = document.getElementById('rec-fto').value;
-  var recs = getRecords().slice().reverse();
-  if (empId) recs = recs.filter(function(r) { return r.employeeId === empId; });
-  if (from) recs = recs.filter(function(r) { return r.clockIn && r.clockIn.slice(0,10) >= from; });
-  if (to) recs = recs.filter(function(r) { return r.clockIn && r.clockIn.slice(0,10) <= to; });
-  document.getElementById('rec-tbody').innerHTML = recRows(recs);
-}
-
-/* ============================================================
-   ADMIN: EXPORT
-   ============================================================ */
-function renderExport() {
-  return '<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Export to Jarrison Time</h2><p class="text-sm" style="color:var(--muted)">CSV import format</p></div><div class="card mb-4"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-filter mr-2" style="color:var(--accent)"></i>Filter Range</h3><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end"><div><label>From</label><input id="exp-from" type="date" value="' + new Date(new Date().setDate(1)).toISOString().slice(0,10) + '"></div><div><label>To</label><input id="exp-to" type="date" value="' + todayStr() + '"></div><button class="btn btn-primary" onclick="previewExport()"><i class="fas fa-eye"></i> Preview</button></div></div><div id="export-preview"></div></div>';
-}
-
-function previewExport() {
-  var from = document.getElementById('exp-from').value, to = document.getElementById('exp-to').value;
-  if (!from || !to) { toast('Select date range', 'error'); return; }
-  var recs = getRecords().filter(function(r) { return r.status === 'completed' && r.clockIn && r.clockIn.slice(0,10) >= from && r.clockIn.slice(0,10) <= to; });
-  if (!recs.length) { document.getElementById('export-preview').innerHTML = '<div class="card text-center py-8"><p style="color:var(--muted)">No completed records in range.</p></div>'; return; }
-  var t = { r:0, o:0, d:0, a:0 };
-  var rows = recs.map(function(r) {
-    var emp = getEmpById(r.employeeId); var reg = r.regularHours || 0, ot = r.overtimeHours || 0, dt = r.doubleTimeHours || 0, tot = reg + ot + dt;
-    t.r += reg; t.o += ot; t.d += dt; t.a += tot;
-    return '<tr><td class="mono text-xs">' + (emp ? emp.employeeId : '—') + '</td><td class="text-xs">' + (emp ? emp.firstName : '') + '</td><td class="text-xs">' + (emp ? emp.lastName : '') + '</td><td class="text-xs">' + r.clockIn.slice(0,10) + '</td><td class="text-xs">' + getSiteName(r.siteId) + '</td><td class="mono text-xs">' + fmtTime(r.clockIn) + '</td><td class="mono text-xs">' + (r.clockOut ? fmtTime(r.clockOut) : '') + '</td><td class="mono text-xs">' + (r.breakMinutes || 0) + '</td><td class="mono text-xs">' + reg.toFixed(2) + '</td><td class="mono text-xs">' + ot.toFixed(2) + '</td><td class="mono text-xs">' + dt.toFixed(2) + '</td><td class="mono text-xs font-semibold">' + tot.toFixed(2) + '</td></tr>';
-  });
-  document.getElementById('export-preview').innerHTML = '<div class="card mb-3 flex items-center justify-between flex-wrap gap-3"><div class="text-sm"><span style="color:var(--muted)">Showing</span> <strong>' + recs.length + '</strong></div><div class="flex gap-3 text-sm"><span>Reg: <strong class="mono">' + t.r.toFixed(2) + 'h</strong></span><span>OT: <strong class="mono" style="color:var(--warning)">' + t.o.toFixed(2) + 'h</strong></span><span>DT: <strong class="mono" style="color:var(--danger)">' + t.d.toFixed(2) + 'h</strong></span><span>Total: <strong class="mono" style="color:var(--accent)">' + t.a.toFixed(2) + 'h</strong></span></div><button class="btn btn-primary" onclick="downloadCSV(\'' + from + '\',\'' + to + '\')"><i class="fas fa-download"></i> Download CSV</button></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Emp ID</th><th>First</th><th>Last</th><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Break</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div>';
-}
-
-function downloadCSV(from, to) {
-  var recs = getRecords().filter(function(r) { return r.status === 'completed' && r.clockIn && r.clockIn.slice(0,10) >= from && r.clockIn.slice(0,10) <= to; });
-  if (!recs.length) { toast('No records', 'error'); return; }
-  var h = 'Employee ID,First Name,Last Name,Date,Site,Clock In,Clock Out,Break (mins),Regular Hours,Overtime Hours (1.5x),Double Time Hours (2x),Total Hours';
-  var rows = recs.map(function(r) { var emp = getEmpById(r.employeeId); var reg = (r.regularHours||0).toFixed(2), ot = (r.overtimeHours||0).toFixed(2), dt = (r.doubleTimeHours||0).toFixed(2), tot = ((r.regularHours||0)+(r.overtimeHours||0)+(r.doubleTimeHours||0)).toFixed(2); return (emp?emp.employeeId:'') + ',' + (emp?emp.firstName:'') + ',' + (emp?emp.lastName:'') + ',' + r.clockIn.slice(0,10) + ',"' + getSiteName(r.siteId) + '",' + fmtTime(r.clockIn) + ',' + (r.clockOut?fmtTime(r.clockOut):'') + ',' + (r.breakMinutes||0) + ',' + reg + ',' + ot + ',' + dt + ',' + tot; });
-  var blob = new Blob(['\uFEFF' + h + '\n' + rows.join('\n')], { type:'text/csv;charset=utf-8;' }); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'jarrison_export_' + from + '_to_' + to + '.csv'; a.click(); URL.revokeObjectURL(url); toast('CSV downloaded', 'success');
-}
-
-/* ============================================================
-   ADMIN: SETTINGS
-   ============================================================ */
-function renderSettings() {
-  var st = getSettings(), admin = D.admin || {};
-  return '<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Settings</h2><p class="text-sm" style="color:var(--muted)">System configuration</p></div><div class="grid gap-4 max-w-xl">' +
-    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-calculator mr-2" style="color:var(--accent)"></i>Hours Calculation</h3><div class="grid gap-4"><div><label>Default Target Hours</label><input id="s-target" type="number" step="0.5" min="1" max="16" value="' + (st.defaultTarget || 8) + '"></div><div><label>OT Threshold (hours before double time)</label><input id="s-ot" type="number" step="0.5" min="0.5" max="8" value="' + (st.otThreshold || 2) + '"><p class="text-xs mt-1" style="color:var(--muted)">After target, next ' + (st.otThreshold||2) + 'h = OT 1.5x. Beyond = DT 2x.</p></div><div><label>Default Break (min)</label><input id="s-break" type="number" step="5" min="0" max="120" value="' + (st.defaultBreak || 30) + '"></div></div></div>' +
-    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-shield-halved mr-2" style="color:var(--info)"></i>Admin Credentials</h3><div class="grid gap-4"><div><label>Username</label><input id="s-user" value="' + (admin.username || '') + '"></div><div><label>New Password</label><input id="s-pass" type="password" placeholder="Leave blank to keep current"></div></div></div>' +
-    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-flask mr-2" style="color:var(--warning)"></i>Demo Mode</h3><div class="flex items-center justify-between"><div><p class="text-sm">Bypass GPS check</p><p class="text-xs" style="color:var(--muted)">Disables range requirement for testing.</p></div><label class="relative inline-flex items-center cursor-pointer"><input id="s-demo" type="checkbox" ' + (st.demoMode ? 'checked' : '') + ' class="sr-only peer"><div class="w-11 h-6 rounded-full peer-checked:after:translate-x-full after:content-[\'\'] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-5 after:w-5 after:transition-all" style="background:' + (st.demoMode ? 'var(--accent)' : 'var(--border)') + '" onclick="this.style.background=this.previousElementSibling.checked?\'var(--border)\':\'var(--accent)\'"></div></label><style>.peer~div::after{background:var(--fg)}</style></div></div>' +
-    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-cloud mr-2" style="color:var(--info)"></i>Firebase Connection</h3><div class="flex items-center gap-2 mb-3"><span class="conn-dot ' + (fbConnected ? 'on' : 'off') + '"></span><span class="text-sm">' + (fbConnected ? 'Connected — syncing' : 'Disconnected') + '</span></div><button class="btn btn-secondary btn-sm" onclick="resetFirebaseConfig()"><i class="fas fa-rotate"></i> Reconfigure Firebase</button></div>' +
-    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-database mr-2" style="color:var(--danger)"></i>Data</h3><button class="btn btn-danger btn-sm" onclick="confirmResetAll()"><i class="fas fa-triangle-exclamation"></i> Reset All Data</button></div>' +
-    '<button class="btn btn-primary justify-center" onclick="saveSettingsPage()"><i class="fas fa-save"></i> Save Settings</button></div></div>';
-}
-
-function saveSettingsPage() {
-  var st = getSettings();
-  fbSet('settings', { otThreshold:parseFloat(document.getElementById('s-ot').value) || 2, defaultTarget:parseFloat(document.getElementById('s-target').value) || 8, defaultBreak:parseInt(document.getElementById('s-break').value) || 30, demoMode:document.getElementById('s-demo').checked });
-  var updates = { username:document.getElementById('s-user').value.trim() || 'admin' };
-  var np = document.getElementById('s-pass').value; if (np) updates.password = np;
-  fbUpdate('admin', updates);
-  toast('Settings saved', 'success');
-}
-
-function resetFirebaseConfig() {
-  openModal('<h3 class="font-bold text-lg mb-3">Reconfigure Firebase?</h3><p class="text-sm mb-4" style="color:var(--muted)">Shows setup screen again. Data in Firebase is not deleted.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="localStorage.removeItem(\'scp_fb_config\');location.reload()">Reconfigure</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
-}
-
-function confirmResetAll() {
-  openModal('<h3 class="font-bold text-lg mb-3" style="color:var(--danger)">Reset ALL Data?</h3><p class="text-sm mb-4" style="color:var(--muted)">Deletes everything from Firebase. Every device affected. Cannot undo.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'sites\',null);fbSet(\'employees\',null);fbSet(\'shifts\',null);fbSet(\'records\',null);fbSet(\'settings\',null);fbSet(\'admin\',null);closeModal();toast(\'All data reset — reloading\',\'success\');setTimeout(function(){location.reload();},1500)"><i class="fas fa-triangle-exclamation"></i> Reset Everything</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
-}
-
-/* ============================================================
-   EMPLOYEE: CLOCK PAGE
-   ============================================================ */
-function renderClockPage() {
-  var emp = state.currentEmployee, site = getSites().find(function(s) { return s.id === emp.siteId; }), todayShift = getShifts().find(function(s) { return s.employeeId === emp.id && s.date === todayStr(); }), isIn = state.clockState === 'clocked_in';
-  var html = '<div class="fade-in flex flex-col items-center text-center max-w-lg mx-auto">';
-  html += '<div class="mono text-5xl font-bold mb-1" id="emp-live-clock"></div>';
-  html += '<div class="text-sm mb-6" style="color:var(--muted)">' + new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + '</div>';
-  html += '<div class="card w-full mb-6 text-left"><div class="flex items-center gap-2 mb-3"><i class="fas fa-calendar-check" style="color:var(--accent)"></i><span class="font-semibold text-sm">Today\'s Shift</span></div>';
-  if (todayShift) { html += '<div class="grid grid-cols-2 gap-y-2 text-sm"><div style="color:var(--muted)">Site:</div><div class="font-medium">' + getSiteName(todayShift.siteId) + '</div><div style="color:var(--muted)">Scheduled:</div><div class="mono font-medium">' + todayShift.startTime + ' — ' + todayShift.endTime + '</div><div style="color:var(--muted)">Target:</div><div>' + todayShift.targetHours + ' hours</div><div style="color:var(--muted)">Break:</div><div>' + todayShift.breakMinutes + ' min</div></div>'; }
-  else { html += '<p class="text-sm" style="color:var(--muted)">No shift assigned for today.</p>'; }
-  html += '</div>';
-  html += '<div class="card w-full mb-6 text-left"><div class="flex items-center gap-2 mb-3"><i class="fas fa-satellite-dish" style="color:var(--info)"></i><span class="font-semibold text-sm">GPS Status</span></div>';
-  html += '<div class="flex items-center gap-3"><span class="gps-dot pending" id="gps-dot"></span><div><div class="text-sm font-medium" id="gps-text">Acquiring location...</div><div class="text-xs" style="color:var(--muted)" id="gps-detail">Checking distance to ' + (site ? site.name : 'site') + '</div></div></div>';
-  html += '<div class="mt-2 text-xs mono" style="color:var(--muted)" id="gps-coords"></div>';
-  if (site) html += '<div class="mt-1 text-xs" style="color:var(--muted)">Required radius: ' + site.radius + 'm</div>';
-  html += '</div>';
-  if (isIn) { html += '<div class="card w-full mb-6"><div class="text-xs font-semibold mb-1" style="color:var(--success)">CURRENTLY CLOCKED IN</div><div class="mono text-3xl font-bold" style="color:var(--success)" id="elapsed-timer">00:00:00</div><div class="text-xs mt-1" style="color:var(--muted)">Since ' + (state.activeRecord ? fmtTime(state.activeRecord.clockIn) : '') + '</div></div>'; }
-  html += '<div class="mb-6"><button class="clock-btn" id="clock-btn" disabled onclick="handleClockAction()"><i class="fas ' + (isIn ? 'fa-right-from-bracket' : 'fa-right-to-bracket') + ' text-2xl"></i><span>' + (isIn ? 'CLOCK OUT' : 'CLOCK IN') + '</span></button></div>';
-  html += '<p class="text-xs" style="color:var(--muted);max-width:300px">' + (getSettings().demoMode ? '<span class="badge badge-amber mb-1">Demo Mode — GPS bypassed</span>' : 'GPS verification active. Must be within site radius.') + '</p>';
-  html += '</div>';
-  return html;
-}
-
-function initClockPage() {
-  if (state.liveTimerInterval) clearInterval(state.liveTimerInterval);
-  state.liveTimerInterval = setInterval(function() {
-    var el = document.getElementById('emp-live-clock'); if (el) el.textContent = new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    var timer = document.getElementById('elapsed-timer'); if (timer && state.activeRecord) { var ms = Date.now() - new Date(state.activeRecord.clockIn).getTime(); var h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000); timer.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
-  }, 1000);
-  if (getSettings().demoMode) { state.gpsStatus = 'in_range'; updateGPS(); updateClockBtn(); return; }
-  checkGPS();
-}
-
-function checkGPS() {
-  if (!navigator.geolocation) { state.gpsStatus = 'error'; updateGPS(); updateClockBtn(); return; }
-  updateGPS();
-  navigator.geolocation.getCurrentPosition(function(pos) {
-    state.gpsLat = pos.coords.latitude; state.gpsLng = pos.coords.longitude;
-    var site = getSites().find(function(s) { return s.id === state.currentEmployee.siteId; });
-    if (!site) { state.gpsStatus = 'error'; updateGPS(); updateClockBtn(); return; }
-    var dist = haversine(state.gpsLat, state.gpsLng, site.lat, site.lng);
-    state.gpsDistance = Math.round(dist); state.gpsStatus = dist <= site.radius ? 'in_range' : 'out_of_range';
-    updateGPS(); updateClockBtn();
-  }, function() { state.gpsStatus = 'error'; state.gpsDistance = null; updateGPS(); updateClockBtn(); }, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
-}
-
-function updateGPS() {
-  var dot = document.getElementById('gps-dot'), text = document.getElementById('gps-text'), detail = document.getElementById('gps-detail'), coords = document.getElementById('gps-coords');
-  if (!dot) return;
-  if (getSettings().demoMode) { dot.className = 'gps-dot active'; text.textContent = 'Demo Mode — GPS bypassed'; detail.textContent = 'Location check disabled'; if (coords) coords.textContent = ''; return; }
-  var m = { pending:{c:'gps-dot pending',t:'Acquiring location...',d:'Please allow location access'}, in_range:{c:'gps-dot active',t:'Within range',d:state.gpsDistance + 'm from site'}, out_of_range:{c:'gps-dot inactive',t:'Out of range',d:state.gpsDistance + 'm from site — move closer'}, error:{c:'gps-dot inactive',t:'Location error',d:'Check permissions and try again'} };
-  var s = m[state.gpsStatus] || m.pending; dot.className = s.c; text.textContent = s.t; detail.textContent = s.d;
-  if (coords) coords.textContent = state.gpsLat != null ? state.gpsLat.toFixed(6) + ', ' + state.gpsLng.toFixed(6) : '';
-}
-
-function updateClockBtn() {
-  var btn = document.getElementById('clock-btn'); if (!btn) return;
-  var isIn = state.clockState === 'clocked_in', demo = getSettings().demoMode, inR = state.gpsStatus === 'in_range', canAct = isIn ? (demo || inR) : (demo || inR);
-  if (isIn) { btn.style.borderColor = canAct ? 'var(--accent)' : 'var(--border)'; btn.style.color = canAct ? 'var(--accent)' : 'var(--muted)'; btn.style.background = canAct ? 'rgba(232,168,56,.08)' : 'var(--card)'; }
-  else { btn.style.borderColor = canAct ? 'var(--success)' : 'var(--border)'; btn.style.color = canAct ? 'var(--success)' : 'var(--muted)'; btn.style.background = canAct ? 'rgba(52,211,153,.08)' : 'var(--card)'; }
-  btn.disabled = !canAct;
-  if (canAct) btn.classList.add('pulse'); else btn.classList.remove('pulse');
-}
-
-function handleClockAction() {
-  var demo = getSettings().demoMode, site = getSites().find(function(s) { return s.id === state.currentEmployee.siteId; });
-  if (state.clockState === 'idle') {
-    if (!demo && state.gpsStatus !== 'in_range') { toast('Must be within site range', 'error'); return; }
-    var todayShift = getShifts().find(function(s) { return s.employeeId === state.currentEmployee.id && s.date === todayStr(); });
-    var now = new Date().toISOString();
-    var id = db.ref('records').push().key;
-    var rec = { id:id, employeeId:state.currentEmployee.id, siteId:state.currentEmployee.siteId, shiftId:todayShift ? todayShift.id : null, clockIn:now, clockOut:null, clockInLat:demo ? (site ? site.lat : 0) : state.gpsLat, clockInLng:demo ? (site ? site.lng : 0) : state.gpsLng, clockOutLat:null, clockOutLng:null, regularHours:0, overtimeHours:0, doubleTimeHours:0, breakMinutes:todayShift ? todayShift.breakMinutes : (getSettings().defaultBreak || 30), status:'clocked_in' };
-    fbSet('records/' + id, rec);
-    state.clockState = 'clocked_in'; state.activeRecord = rec;
-    toast('Clocked in', 'success'); navigateEmp('clock');
+  /* Weekday: regular up to weekly cap, rest is OT 1.5x */
+  var remaining = Math.max(0, weeklyCap - weekRegularSoFar);
+  if (remaining >= totalHrs) {
+    return { regularHours:totalHrs, overtimeHours:0, doubleTimeHours:0, totalHours:totalHrs };
+  } else if (remaining <= 0) {
+    return { regularHours:0, overtimeHours:totalHrs, doubleTimeHours:0, totalHours:totalHrs };
   } else {
-    if (!demo && state.gpsStatus !== 'in_range') { toast('Must be within site range to clock out', 'error'); return; }
-    var now2 = new Date().toISOString(), st = getSettings();
-    var todayShift2 = state.activeRecord.shiftId ? getShifts().find(function(s) { return s.id === state.activeRecord.shiftId; }) : null;
-    var target = todayShift2 ? todayShift2.targetHours : (st.defaultTarget || 8);
-    var hrs = calcHours(state.activeRecord.clockIn, now2, target, state.activeRecord.breakMinutes || 0, st.otThreshold || 2);
-    fbUpdate('records/' + state.activeRecord.id, { clockOut:now2, clockOutLat:demo ? (site ? site.lat : 0) : state.gpsLat, clockOutLng:demo ? (site ? site.lng : 0) : state.gpsLng, regularHours:hrs.regularHours, overtimeHours:hrs.overtimeHours, doubleTimeHours:hrs.doubleTimeHours, status:'completed' });
-    state.clockState = 'idle'; state.activeRecord = null;
-    toast('Clocked out', 'success'); navigateEmp('clock');
+    return { regularHours:remaining, overtimeHours:totalHrs - remaining, doubleTimeHours:0, totalHours:totalHrs };
   }
 }
 
-/* ============================================================
-   EMPLOYEE: HISTORY
-   ============================================================ */
-function renderEmpHistory() {
-  var recs = getRecords().filter(function(r) { return r.employeeId === state.currentEmployee.id; }).reverse();
-  var html = '<div class="fade-in max-w-2xl mx-auto"><h2 class="text-xl font-bold mb-1">My History</h2><p class="text-sm mb-6" style="color:var(--muted)">' + recs.length + ' records</p>';
-  if (recs.length) {
-    recs.forEach(function(r) {
-      var total = (r.regularHours||0) + (r.overtimeHours||0) + (r.doubleTimeHours||0), done = r.status === 'completed';
-      html += '<div class="card mb-3"><div class="flex items-center justify-between mb-2"><div class="font-semibold text-sm">' + (r.clockIn ? new Date(r.clockIn + 'Z').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) : '—') + '</div>' + (done ? '<span class="badge badge-blue">Completed</span>' : '<span class="badge badge-green">Active</span>') + '</div>';
-      html += '<div class="grid grid-cols-2 gap-y-1 text-sm"><div style="color:var(--muted)">Site:</div><div>' + getSiteName(r.siteId) + '</div><div style="color:var(--muted)">In:</div><div class="mono">' + (r.clockIn ? fmtTime(r.clockIn) : '—') + '</div><div style="color:var(--muted)">Out:</div><div class="mono">' + (r.clockOut ? fmtTime(r.clockOut) : '—') + '</div><div style="color:var(--muted)">Break:</div><div>' + (r.breakMinutes||0) + ' min</div></div>';
-      if (done) { html += '<div class="flex gap-4 mt-3 pt-3 border-t text-sm" style="border-color:var(--border)"><div><span style="color:var(--muted)">Regular:</span> <strong class="mono">' + r.regularHours + 'h</strong></div><div><span style="color:var(--muted)">OT:</span> <strong class="mono" style="color:var(--warning)">' + r.overtimeHours + 'h</strong></div><div><span style="color:var(--muted)">DT:</span> <strong class="mono" style="color:var(--danger)">' + r.doubleTimeHours + 'h</strong></div><div><span style="color:var(--muted)">Total:</span> <strong class="mono" style="color:var(--accent)">' + total.toFixed(2) + 'h</strong></div></div>'; }
-      html += '</div>';
-    });
-  } else { html += '<div class="card text-center py-12"><i class="fas fa-history text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No records yet.</p></div>'; }
-  html += '</div>';
-  return html;
+function toast(msg, type) { type=type||'info'; var c=document.getElementById('toast-container'),t=document.createElement('div'); t.className='toast toast-'+type; var icons={success:'fa-circle-check',error:'fa-circle-xmark',info:'fa-circle-info'}; t.innerHTML='<i class="fas '+(icons[type]||icons.info)+'"></i><span>'+msg+'</span>'; c.appendChild(t); setTimeout(function(){t.style.animation='slideOut .3s ease forwards';setTimeout(function(){t.remove();},300);},3500); }
+function openModal(html) { document.getElementById('modal-box').innerHTML=html; document.getElementById('modal-overlay').classList.remove('hidden'); }
+function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+/* ===== AUTH ===== */
+function switchLoginTab(tab) { document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',(tab==='admin'&&i===0)||(tab==='employee'&&i===1));}); document.getElementById('login-admin').classList.toggle('hidden',tab!=='admin'); document.getElementById('login-employee').classList.toggle('hidden',tab!=='employee'); }
+function adminLogin() { var u=document.getElementById('admin-user').value.trim(),p=document.getElementById('admin-pass').value; if(u===D.admin.username&&p===D.admin.password){state.loggedIn=true;state.role='admin';state.currentPage='dashboard';showAdmin();toast('Welcome, Admin','success');}else toast('Invalid credentials','error'); }
+function employeeLogin() { var eid=document.getElementById('emp-id').value.trim().toUpperCase(),pin=document.getElementById('emp-pin').value; var emp=getEmployees().find(function(e){return e.employeeId===eid&&e.pin===pin&&e.active;}); if(emp){state.loggedIn=true;state.role='employee';state.currentEmployee=emp;state.empPage='clock'; var recs=getRecords().filter(function(r){return r.employeeId===emp.id&&r.status==='clocked_in';}); if(recs.length){state.clockState='clocked_in';state.activeRecord=recs[0];}else{state.clockState='idle';state.activeRecord=null;} showEmployee();toast('Welcome, '+emp.firstName,'success');}else toast('Invalid Employee ID or PIN','error'); }
+function logout() { if(state.liveTimerInterval)clearInterval(state.liveTimerInterval); state={loggedIn:false,role:null,currentPage:'dashboard',empPage:'clock',currentEmployee:null,clockState:'idle',activeRecord:null,gpsStatus:'pending',gpsDistance:null,gpsLat:null,gpsLng:null,liveTimerInterval:null}; document.getElementById('admin-layout').classList.add('hidden'); document.getElementById('employee-layout').classList.add('hidden'); showScreen('login-screen'); document.getElementById('admin-user').value='';document.getElementById('admin-pass').value='';document.getElementById('emp-id').value='';document.getElementById('emp-pin').value=''; }
+function showAdmin() { showScreen('admin-layout'); navigateAdmin(state.currentPage); }
+function showEmployee() { showScreen('employee-layout'); document.getElementById('emp-header-name').textContent=state.currentEmployee.firstName+' '+state.currentEmployee.lastName; navigateEmp(state.empPage); }
+
+/* ===== ROUTERS ===== */
+function navigateAdmin(page) { state.currentPage=page; document.querySelectorAll('#admin-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.page===page);}); var el=document.getElementById('admin-content'); var R={dashboard:renderDashboard,sites:renderSites,employees:renderEmployees,shifts:renderShifts,records:renderRecords,export:renderExport,settings:renderSettings}; if(R[page])el.innerHTML=R[page](); if(page==='dashboard')startDashClock(); }
+document.getElementById('admin-nav').addEventListener('click',function(e){var l=e.target.closest('.sidebar-link');if(l&&l.dataset.page){navigateAdmin(l.dataset.page);document.getElementById('sidebar').classList.remove('open');}});
+function navigateEmp(page) { state.empPage=page; document.querySelectorAll('#emp-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.epage===page);}); var el=document.getElementById('emp-content'); if(page==='clock'){el.innerHTML=renderClockPage();initClockPage();}else if(page==='history')el.innerHTML=renderEmpHistory(); }
+document.getElementById('emp-nav').addEventListener('click',function(e){var l=e.target.closest('.sidebar-link');if(l&&l.dataset.epage)navigateEmp(l.dataset.epage);});
+
+/* ===== DASHBOARD ===== */
+var dashCI=null;
+function startDashClock(){if(dashCI)clearInterval(dashCI);var u=function(){var e=document.getElementById('dash-live-clock');if(e)e.textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});else clearInterval(dashCI);};u();dashCI=setInterval(u,1000);}
+
+function renderDashboard() {
+  var emps=getEmployees(),sites=getSites(),shifts=getShifts(),recs=getRecords(),today=todayStr();
+  var todayShifts=shifts.filter(function(s){return s.date===today;}),clockedIn=recs.filter(function(r){return r.status==='clocked_in';});
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-2"><div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">'+new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div></div>';
+  h+='<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">';
+  h+='<div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">'+emps.filter(function(e){return e.active;}).length+'</div></div>';
+  h+='<div class="card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">'+sites.length+'</div></div>';
+  h+='<div class="card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY SHIFTS</div><div class="text-2xl font-bold">'+todayShifts.length+'</div></div>';
+  h+='<div class="card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:'+(clockedIn.length?'var(--success)':'var(--muted)')+'">'+clockedIn.length+'</div></div></div>';
+  h+='<div class="grid grid-cols-1 lg:grid-cols-2 gap-4"><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now</h3>';
+  if(clockedIn.length){clockedIn.forEach(function(r){var emp=getEmpById(r.employeeId);var start=new Date(r.clockIn);var el=Math.floor((Date.now()-start.getTime())/60000);h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'Unknown')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(r.siteId)+' &middot; Since '+fmtTime(start)+'</div></div><div class="text-right"><div class="mono text-sm font-semibold" style="color:var(--success)">'+Math.floor(el/60)+'h '+(el%60)+'m</div><span class="badge badge-green">Active</span></div></div>';});}
+  else h+='<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>';
+  h+='</div><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today\'s Shifts</h3>';
+  var todayType = getDayType(today);
+  h+='<div class="mb-2"><span class="badge '+(todayType==='Sunday'?'badge-purple':todayType==='Holiday'?'badge-red':'badge-blue')+'">'+todayType+'</span></div>';
+  if(todayShifts.length){todayShifts.slice(0,6).forEach(function(s){var emp=getEmpById(s.employeeId);var rec=recs.find(function(r){return r.shiftId===s.id;});var st='<span class="badge badge-amber">Pending</span>';if(rec&&rec.status==='clocked_in')st='<span class="badge badge-green">Clocked In</span>';else if(rec&&rec.status==='completed')st='<span class="badge badge-blue">Done</span>';h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'—')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(s.siteId)+' &middot; '+s.startTime+'-'+s.endTime+'</div></div>'+st+'</div>';});}
+  else h+='<p class="text-sm" style="color:var(--muted)">No shifts today.</p>';
+  h+='</div></div></div>';return h;
 }
 
-/* ============================================================
-   INIT
-   ============================================================ */
-var savedConfig = localStorage.getItem('scp_fb_config');
-if (savedConfig) {
-  try {
-    var config = JSON.parse(savedConfig);
-    if (config.databaseURL) {
-      showScreen('loading-screen');
-      initFirebase(config);
-      setTimeout(function() {
-        if (dataLoaded < 6) { localStorage.removeItem('scp_fb_config'); showScreen('setup-screen'); toast('Connection failed — reconfigure', 'error'); }
-      }, 10000);
-    } else { showScreen('setup-screen'); }
-  } catch(e) { showScreen('setup-screen'); }
-} else { showScreen('setup-screen'); }
+/* ===== SITES ===== */
+function renderSites(){var sites=getSites();var h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2><p class="text-sm" style="color:var(--muted)">GPS zones (5-300m)</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-4">';
+  if(sites.length)sites.forEach(function(s){h+='<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">'+s.name+'</div><div class="text-sm" style="color:var(--muted)">'+s.address+'</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>'+s.lat.toFixed(5)+', '+s.lng.toFixed(5)+'</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>'+s.radius+'m</span><a href="https://www.google.com/maps?q='+s.lat+','+s.lng+'" target="_blank" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>';});
+  else h+='<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites.</p></div>';
+  h+='</div></div>';return h;}
+function openSiteModal(editId){var s=editId?getSites().find(function(x){return x.id===editId;}):null;openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Site</h3><div class="grid gap-4"><div><label>Site Name</label><input id="m-site-name" value="'+(s?s.name:'')+'"></div><div><label>Address</label><input id="m-site-addr" value="'+(s?s.address:'')+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="'+(s?s.lat:'')+'"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="'+(s?s.lng:'')+'"></div></div><div><label>GPS Radius: <span id="m-radius-val">'+(s?s.radius:100)+'</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="'+(s?s.radius:100)+'" oninput="document.getElementById(\'m-radius-val\').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m</span><span>300m</span></div></div><button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Location</button><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');}
+function getMyLocation(){if(!navigator.geolocation){toast('Not supported','error');return;}toast('Getting location...','info');navigator.geolocation.getCurrentPosition(function(p){document.getElementById('m-site-lat').value=p.coords.latitude.toFixed(5);document.getElementById('m-site-lng').value=p.coords.longitude.toFixed(5);toast('Done','success');},function(e){toast('Error: '+e.message,'error');},{enableHighAccuracy:true});}
+function saveSite(editId){var name=document.getElementById('m-site-name').value.trim(),address=document.getElementById('m-site-addr').value.trim(),lat=parseFloat(document.getElementById('m-site-lat').value),lng=parseFloat(document.getElementById('m-site-lng').value),radius=parseInt(document.getElementById('m-site-radius').value);if(!name){toast('Name required','error');return;}if(isNaN(lat)||isNaN(lng)){toast('Coordinates required','error');return;}if(editId)fbUpdate('sites/'+editId,{name:name,address:address,lat:lat,lng:lng,radius:radius});else{var id=db.ref('sites').push().key;fbSet('sites/'+id,{id:id,name:name,address:address,lat:lat,lng:lng,radius:radius});}closeModal();navigateAdmin('sites');toast(editId?'Updated':'Added','success');}
+function deleteSite(id){if(getEmployees().filter(function(e){return e.siteId===id;}).length){toast('Employees assigned to this site','error');return;}openModal('<h3 class="font-bold text-lg mb-3">Delete Site?</h3><p class="text-sm mb-4" style="color:var(--muted)">Cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRemove(\'sites/'+id+'\');closeModal();navigateAdmin(\'sites\');toast(\'Deleted\',\'success\')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
 
-document.getElementById('admin-pass').addEventListener('keydown', function(e) { if (e.key === 'Enter') adminLogin(); });
-document.getElementById('emp-pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') employeeLogin(); });
-document.addEventListener('click', function(e) { var sb = document.getElementById('sidebar'); if (sb && sb.classList.contains('open') && !sb.contains(e.target) && !e.target.closest('[onclick*="toggleSidebar"]')) sb.classList.remove('open'); });
+/* ===== EMPLOYEES ===== */
+function renderEmployees(){var emps=getEmployees();var h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Employees</h2><p class="text-sm" style="color:var(--muted)">'+emps.length+' total</p></div><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add Employee</button></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  emps.forEach(function(e){h+='<tr><td class="font-medium">'+e.firstName+' '+e.lastName+'</td><td class="mono text-xs">'+e.employeeId+'</td><td><span class="badge badge-blue">'+getSiteName(e.siteId)+'</span></td><td class="mono text-xs">&bull;&bull;&bull;&bull;</td><td>'+(e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>')+'</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openEmpModal(\''+e.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-secondary btn-sm" onclick="toggleEmp(\''+e.id+'\')">'+(e.active?'<i class="fas fa-ban" style="color:var(--danger)"></i>':'<i class="fas fa-check" style="color:var(--success)"></i>')+'</button></div></td></tr>';});
+  h+='</tbody></table>'+( !emps.length?'<p class="text-center py-8 text-sm" style="color:var(--muted)">No employees.</p>':'')+'</div></div>';return h;}
+function openEmpModal(editId){var emps=getEmployees(),sites=getSites(),e=editId?emps.find(function(x){return x.id===editId;}):null;if(!sites.length){toast('Add a site first','error');return;}var so='';sites.forEach(function(s){so+='<option value="'+s.id+'" '+(e&&e.siteId===s.id?'selected':'')+'>'+s.name+'</option>';});openModal('<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-4"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="'+(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="m-emp-ln" value="'+(e?e.lastName:'')+'"></div></div><div><label>Employee ID</label><input id="m-emp-eid" value="'+(e?e.employeeId:'')+'" '+(e?'readonly style="opacity:.6"':'')+'></div><div><label>PIN (4 digits)</label><input id="m-emp-pin" type="password" maxlength="4" value="'+(e?e.pin:'')+'"></div><div><label>Site</label><select id="m-emp-site">'+so+'</select></div><div class="flex items-center gap-2"><input id="m-emp-active" type="checkbox" '+(!e||e.active?'checked':'')+' class="w-4 h-4"><label for="m-emp-active" style="margin:0;cursor:pointer">Active</label></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\''+(editId||'')+'\')">'+(e?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');}
+function saveEmp(editId){var fn=document.getElementById('m-emp-fn').value.trim(),ln=document.getElementById('m-emp-ln').value.trim(),eid=document.getElementById('m-emp-eid').value.trim().toUpperCase(),pin=document.getElementById('m-emp-pin').value,siteId=document.getElementById('m-emp-site').value,active=document.getElementById('m-emp-active').checked;if(!fn||!ln){toast('Name required','error');return;}if(!eid){toast('ID required','error');return;}if(!/^\d{4}$/.test(pin)){toast('PIN must be 4 digits','error');return;}if(!editId&&getEmployees().find(function(e){return e.employeeId===eid;})){toast('ID exists','error');return;}if(editId)fbUpdate('employees/'+editId,{firstName:fn,lastName:ln,employeeId:eid,pin:pin,siteId:siteId,active:active});else{var id=db.ref('employees').push().key;fbSet('employees/'+id,{id:id,firstName:fn,lastName:ln,employeeId:eid,pin:pin,siteId:siteId,active:active});}closeModal();navigateAdmin('employees');toast(editId?'Updated':'Added','success');}
+function toggleEmp(id){var e=getEmployees().find(function(x){return x.id===id;});if(e)fbUpdate('employees/'+id,{active:!e.active});navigateAdmin('employees');toast('Updated','success');}
+
+/* ===== SHIFTS ===== */
+function renderShifts(){var shifts=getShifts(),byDate={};shifts.forEach(function(s){if(!byDate[s.date])byDate[s.date]=[];byDate[s.date].push(s);});var dates=Object.keys(byDate).sort().reverse();var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Shift Schedule</h2><p class="text-sm" style="color:var(--muted)">'+shifts.length+' shifts</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
+  if(dates.length)dates.forEach(function(d){var isToday=d===todayStr();var dt=getDayType(d);h+='<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">'+(isToday?'<span style="color:var(--accent)">Today</span> — ':'')+new Date(d+'T12:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'})+'</h3><span class="badge '+(dt==='Sunday'?'badge-purple':dt==='Holiday'?'badge-red':'badge-blue')+'">'+dt+'</span><span class="badge badge-amber">'+byDate[d].length+'</span></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Scheduled</th><th>Break</th><th>Status</th><th></th></tr></thead><tbody>';
+  byDate[d].forEach(function(s){var emp=getEmpById(s.employeeId);var rec=getRecords().find(function(r){return r.shiftId===s.id;});var st='<span class="badge badge-amber">Scheduled</span>';if(rec&&rec.status==='clocked_in')st='<span class="badge badge-green">Clocked In</span>';else if(rec&&rec.status==='completed')st='<span class="badge badge-blue">Done</span>';h+='<tr><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'—')+'</td><td class="text-xs">'+getSiteName(s.siteId)+'</td><td class="mono text-xs">'+s.startTime+'-'+s.endTime+'</td><td>'+(s.targetHours||'—')+'h</td><td>'+(s.breakMinutes||0)+'m</td><td>'+st+'</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-sm" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteShift(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></td></tr>';});h+='</tbody></table></div></div>';});
+  else h+='<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts.</p></div>';
+  h+='</div>';return h;}
+function openShiftModal(editId){var s=editId?getShifts().find(function(x){return x.id===editId;}):null;var emps=getEmployees().filter(function(e){return e.active;}),sites=getSites(),st=getSettings();if(!emps.length||!sites.length){toast('Add employees and sites first','error');return;}var eo='';emps.forEach(function(e){eo+='<option value="'+e.id+'" '+(s&&s.employeeId===e.id?'selected':'')+'>'+e.firstName+' '+e.lastName+' ('+e.employeeId+')</option>';});var so='';sites.forEach(function(si){so+='<option value="'+si.id+'" '+(s&&s.siteId===si.id?'selected':'')+'>'+si.name+'</option>';});openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Shift</h3><div class="grid gap-4"><div><label>Employee</label><select id="m-shift-emp">'+eo+'</select></div><div><label>Site</label><select id="m-shift-site">'+so+'</select></div><div><label>Date</label><input id="m-shift-date" type="date" value="'+(s?s.date:todayStr())+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="m-shift-start" type="time" value="'+(s?s.startTime:'07:00')+'"></div><div><label>End</label><input id="m-shift-end" type="time" value="'+(s?s.endTime:'15:30')+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Scheduled Hours</label><input id="m-shift-target" type="number" step="0.5" min="1" max="16" value="'+(s?s.targetHours:8)+'"></div><div><label>Break (min)</label><input id="m-shift-break" type="number" step="5" min="0" max="120" value="'+(s?s.breakMinutes:st.defaultBreak||30)+'"></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');}
+function saveShift(editId){var employeeId=document.getElementById('m-shift-emp').value,siteId=document.getElementById('m-shift-site').value,date=document.getElementById('m-shift-date').value,startTime=document.getElementById('m-shift-start').value,endTime=document.getElementById('m-shift-end').value,targetHours=parseFloat(document.getElementById('m-shift-target').value),breakMinutes=parseInt(document.getElementById('m-shift-break').value);if(!date||!startTime||!endTime){toast('All time fields required','error');return;}if(endTime<=startTime){toast('End after start','error');return;}var data={employeeId:employeeId,siteId:siteId,date:date,startTime:startTime,endTime:endTime,targetHours:targetHours,breakMinutes:breakMinutes};if(editId)fbUpdate('shifts/'+editId,data);else{var id=db.ref('shifts').push().key;fbSet('shifts/'+id,Object.assign({id:id},data));}closeModal();navigateAdmin('shifts');toast(editId?'Updated':'Added','success');}
+function deleteShift(id){if(getRecords().find(function(r){return r.shiftId===id&&r.status==='clocked_in';})){toast('Employee clocked in','error');return;}fbRemove('shifts/'+id);navigateAdmin('shifts');toast('Deleted','success');}
+function openBulkShiftModal(){var emps=getEmployees().filter(function(e){return e.active;}),sites=getSites(),st=getSettings();if(!emps.length||!sites.length){toast('Add employees and sites first','error');return;}var eo='';emps.forEach(function(e){eo+='<option value="'+e.id+'">'+e.firstName+' '+e.lastName+' ('+e.employeeId+')</option>';});var so='';sites.forEach(function(s){so+='<option value="'+s.id+'">'+s.name+'</option>';});var defTo=new Date();defTo.setDate(defTo.getDate()+7);openModal('<h3 class="font-bold text-lg mb-4">Bulk Create Shifts</h3><p class="text-sm mb-4" style="color:var(--muted)">Same shift across a date range.</p><div class="grid gap-4"><div><label>Employee</label><select id="m-bulk-emp">'+eo+'</select></div><div><label>Site</label><select id="m-bulk-site">'+so+'</select></div><div class="grid grid-cols-2 gap-3"><div><label>From</label><input id="m-bulk-from" type="date" value="'+todayStr()+'"></div><div><label>To</label><input id="m-bulk-to" type="date" value="'+fmtDate(defTo)+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="m-bulk-start" type="time" value="07:00"></div><div><label>End</label><input id="m-bulk-end" type="time" value="15:30"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Scheduled Hours</label><input id="m-bulk-target" type="number" step="0.5" value="8"></div><div><label>Break (min)</label><input id="m-bulk-break" type="number" step="5" value="'+(st.defaultBreak||30)+'"></div></div><div class="flex items-center gap-2"><input id="m-bulk-noweekends" type="checkbox" checked class="w-4 h-4"><label for="m-bulk-noweekends" style="margin:0;cursor:pointer">Exclude weekends</label></div><div id="bulk-preview" class="text-sm" style="color:var(--muted)"></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveBulkShifts()"><i class="fas fa-layer-group"></i> Create</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');setTimeout(updateBulkPreview,100);['m-bulk-from','m-bulk-to','m-bulk-noweekends'].forEach(function(id){var el=document.getElementById(id);if(el){el.addEventListener('change',updateBulkPreview);el.addEventListener('input',updateBulkPreview);}});}
+function updateBulkPreview(){var from=document.getElementById('m-bulk-from').value,to=document.getElementById('m-bulk-to').value,nw=document.getElementById('m-bulk-noweekends').checked,el=document.getElementById('bulk-preview');if(!el)return;if(!from||!to){el.innerHTML='';return;}if(to<from){el.innerHTML='<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> To must be after From</span>';return;}var d=new Date(from+'T12:00:00'),end=new Date(to+'T12:00:00'),count=0,sunCount=0,holCount=0;while(d<=end){var dow=d.getDay(),ds=fmtDate(d);if(!nw||(dow!==0&&dow!==6)){count++;if(isSunday(ds))sunCount++;if(isHoliday(ds))holCount++;}d.setDate(d.getDate()+1);}if(!count){el.innerHTML='<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> No weekdays — uncheck Exclude weekends</span>';}else{var info='<span style="color:var(--success)"><i class="fas fa-circle-check"></i> <strong>'+count+' shifts</strong></span>';if(sunCount)info+=' <span class="badge badge-purple">Sunday x'+sunCount+'</span>';if(holCount)info+=' <span class="badge badge-red">Holiday x'+holCount+'</span>';el.innerHTML=info;}}
+function saveBulkShifts(){var employeeId=document.getElementById('m-bulk-emp').value,siteId=document.getElementById('m-bulk-site').value,from=document.getElementById('m-bulk-from').value,to=document.getElementById('m-bulk-to').value,startTime=document.getElementById('m-bulk-start').value,endTime=document.getElementById('m-bulk-end').value,targetHours=parseFloat(document.getElementById('m-bulk-target').value),breakMinutes=parseInt(document.getElementById('m-bulk-break').value),nw=document.getElementById('m-bulk-noweekends').checked;if(!from||!to||!startTime||!endTime){toast('All fields required','error');return;}if(to<from){toast('To after From','error');return;}if(endTime<=startTime){toast('End after start','error');return;}var d=new Date(from+'T12:00:00'),end=new Date(to+'T12:00:00'),count=0,updates={};while(d<=end){var dow=d.getDay();if(!nw||(dow!==0&&dow!==6)){var id=db.ref('shifts').push().key;updates['shifts/'+id]={id:id,employeeId:employeeId,siteId:siteId,date:fmtDate(d),startTime:startTime,endTime:endTime,targetHours:targetHours,breakMinutes:breakMinutes};count++;}d.setDate(d.getDate()+1);}if(!count){toast('No weekdays in range','error');return;}fbUpdate(updates);closeModal();navigateAdmin('shifts');toast(count+' shifts created','success');}
+
+/* ===== RECORDS ===== */
+function renderRecords(){var recs=getRecords().slice().reverse(),emps=getEmployees();var eo='<option value="">All Employees</option>';emps.forEach(function(e){eo+='<option value="'+e.id+'">'+e.firstName+' '+e.lastName+'</option>';});return '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">'+recs.length+' records</p></div><div class="flex gap-2 flex-wrap"><select id="rec-femp" class="text-sm" style="width:auto" onchange="filterRecs()">'+eo+'</select><input id="rec-ffrom" type="date" class="text-sm" style="width:auto" onchange="filterRecs()"><input id="rec-fto" type="date" class="text-sm" style="width:auto" onchange="filterRecs()"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'rec-femp\').value=\'\';document.getElementById(\'rec-ffrom\').value=\'\';document.getElementById(\'rec-fto\').value=\'\';filterRecs()"><i class="fas fa-rotate"></i></button></div></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>Employee</th><th>Type</th><th>In</th><th>Out</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th></tr></thead><tbody id="rec-tbody">'+recRows(recs)+'</tbody></table>'+( !recs.length?'<p class="text-center py-8 text-sm" style="color:var(--muted)">No records.</p>':'')+'</div></div>';}
+function recRows(recs){return recs.map(function(r){var emp=getEmpById(r.employeeId);var dt=r.clockIn?getDayType(r.clockIn.slice(0,10)):'—';var dtBadge=dt==='Sunday'?'<span class="badge badge-purple">Sun</span>':dt==='Holiday'?'<span class="badge badge-red">Hol</span>':'<span class="badge badge-blue">Wk</span>';var st=r.status==='clocked_in'?'<span class="badge badge-green">Active</span>':'<span class="badge badge-blue">Done</span>';var total=((r.regularHours||0)+(r.overtimeHours||0)+(r.doubleTimeHours||0)).toFixed(2);return '<tr data-emp="'+r.employeeId+'" data-date="'+(r.clockIn?r.clockIn.slice(0,10):'')+'"><td class="text-xs">'+(r.clockIn?r.clockIn.slice(0,10):'—')+'</td><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'—')+'</td><td>'+dtBadge+'</td><td class="mono text-xs">'+(r.clockIn?fmtTime(r.clockIn):'—')+'</td><td class="mono text-xs">'+(r.clockOut?fmtTime(r.clockOut):'—')+'</td><td class="mono text-xs">'+(r.regularHours||0)+'h</td><td class="mono text-xs" style="color:var(--warning)">'+(r.overtimeHours||0)+'h</td><td class="mono text-xs" style="color:var(--danger)">'+(r.doubleTimeHours||0)+'h</td><td class="mono text-xs font-semibold">'+total+'h</td><td>'+st+'</td></tr>';}).join('');}
+function filterRecs(){var empId=document.getElementById('rec-femp').value,from=document.getElementById('rec-ffrom').value,to=document.getElementById('rec-fto').value;var recs=getRecords().slice().reverse();if(empId)recs=recs.filter(function(r){return r.employeeId===empId;});if(from)recs=recs.filter(function(r){return r.clockIn&&r.clockIn.slice(0,10)>=from;});if(to)recs=recs.filter(function(r){return r.clockIn&&r.clockIn.slice(0,10)<=to;});document.getElementById('rec-tbody').innerHTML=recRows(recs);}
+
+/* ===== EXPORT ===== */
+function renderExport(){return '<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Export to Jarrison Time</h2><p class="text-sm" style="color:var(--muted)">CSV format</p></div><div class="card mb-4"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-filter mr-2" style="color:var(--accent)"></i>Filter</h3><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end"><div><label>From</label><input id="exp-from" type="date" value="'+new Date(new Date().setDate(1)).toISOString().slice(0,10)+'"></div><div><label>To</label><input id="exp-to" type="date" value="'+todayStr()+'"></div><button class="btn btn-primary" onclick="previewExport()"><i class="fas fa-eye"></i> Preview</button></div></div><div id="export-preview"></div></div>';}
+function previewExport(){var from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value;if(!from||!to){toast('Select range','error');return;}var recs=getRecords().filter(function(r){return r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=from&&r.clockIn.slice(0,10)<=to;});if(!recs.length){document.getElementById('export-preview').innerHTML='<div class="card text-center py-8"><p style="color:var(--muted)">No records in range.</p></div>';return;}var t={r:0,o:0,d:0,a:0};var rows=recs.map(function(r){var emp=getEmpById(r.employeeId);var reg=r.regularHours||0,ot=r.overtimeHours||0,dt=r.doubleTimeHours||0,tot=reg+ot+dt;t.r+=reg;t.o+=ot;t.d+=dt;t.a+=tot;var dt2=r.clockIn?getDayType(r.clockIn.slice(0,10)):'Weekday';return '<tr><td class="mono text-xs">'+(emp?emp.employeeId:'—')+'</td><td class="text-xs">'+(emp?emp.firstName:'')+'</td><td class="text-xs">'+(emp?emp.lastName:'')+'</td><td class="text-xs">'+r.clockIn.slice(0,10)+'</td><td class="text-xs">'+dt2+'</td><td class="text-xs">'+getSiteName(r.siteId)+'</td><td class="mono text-xs">'+fmtTime(r.clockIn)+'</td><td class="mono text-xs">'+(r.clockOut?fmtTime(r.clockOut):'')+'</td><td class="mono text-xs">'+(r.breakMinutes||0)+'</td><td class="mono text-xs">'+reg.toFixed(2)+'</td><td class="mono text-xs">'+ot.toFixed(2)+'</td><td class="mono text-xs">'+dt.toFixed(2)+'</td><td class="mono text-xs font-semibold">'+tot.toFixed(2)+'</td></tr>';});document.getElementById('export-preview').innerHTML='<div class="card mb-3 flex items-center justify-between flex-wrap gap-3"><div class="text-sm"><span style="color:var(--muted)">Showing</span> <strong>'+recs.length+'</strong></div><div class="flex gap-3 text-sm"><span>Reg: <strong class="mono">'+t.r.toFixed(2)+'h</strong></span><span>OT: <strong class="mono" style="color:var(--warning)">'+t.o.toFixed(2)+'h</strong></span><span>DT: <strong class="mono" style="color:var(--danger)">'+t.d.toFixed(2)+'h</strong></span><span>Total: <strong class="mono" style="color:var(--accent)">'+t.a.toFixed(2)+'h</strong></span></div><button class="btn btn-primary" onclick="downloadCSV(\''+from+'\',\''+to+'\')"><i class="fas fa-download"></i> Download CSV</button></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Emp ID</th><th>First</th><th>Last</th><th>Date</th><th>Type</th><th>Site</th><th>In</th><th>Out</th><th>Break</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th></tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';}
+function downloadCSV(from,to){var recs=getRecords().filter(function(r){return r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=from&&r.clockIn.slice(0,10)<=to;});if(!recs.length){toast('No records','error');return;}var h='Employee ID,First Name,Last Name,Date,Day Type,Site,Clock In,Clock Out,Break (mins),Regular Hours,Overtime Hours (1.5x),Double Time Hours (2x),Total Hours';var rows=recs.map(function(r){var emp=getEmpById(r.employeeId);var dt=r.clockIn?getDayType(r.clockIn.slice(0,10)):'Weekday';var reg=(r.regularHours||0).toFixed(2),ot=(r.overtimeHours||0).toFixed(2),dt2=(r.doubleTimeHours||0).toFixed(2),tot=((r.regularHours||0)+(r.overtimeHours||0)+(r.doubleTimeHours||0)).toFixed(2);return (emp?emp.employeeId:'')+','+(emp?emp.firstName:'')+','+(emp?emp.lastName:'')+','+r.clockIn.slice(0,10)+','+dt+',"'+getSiteName(r.siteId)+'",'+fmtTime(r.clockIn)+','+(r.clockOut?fmtTime(r.clockOut):'')+','+(r.breakMinutes||0)+','+reg+','+ot+','+dt2+','+tot;});var blob=new Blob(['\uFEFF'+h+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='jarrison_export_'+from+'_to_'+to+'.csv';a.click();URL.revokeObjectURL(url);toast('CSV downloaded','success');}
+
+/* ===== SETTINGS — NEW LAYOUT ===== */
+function renderSettings(){
+  var st=getSettings(),admin=D.admin||{},holidays=getHolidays();
+  var holText=holidays.join('\n');
+  return '<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Settings</h2><p class="text-sm" style="color:var(--muted)">Hours rules & system config</p></div><div class="grid gap-4 max-w-xl">'+
+    /* Hours Calculation */
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-calculator mr-2" style="color:var(--accent)"></i>Hours Calculation Rules</h3><div class="grid gap-4">'+
+      '<div><label>Weekly Regular Hours (before OT kicks in)</label><input id="s-weekly" type="number" step="1" min="1" max="80" value="'+(st.weeklyRegularHours||45)+'"><p class="text-xs mt-1" style="color:var(--muted)">First '+((st.weeklyRegularHours||45))+'h per week (Mon-Sat) = regular rate. Anything after = OT 1.5x.</p></div>'+
+      '<div><label>Default Break (minutes)</label><input id="s-break" type="number" step="5" min="0" max="120" value="'+(st.defaultBreak||30)+'"></div>'+
+      '<div class="card" style="background:var(--bg2);border-color:var(--border)"><div class="text-xs font-semibold mb-2" style="color:var(--accent)">HOW IT WORKS</div><div class="text-xs" style="color:var(--muted);line-height:1.6">'+
+        '<div class="mb-1"><span class="badge badge-blue">Weekday</span> First '+((st.weeklyRegularHours||45))+'h in the week = regular. After that = <strong style="color:var(--warning)">OT 1.5x</strong></div>'+
+        '<div class="mb-1"><span class="badge badge-purple">Sunday</span> ALL hours = <strong style="color:var(--danger)">Double Time 2x</strong> (regardless of weekly total)</div>'+
+        '<div><span class="badge badge-red">Public Holiday</span> ALL hours = <strong style="color:var(--danger)">Double Time 2x</strong> (regardless of weekly total)</div>'+
+      '</div></div>'+
+    '</div></div>'+
+    /* Public Holidays */
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-calendar-xmark mr-2" style="color:var(--danger)"></i>Public Holidays</h3><div class="grid gap-4">'+
+      '<div><label>Holiday dates (one per line, YYYY-MM-DD)</label><textarea id="s-holidays" rows="6" style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;resize:vertical">'+holText+'</textarea><p class="text-xs mt-1" style="color:var(--muted)">These dates are automatically paid at Double Time. Pre-loaded with 2025-2026 Australian national holidays.</p></div>'+
+      '<button class="btn btn-secondary btn-sm" onclick="addAusHolidays(2027)"><i class="fas fa-plus"></i> Add 2027 Australian Holidays</button>'+
+      '<button class="btn btn-secondary btn-sm" onclick="addAusHolidays(2028)"><i class="fas fa-plus"></i> Add 2028 Australian Holidays</button>'+
+    '</div></div>'+
+    /* Admin Credentials */
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-shield-halved mr-2" style="color:var(--info)"></i>Admin Credentials</h3><div class="grid gap-4"><div><label>Username</label><input id="s-user" value="'+(admin.username||'')+'"></div><div><label>New Password</label><input id="s-pass" type="password" placeholder="Leave blank to keep current"></div></div></div>'+
+    /* Demo Mode */
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-flask mr-2" style="color:var(--warning)"></i>Demo Mode</h3><div class="flex items-center justify-between"><div><p class="text-sm">Bypass GPS check</p><p class="text-xs" style="color:var(--muted)">For testing only.</p></div><label class="relative inline-flex items-center cursor-pointer"><input id="s-demo" type="checkbox" '+(st.demoMode?'checked':'')+' class="sr-only peer"><div class="w-11 h-6 rounded-full peer-checked:after:translate-x-full after:content-[\'\'] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-5 after:w-5 after:transition-all" style="background:'+(st.demoMode?'var(--accent)':'var(--border)')+'" onclick="this.style.background=this.previousElementSibling.checked?\'var(--border)\':\'var(--accent)\'"></div></label><style>.peer~div::after{background:var(--fg)}</style></div></div>'+
+    /* Firebase */
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-cloud mr-2" style="color:var(--info)"></i>Firebase</h3><div class="flex items-center gap-2 mb-3"><span class="conn-dot '+(fbConnected?'on':'off')+'"></span><span class="text-sm">'+(fbConnected?'Connected':'Disconnected')+'</span></div><button class="btn btn-secondary btn-sm" onclick="resetFirebaseConfig()"><i class="fas fa-rotate"></i> Reconfigure</button></div>'+
+    /* Reset */
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-database mr-2" style="color:var(--danger)"></i>Data</h3><button class="btn btn-danger btn-sm" onclick="confirmResetAll()"><i class="fas fa-triangle-exclamation"></i> Reset All Data</button></div>'+
+    '<button class="btn btn-primary justify-center" onclick="saveSettingsPage()"><i class="fas fa-save"></i> Save Settings</button></div></div>';
+}
+
+function addAusHolidays(year) {
+  var ta = document.getElementById('s-holidays');
+  var existing = ta.value.trim().split('\n').filter(function(l){return l.trim();});
+  var nyd = year+'-01-01', aus = year+'-01-26';
+  /* Easter: approximate calculation */
+  var a = year % 19, b = Math.floor(year/100), c = year % 100, d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25), g = Math.floor((b-f+1)/3), h = (19*a+b-d-g+15)%30, i = Math.floor(c/4), k = c%4, l = (32+2*e+2*i-h-k)%7, m = Math.floor((a+11*h+22*l)/451), month = Math.floor((h+l-7*m+114)/31)-1, day = ((h+l-7*m+114)%31)+1;
+  var goodFri = year+'-'+String(month).padStart(2,'0')+'-'+String(day-2).padStart(2,'0');
+  var easterMon = year+'-'+String(month).padStart(2,'0')+'-'+String(day+1).padStart(2,'0');
+  var anzac = year+'-04-25';
+  var christmas = year+'-12-25', boxing = year+'-12-26';
+  var add = [nyd, aus, goodFri, easterMon, anzac, christmas, boxing];
+  add.forEach(function(d) { if (existing.indexOf(d) === -1) existing.push(d); });
+  existing.sort();
+  ta.value = existing.join('\n');
+  toast(year+' Australian holidays added', 'success');
+}
+
+function saveSettingsPage(){
+  var holText = document.getElementById('s-holidays').value;
+  var holidays = holText.split('\n').map(function(l){return l.trim();}).filter(function(l){return /^\d{4}-\d{2}-\d{2}$/.test(l);});
+  fbSet('settings', {
+    weeklyRegularHours: parseFloat(document.getElementById('s-weekly').value) || 45,
+    defaultBreak: parseInt(document.getElementById('s-break').value) || 30,
+    demoMode: document.getElementById('s-demo').checked,
+    holidays: holidays
+  });
+  var updates = { username: document.getElementById('s-user').value.trim() || 'admin' };
+  var np = document.getElementById('s-pass').value; if (np) updates.password = np;
+  fbUpdate('admin', updates);
+  toast('Settings saved','success');
+}
+
+function resetFirebaseConfig(){openModal('<h3 class="font-bold text-lg mb-3">Reconfigure Firebase?</h3><p class="text-sm mb-4" style="color:var(--muted)">Shows setup screen again. Data not deleted.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="localStorage.removeItem(\'scp_fb_config\');location.reload()">Reconfigure</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
+function confirmResetAll(){openModal('<h3 class="font-bold text-lg mb-3" style="color:var(--danger)">Reset ALL Data?</h3><p class="text-sm mb-4" style="color:var(--muted)">Deletes everything. Every device affected.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'sites\',null);fbSet(\'employees\',null);fbSet(\'shifts\',null);fbSet(\'records\',null);fbSet(\'settings\',null);fbSet(\'admin\',null);closeModal();toast(\'Reset — reloading\',\'success\');setTimeout(function(){location.reload();},1500)"><i class="fas fa-triangle-exclamation"></i> Reset</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
+
+/* ===== EMPLOYEE: CLOCK PAGE ===== */
+function renderClockPage(){
+  var emp=state.currentEmployee,site=getSites().find(function(s){return s.id===emp.siteId;}),todayShift=getShifts().find(function(s){return s.employeeId===emp.id&&s.date===todayStr();}),isIn=state.clockState==='clocked_in';
+  var todayType=getDayType(todayStr());
+  var h='<div class="fade-in flex flex-col items-center text-center max-w-lg mx-auto">';
+  h+='<div class="mono text-5xl font-bold mb-1" id="emp-live-clock"></div>';
+  h+='<div class="text-sm mb-2" style="color:var(--muted)">'+new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div>';
+  h+='<span class="badge '+(todayType==='Sunday'?'badge-purple':todayType==='Holiday'?'badge-red':'badge-blue')+' mb-6" style="font-size:.8rem;padding:.3rem .8rem">'+todayType+(todayType==='Sunday'?' — All hours at Double Time':todayType==='Holiday'?' — All hours at Double Time':'')+'</span>';
+  h+='<div class="card w-full mb-6 text-left"><div class="flex items-center gap-2 mb-3"><i class="fas fa-calendar-check" style="color:var(--accent)"></i><span class="font-semibold text-sm">Today\'s Shift</span></div>';
+  if(todayShift){h+='<div class="grid grid-cols-2 gap-y-2 text-sm"><div style="color:var(--muted)">Site:</div><div class="font-medium">'+getSiteName(todayShift.siteId)+'</div><div style="color:var(--muted)">Scheduled:</div><div class="mono font-medium">'+todayShift.startTime+' — '+todayShift.endTime+'</div><div style="color:var(--muted)">Break:</div><div>'+todayShift.breakMinutes+' min</div></div>';}
+  else h+='<p class="text-sm" style="color:var(--muted)">No shift assigned for today.</p>';
+  h+='</div>';
+
+  /* Weekly hours tracker */
+  var weekReg = getEmployeeWeekRegularHours(emp.id, todayStr());
+  var weeklyCap = getSettings().weeklyRegularHours || 45;
+  var weekPct = Math.min(100, Math.round((weekReg / weeklyCap) * 100));
+  h+='<div class="card w-full mb-6 text-left"><div class="flex items-center justify-between mb-2"><span class="text-xs font-semibold" style="color:var(--muted)">WEEKLY REGULAR HOURS</span><span class="mono text-sm font-bold" style="color:'+(weekPct>=100?'var(--warning)':'var(--success)')+'">'+weekReg.toFixed(1)+' / '+weeklyCap+'h</span></div>';
+  h+='<div style="background:var(--bg2);border-radius:6px;height:8px;overflow:hidden"><div style="height:100%;width:'+weekPct+'%;border-radius:6px;transition:width .3s;background:'+(weekPct>=100?'var(--warning)':'var(--success)')+'"></div></div>';
+  if(weekPct >= 100) h+='<p class="text-xs mt-1" style="color:var(--warning)"><i class="fas fa-info-circle"></i> Weekly cap reached — remaining weekday hours = OT 1.5x</p>';
+  h+='</div>';
+
+  h+='<div class="card w-full mb-6 text-left"><div class="flex items-center gap-2 mb-3"><i class="fas fa-satellite-dish" style="color:var(--info)"></i><span class="font-semibold text-sm">GPS Status</span></div>';
+  h+='<div class="flex items-center gap-3"><span class="gps-dot pending" id="gps-dot"></span><div><div class="text-sm font-medium" id="gps-text">Acquiring location...</div><div class="text-xs" style="color:var(--muted)" id="gps-detail">Checking distance to '+(site?site.name:'site')+'</div></div></div>';
+  h+='<div class="mt-2 text-xs mono" style="color:var(--muted)" id="gps-coords"></div>';
+  if(site) h+='<div class="mt-1 text-xs" style="color:var(--muted)">Required radius: '+site.radius+'m</div>';
+  h+='</div>';
+  if(isIn){h+='<div class="card w-full mb-6"><div class="text-xs font-semibold mb-1" style="color:var(--success)">CURRENTLY CLOCKED IN</div><div class="mono text-3xl font-bold" style="color:var(--success)" id="elapsed-timer">00:00:00</div><div class="text-xs mt-1" style="color:var(--muted)">Since '+(state.activeRecord?fmtTime(state.activeRecord.clockIn):'')+'</div></div>';}
+  h+='<div class="mb-6"><button class="clock-btn" id="clock-btn" disabled onclick="handleClockAction()"><i class="fas '+(isIn?'fa-right-from-bracket':'fa-right-to-bracket')+' text-2xl"></i><span>'+(isIn?'CLOCK OUT':'CLOCK IN')+'</span></button></div>';
+  h+='<p class="text-xs" style="color:var(--muted);max-width:300px">'+(getSettings().demoMode?'<span class="badge badge-amber mb-1">Demo Mode</span>':'GPS verification active.')+'</p></div>';
+  return h;
+}
+
+function initClockPage(){
+  if(state.liveTimerInterval)clearInterval(state.liveTimerInterval);
+  state.liveTimerInterval=setInterval(function(){var el=document.getElementById('emp-live-clock');if(el)el.textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});var timer=document.getElementById('elapsed-timer');if(timer&&state.activeRecord){var ms=Date.now()-new Date(state.activeRecord.clockIn).getTime();var h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);timer.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}},1000);
+  if(getSettings().demoMode){state.gpsStatus='in_range';updateGPS();updateClockBtn();return;}
+  checkGPS();
+}
+function checkGPS(){if(!navigator.geolocation){state.gpsStatus='error';updateGPS();updateClockBtn();return;}updateGPS();navigator.geolocation.getCurrentPosition(function(pos){state.gpsLat=pos.coords.latitude;state.gpsLng=pos.coords.longitude;var site=getSites().find(function(s){return s.id===state.currentEmployee.siteId;});if(!site){state.gpsStatus='error';updateGPS();updateClockBtn();return;}var dist=haversine(state.gpsLat,state.gpsLng,site.lat,site.lng);state.gpsDistance=Math.round(dist);state.gpsStatus=dist<=site.radius?'in_range':'out_of_range';updateGPS();updateClockBtn();},function(){state.gpsStatus='error';state.gpsDistance=null;updateGPS();updateClockBtn();},{enableHighAccuracy:true,timeout:10000,maximumAge:0});}
+function updateGPS(){var dot=document.getElementById('gps-dot'),text=document.getElementById('gps-text'),detail=document.getElementById('gps-detail'),coords=document.getElementById('gps-coords');if(!dot)return;if(getSettings().demoMode){dot.className='gps-dot active';text.textContent='Demo Mode — GPS bypassed';detail.textContent='Location check disabled';if(coords)coords.textContent='';return;}var m={pending:{c:'gps-dot pending',t:'Acquiring location...',d:'Please allow location access'},in_range:{c:'gps-dot active',t:'Within range',d:state.gpsDistance+'m from site'},out_of_range:{c:'gps-dot inactive',t:'Out of range',d:state.gpsDistance+'m from site — move closer'},error:{c:'gps-dot inactive',t:'Location error',d:'Check permissions'}};var s=m[state.gpsStatus]||m.pending;dot.className=s.c;text.textContent=s.t;detail.textContent=s.d;if(coords)coords.textContent=state.gpsLat!=null?state.gpsLat.toFixed(6)+', '+state.gpsLng.toFixed(6):'';}
+function updateClockBtn(){var btn=document.getElementById('clock-btn');if(!btn)return;var isIn=state.clockState==='clocked_in',demo=getSettings().demoMode,inR=state.gpsStatus==='in_range',canAct=isIn?(demo||inR):(demo||inR);if(isIn){btn.style.borderColor=canAct?'var(--accent)':'var(--border)';btn.style.color=canAct?'var(--accent)':'var(--muted)';btn.style.background=canAct?'rgba(232,168,56,.08)':'var(--card)';}else{btn.style.borderColor=canAct?'var(--success)':'var(--border)';btn.style.color=canAct?'var(--success)':'var(--muted)';btn.style.background=canAct?'rgba(52,211,153,.08)':'var(--card)';}btn.disabled=!canAct;if(canAct)btn.classList.add('pulse');else btn.classList.remove('pulse');}
+
+function handleClockAction(){
+  var demo=getSettings().demoMode,site=getSites().find(function(s){return s.id===state.currentEmployee.siteId;});
+  if(state.clockState==='idle'){
+    if(!demo&&state.gpsStatus!=='in_range'){toast('Must be within site range','error');return;}
+    var todayShift=getShifts().find(function(s){return s.employeeId===state.currentEmployee.id&&s.date===todayStr();});
+    var now=new Date().toISOString(),id=db.ref('records').push().key;
+    var rec={id:id,employeeId:state.currentEmployee.id,siteId:state.currentEmployee.siteId,shiftId:todayShift?todayShift.id:null,clockIn:now,clockOut:null,clockInLat:demo?(site?site.lat:0):state.gpsLat,clockInLng:demo?(site?site.lng:0):state.gpsLng,clockOutLat:null,clockOutLng:null,regularHours:0,overtimeHours:0,doubleTimeHours:0,breakMinutes:todayShift?todayShift.breakMinutes:(getSettings().defaultBreak||30),status:'clocked_in',dayType:getDayType(now.slice(0,10))};
+    fbSet('records/'+id,rec);state.clockState='clocked_in';state.activeRecord=rec;toast('Clocked in','success');navigateEmp('clock');
+  } else {
+    if(!demo&&state.gpsStatus!=='in_range'){toast('Must be within site range','error');return;}
+    var now2=new Date().toISOString(),st=getSettings();
+    var clockInDate=state.activeRecord.clockIn.slice(0,10);
+    var dayType=getDayType(clockInDate);
+    var weeklyCap=st.weeklyRegularHours||45;
+    var weekRegSoFar=getEmployeeWeekRegularHours(state.currentEmployee.id,clockInDate);
+    var hrs=calcHours(state.activeRecord.clockIn,now2,state.activeRecord.breakMinutes||0,weekRegSoFar,dayType,weeklyCap);
+    fbUpdate('records/'+state.activeRecord.id,{clockOut:now2,clockOutLat:demo?(site?site.lat:0):state.gpsLat,clockOutLng:demo?(site?site.lng:0):state.gpsLng,regularHours:hrs.regularHours,overtimeHours:hrs.overtimeHours,doubleTimeHours:hrs.doubleTimeHours,status:'completed',dayType:dayType});
+    state.clockState='idle';state.activeRecord=null;toast('Clocked out','success');navigateEmp('clock');
+  }
+}
+
+/* ===== EMPLOYEE: HISTORY ===== */
+function renderEmpHistory(){
+  var recs=getRecords().filter(function(r){return r.employeeId===state.currentEmployee.id;}).reverse();
+  var h='<div class="fade-in max-w-2xl mx-auto"><h2 class="text-xl font-bold mb-1">My History</h2><p class="text-sm mb-6" style="color:var(--muted)">'+recs.length+' records</p>';
+  if(recs.length){recs.forEach(function(r){var total=(r.regularHours||0)+(r.overtimeHours||0)+(r.doubleTimeHours||0),done=r.status==='completed';var dt=r.clockIn?getDayType(r.clockIn.slice(0,10)):'Weekday';var dtBadge=dt==='Sunday'?'<span class="badge badge-purple">Sunday</span>':dt==='Holiday'?'<span class="badge badge-red">Holiday</span>':'<span class="badge badge-blue">Weekday</span>';
+    h+='<div class="card mb-3"><div class="flex items-center justify-between mb-2"><div class="font-semibold text-sm">'+(r.clockIn?new Date(r.clockIn+'Z').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}):'—')+'</div><div class="flex gap-2">'+dtBadge+(done?'<span class="badge badge-blue">Completed</span>':'<span class="badge badge-green">Active</span>')+'</div></div>';
+    h+='<div class="grid grid-cols-2 gap-y-1 text-sm"><div style="color:var(--muted)">Site:</div><div>'+getSiteName(r.siteId)+'</div><div style="color:var(--muted)">In:</div><div class="mono">'+(r.clockIn?fmtTime(r.clockIn):'—')+'</div><div style="color:var(--muted)">Out:</div><div class="mono">'+(r.clockOut?fmtTime(r.clockOut):'—')+'</div><div style="color:var(--muted)">Break:</div><div>'+(r.breakMinutes||0)+' min</div></div>';
+    if(done){h+='<div class="flex gap-4 mt-3 pt-3 border-t text-sm" style="border-color:var(--border)"><div><span style="color:var(--muted)">Regular:</span> <strong class="mono">'+r.regularHours+'h</strong></div><div><span style="color:var(--muted)">OT:</span> <strong class="mono" style="color:var(--warning)">'+r.overtimeHours+'h</strong></div><div><span style="color:var(--muted)">DT:</span> <strong class="mono" style="color:var(--danger)">'+r.doubleTimeHours+'h</strong></div><div><span style="color:var(--muted)">Total:</span> <strong class="mono" style="color:var(--accent)">'+total.toFixed(2)+'h</strong></div></div>';}
+    h+='</div>';});
+  } else h+='<div class="card text-center py-12"><i class="fas fa-history text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No records yet.</p></div>';
+  h+='</div>';return h;
+}
+
+/* ===== INIT ===== */
+var savedConfig=localStorage.getItem('scp_fb_config');
+if(savedConfig){try{var config=JSON.parse(savedConfig);if(config.databaseURL){showScreen('loading-screen');initFirebase(config);setTimeout(function(){if(dataLoaded<6){localStorage.removeItem('scp_fb_config');showScreen('setup-screen');toast('Connection failed — reconfigure','error');}},10000);}else showScreen('setup-screen');}catch(e){showScreen('setup-screen');}}else showScreen('setup-screen');
+document.getElementById('admin-pass').addEventListener('keydown',function(e){if(e.key==='Enter')adminLogin();});
+document.getElementById('emp-pin').addEventListener('keydown',function(e){if(e.key==='Enter')employeeLogin();});
+document.addEventListener('click',function(e){var sb=document.getElementById('sidebar');if(sb&&sb.classList.contains('open')&&!sb.contains(e.target)&&!e.target.closest('[onclick*="toggleSidebar"]'))sb.classList.remove('open');});
 </script>
 </body>
 </html>
