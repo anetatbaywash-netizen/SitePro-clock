@@ -21,7 +21,6 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--fg)
 .btn-primary{background:var(--accent);color:#0c0e16}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
 .btn-secondary{background:var(--card2);color:var(--fg);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent)}
 .btn-danger{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.3)}.btn-danger:hover{background:rgba(248,113,113,.25)}
-.btn-success{background:rgba(52,211,153,.15);color:var(--success);border:1px solid rgba(52,211,153,.3)}.btn-success:hover{background:rgba(52,211,153,.25)}
 .btn-sm{padding:.4rem .8rem;font-size:.8rem}
 input,select,textarea{background:var(--bg2);border:1px solid var(--border);color:var(--fg);padding:.6rem .8rem;border-radius:8px;font-family:inherit;font-size:.875rem;width:100%;transition:border-color .2s}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
@@ -87,30 +86,11 @@ tr:hover td{background:rgba(232,168,56,.03)}
       <p class="text-sm mt-1" style="color:var(--muted)">One-time setup to sync data across all devices</p>
     </div>
     <div class="grid gap-4 mb-6">
-      <div class="flex gap-3 items-start">
-        <span class="step-num" style="background:var(--accent);color:#0c0e16">1</span>
-        <div><p class="text-sm font-medium">Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent);text-decoration:underline">console.firebase.google.com</a></p><p class="text-xs" style="color:var(--muted)">Sign in with your Google account</p></div>
-      </div>
-      <div class="flex gap-3 items-start">
-        <span class="step-num" style="background:var(--accent);color:#0c0e16">2</span>
-        <div><p class="text-sm font-medium">Click <strong>"Create a project"</strong> → name it anything (e.g. "ShiftClock") → Continue → Create Project</p></div>
-      </div>
-      <div class="flex gap-3 items-start">
-        <span class="step-num" style="background:var(--accent);color:#0c0e16">3</span>
-        <div><p class="text-sm font-medium">In the left menu: <strong>Build → Realtime Database → Create Database</strong></p><p class="text-xs" style="color:var(--muted)">Choose any location, then select <strong>"Start in test mode"</strong> → Enable</p></div>
-      </div>
-      <div class="flex gap-3 items-start">
-        <span class="step-num" style="background:var(--accent);color:#0c0e16">4</span>
-        <div><p class="text-sm font-medium">Click the <strong>gear icon</strong> (top left) → <strong>Project settings</strong></p></div>
-      </div>
-      <div class="flex gap-3 items-start">
-        <span class="step-num" style="background:var(--accent);color:#0c0e16">5</span>
-        <div><p class="text-sm font-medium">Scroll down → click the <strong>&lt;/&gt;</strong> (Web) icon → register app with any name → copy the <code class="mono text-xs px-1 py-0.5 rounded" style="background:var(--bg2)">firebaseConfig</code> block</p></div>
-      </div>
-      <div class="flex gap-3 items-start">
-        <span class="step-num" style="background:var(--accent);color:#0c0e16">6</span>
-        <div><p class="text-sm font-medium">Paste the entire config block below:</p></div>
-      </div>
+      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">1</span><div><p class="text-sm font-medium">Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent);text-decoration:underline">console.firebase.google.com</a></p></div></div>
+      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">2</span><div><p class="text-sm font-medium">Click <strong>"Create a project"</strong> — name it anything — Create Project</p></div></div>
+      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">3</span><div><p class="text-sm font-medium">Left sidebar: <strong>Databases & Storage → Realtime Database</strong> (lightning bolt icon, NOT Firestore) → Create Database → test mode → Enable</p></div></div>
+      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">4</span><div><p class="text-sm font-medium">Gear icon <strong>⚙️ Settings</strong> (bottom of sidebar) → scroll down → click <strong>&lt;/&gt;</strong> Web icon → Register app → copy the firebaseConfig block</p></div></div>
+      <div class="flex gap-3 items-start"><span class="step-num" style="background:var(--accent);color:#0c0e16">5</span><div><p class="text-sm font-medium">Paste it below:</p></div></div>
     </div>
     <div class="mb-4">
       <label>Paste your firebaseConfig here</label>
@@ -138,9 +118,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
 <div id="login-screen" class="hidden min-h-screen flex items-center justify-center p-4">
   <div class="card w-full max-w-md fade-in" style="border-color:color-mix(in srgb,var(--accent) 20%,var(--border))">
     <div class="text-center mb-6">
-      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a)">
-        <i class="fas fa-clock text-xl" style="color:#0c0e16"></i>
-      </div>
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xl" style="color:#0c0e16"></i></div>
       <h1 class="text-2xl font-bold">ShiftClock Pro</h1>
       <p class="text-sm mt-1 flex items-center justify-center gap-2" style="color:var(--muted)">Workforce Time Tracking <span class="conn-dot loading" id="login-conn-dot"></span></p>
     </div>
@@ -154,7 +132,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
       <button class="btn btn-primary w-full justify-center" onclick="adminLogin()"><i class="fas fa-right-to-bracket"></i> Sign In</button>
     </div>
     <div id="login-employee" class="hidden">
-      <div class="mb-4"><label>Employee ID</label><input id="emp-id" type="text" placeholder="e.g. BC001" autocomplete="off"></div>
+      <div class="mb-4"><label>Employee ID</label><input id="emp-id" type="text" placeholder="e.g. EMP001" autocomplete="off"></div>
       <div class="mb-5"><label>PIN</label><input id="emp-pin" type="password" placeholder="4-digit PIN" maxlength="4"></div>
       <button class="btn btn-primary w-full justify-center" onclick="employeeLogin()"><i class="fas fa-right-to-bracket"></i> Clock In Portal</button>
     </div>
@@ -221,31 +199,29 @@ tr:hover td{background:rgba(232,168,56,.03)}
 
 <script>
 /* ============================================================
-   FIREBASE DATA LAYER — replaces localStorage
+   FIREBASE DATA LAYER
    ============================================================ */
-let db = null; // firebase.database reference
-let fbConnected = false;
-let dataLoaded = 0;
-let initialLoadDone = false;
+var db = null;
+var fbConnected = false;
+var dataLoaded = 0;
+var initialLoadDone = false;
 
-/* Local cache mirrors Firebase — updated by real-time listeners */
-let D = { sites:[], employees:[], shifts:[], records:[], settings:{}, admin:{} };
+/* Local cache — updated by real-time listeners */
+var D = { sites:[], employees:[], shifts:[], records:[], settings:{}, admin:{} };
 
 function initFirebase(config) {
   firebase.initializeApp(config);
   db = firebase.database();
-  /* Connection status */
-  db.ref('.info/connected').on('value', snap => {
+  db.ref('.info/connected').on('value', function(snap) {
     fbConnected = snap.val() === true;
     updateConnDots();
   });
-  /* Set up real-time listeners for all data */
-  db.ref('sites').on('value', s => { D.sites = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
-  db.ref('employees').on('value', s => { D.employees = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
-  db.ref('shifts').on('value', s => { D.shifts = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
-  db.ref('records').on('value', s => { D.records = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
-  db.ref('settings').on('value', s => { D.settings = s.val() || {}; dataLoaded++; checkAllLoaded(); });
-  db.ref('admin').on('value', s => { D.admin = s.val() || {}; dataLoaded++; checkAllLoaded(); });
+  db.ref('sites').on('value', function(s) { D.sites = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
+  db.ref('employees').on('value', function(s) { D.employees = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
+  db.ref('shifts').on('value', function(s) { D.shifts = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
+  db.ref('records').on('value', function(s) { D.records = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
+  db.ref('settings').on('value', function(s) { D.settings = s.val() || {}; dataLoaded++; checkAllLoaded(); });
+  db.ref('admin').on('value', function(s) { D.admin = s.val() || {}; dataLoaded++; checkAllLoaded(); });
 }
 
 function checkAllLoaded() {
@@ -258,104 +234,81 @@ function checkAllLoaded() {
 }
 
 function updateConnDots() {
-  const cls = fbConnected ? 'conn-dot on' : 'conn-dot off';
-  document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot').forEach(d => {
-    d.className = cls;
-  });
-  const adminLabel = document.querySelector('#admin-conn-dot + *');
-  /* Don't break if element missing */
+  var cls = fbConnected ? 'conn-dot on' : 'conn-dot off';
+  var labels = fbConnected ? 'Synced' : 'Offline';
+  document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot').forEach(function(d) { d.className = cls; });
+  var adminLabel = document.querySelector('#admin-conn-dot') && document.querySelector('#admin-conn-dot').nextElementSibling;
+  if (adminLabel) adminLabel.textContent = labels;
 }
 
-/* Firebase write helpers */
-function fbSet(path, data) {
-  if (!db) return;
-  db.ref(path).set(data).catch(e => toast('Sync error: ' + e.message, 'error'));
-}
-function fbPush(path, data) {
-  if (!db) return;
-  const ref = db.ref(path).push();
-  ref.set({...data, id: ref.key});
-  return ref.key;
-}
-function fbUpdate(path, data) {
-  if (!db) return;
-  db.ref(path).update(data).catch(e => toast('Sync error: ' + e.message, 'error'));
-}
-function fbRemove(path) {
-  if (!db) return;
-  db.ref(path).remove().catch(e => toast('Sync error: ' + e.message, 'error'));
-}
+function fbSet(path, data) { if (!db) return; db.ref(path).set(data).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
+function fbUpdate(path, data) { if (!db) return; db.ref(path).update(data).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
+function fbRemove(path) { if (!db) return; db.ref(path).remove().catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
 
-/* Convenience getters (from local cache) */
 function getSites() { return D.sites || []; }
 function getEmployees() { return D.employees || []; }
 function getShifts() { return D.shifts || []; }
 function getRecords() { return D.records || []; }
 function getSettings() { return D.settings || {}; }
-function uid() { return db ? db.ref().push().key : Date.now().toString(36); }
 
-/* Seed default data into Firebase */
 function seedFirebase() {
   fbSet('admin', { username:'admin', password:'admin123' });
   fbSet('settings', { otThreshold:2, defaultTarget:8, defaultBreak:30, demoMode:false });
-  const s1 = db.ref('sites').push().key;
-  const s2 = db.ref('sites').push().key;
-  fbSet('sites/' + s1, { id:s1, name:'Main Warehouse', address:'42 Industrial Blvd, Sydney', lat:-33.8688, lng:151.2093, radius:50 });
-  fbSet('sites/' + s2, { id:s2, name:'North Depot', address:'15 Commerce Rd, Melbourne', lat:-37.8136, lng:144.9631, radius:30 });
-  const e1 = db.ref('employees').push().key;
-  const e2 = db.ref('employees').push().key;
-  const e3 = db.ref('employees').push().key;
-  fbSet('employees/' + e1, { id:e1, firstName:'James', lastName:'Short', employeeId:'BC0007', pin:'1234', siteId:s1, active:true });
-  fbSet('employees/' + e2, { id:e2, firstName:'Anet', lastName:'Wolmarans', employeeId:'BC0012', pin:'1234', siteId:s1, active:true });  
+  var s1 = db.ref('sites').push().key;
+  var s2 = db.ref('sites').push().key;
+  fbSet('sites/' + s1, { id:s1, name:'Main Warehouse', address:'42 Industrial Blvd, Sydney', lat:-33.8688, lng:151.2093, radius:100 });
+  fbSet('sites/' + s2, { id:s2, name:'North Depot', address:'15 Commerce Rd, Melbourne', lat:-37.8136, lng:144.9631, radius:100 });
+  var e1 = db.ref('employees').push().key;
+  var e2 = db.ref('employees').push().key;
+  var e3 = db.ref('employees').push().key;
+  fbSet('employees/' + e1, { id:e1, firstName:'James', lastName:'Carter', employeeId:'EMP001', pin:'1234', siteId:s1, active:true });
+  fbSet('employees/' + e2, { id:e2, firstName:'Sarah', lastName:'Mitchell', employeeId:'EMP002', pin:'5678', siteId:s1, active:true });
+  fbSet('employees/' + e3, { id:e3, firstName:'Daniel', lastName:'Nguyen', employeeId:'EMP003', pin:'4321', siteId:s2, active:true });
 }
 
 /* ============================================================
    FIREBASE SETUP WIZARD
    ============================================================ */
 function parseFirebaseConfig(text) {
-  const config = {};
-  const keys = ['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId'];
-  keys.forEach(key => {
-    const regex = new RegExp(key + '\\s*:\\s*["\'`]([^"\'`]+)["\'`]');
-    const match = text.match(regex);
+  var config = {};
+  var keys = ['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId'];
+  keys.forEach(function(key) {
+    var regex = new RegExp(key + '\\s*:\\s*["\'`]([^"\'`]+)["\'`]');
+    var match = text.match(regex);
     if (match) config[key] = match[1];
   });
   return config;
 }
 
 function connectFirebase() {
-  const text = document.getElementById('fb-config-paste').value.trim();
-  const statusEl = document.getElementById('fb-config-status');
-  const btn = document.getElementById('fb-connect-btn');
-  if (!text) { statusEl.innerHTML='<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Please paste your firebaseConfig</span>'; statusEl.classList.remove('hidden'); return; }
-  const config = parseFirebaseConfig(text);
-  const missing = ['apiKey','authDomain','databaseURL','projectId'].filter(k => !config[k]);
-  if (missing.length) {
-    statusEl.innerHTML=`<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Missing: ${missing.join(', ')}. Make sure you paste the full config block.</span>`;
-    statusEl.classList.remove('hidden'); return;
-  }
+  var text = document.getElementById('fb-config-paste').value.trim();
+  var statusEl = document.getElementById('fb-config-status');
+  var btn = document.getElementById('fb-connect-btn');
+  if (!text) { statusEl.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Please paste your firebaseConfig</span>'; statusEl.classList.remove('hidden'); return; }
+  var config = parseFirebaseConfig(text);
+  var missing = ['apiKey','authDomain','databaseURL','projectId'].filter(function(k) { return !config[k]; });
+  if (missing.length) { statusEl.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Missing: ' + missing.join(', ') + '. Paste the full config block.</span>'; statusEl.classList.remove('hidden'); return; }
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
   try {
     initFirebase(config);
     localStorage.setItem('scp_fb_config', JSON.stringify(config));
     showScreen('loading-screen');
-    /* If not loaded in 8 seconds, show error */
-    setTimeout(() => {
+    setTimeout(function() {
       if (dataLoaded < 6) {
-        statusEl.innerHTML='<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Connection timed out. Check your databaseURL and that Realtime Database is enabled in test mode.</span>';
+        statusEl.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Timed out. Check databaseURL and that Realtime Database is in test mode.</span>';
         statusEl.classList.remove('hidden');
         btn.disabled = false; btn.innerHTML = '<i class="fas fa-plug"></i> Connect & Initialize';
       }
-    }, 8000);
+    }, 10000);
   } catch(e) {
-    statusEl.innerHTML=`<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Error: ${e.message}</span>`;
+    statusEl.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Error: ' + e.message + '</span>';
     statusEl.classList.remove('hidden');
     btn.disabled = false; btn.innerHTML = '<i class="fas fa-plug"></i> Connect & Initialize';
   }
 }
 
 function showScreen(id) {
-  ['setup-screen','loading-screen','login-screen','admin-layout','employee-layout'].forEach(s => {
+  ['setup-screen','loading-screen','login-screen','admin-layout','employee-layout'].forEach(function(s) {
     document.getElementById(s).classList.toggle('hidden', s !== id);
   });
 }
@@ -363,7 +316,7 @@ function showScreen(id) {
 /* ============================================================
    STATE
    ============================================================ */
-let state = {
+var state = {
   loggedIn:false, role:null, currentPage:'dashboard', empPage:'clock',
   currentEmployee:null, clockState:'idle', activeRecord:null,
   gpsStatus:'pending', gpsDistance:null, gpsLat:null, gpsLng:null,
@@ -373,41 +326,42 @@ let state = {
 /* ============================================================
    UTILITIES
    ============================================================ */
-function fmtDate(d) { const dt=d instanceof Date?d:new Date(d); return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
-function fmtTime(d) { const dt=d instanceof Date?d:new Date(d); return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0'); }
+function fmtDate(d) { var dt=d instanceof Date?d:new Date(d); return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
+function fmtTime(d) { var dt=d instanceof Date?d:new Date(d); return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0'); }
 function todayStr() { return fmtDate(new Date()); }
-function getSiteName(id) { const s=getSites().find(x=>x.id===id); return s?s.name:'Unknown'; }
-function getEmpName(id) { const e=getEmployees().find(x=>x.id===id); return e?e.firstName+' '+e.lastName:'Unknown'; }
-function getEmpById(id) { return getEmployees().find(x=>x.id===id); }
+function getSiteName(id) { var s=getSites().find(function(x){return x.id===id;}); return s?s.name:'Unknown'; }
+function getEmpName(id) { var e=getEmployees().find(function(x){return x.id===id;}); return e?e.firstName+' '+e.lastName:'Unknown'; }
+function getEmpById(id) { return getEmployees().find(function(x){return x.id===id;}); }
 
 function haversine(lat1,lon1,lat2,lon2) {
-  const R=6371000, toR=n=>n*Math.PI/180;
-  const dLat=toR(lat2-lat1), dLon=toR(lon2-lon1);
-  const a=Math.sin(dLat/2)**2+Math.cos(toR(lat1))*Math.cos(toR(lat2))*Math.sin(dLon/2)**2;
+  var R=6371000, toR=function(n){return n*Math.PI/180;};
+  var dLat=toR(lat2-lat1), dLon=toR(lon2-lon1);
+  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(toR(lat1))*Math.cos(toR(lat2))*Math.sin(dLon/2)*Math.sin(dLon/2);
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
 function calcHours(clockIn, clockOut, targetHours, breakMinutes, otThreshold) {
-  const totalMs = new Date(clockOut) - new Date(clockIn);
-  let totalMin = Math.max(0, totalMs / 60000 - breakMinutes);
-  const regMin = Math.min(totalMin, targetHours * 60);
-  let remain = totalMin - regMin;
-  const otMin = Math.min(remain, otThreshold * 60);
-  const dtMin = Math.max(0, remain - otMin);
+  var totalMs = new Date(clockOut) - new Date(clockIn);
+  var totalMin = Math.max(0, totalMs / 60000 - breakMinutes);
+  var regMin = Math.min(totalMin, targetHours * 60);
+  var remain = totalMin - regMin;
+  var otMin = Math.min(remain, otThreshold * 60);
+  var dtMin = Math.max(0, remain - otMin);
   return { regularHours:Math.round(regMin/6)/100, overtimeHours:Math.round(otMin/6)/100, doubleTimeHours:Math.round(dtMin/6)/100, totalHours:Math.round(totalMin/6)/100 };
 }
 
-function toast(msg, type='info') {
-  const c = document.getElementById('toast-container');
-  const t = document.createElement('div');
-  t.className = 'toast toast-'+type;
-  const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
-  t.innerHTML = `<i class="fas ${icons[type]||icons.info}"></i><span>${msg}</span>`;
+function toast(msg, type) {
+  type = type || 'info';
+  var c = document.getElementById('toast-container');
+  var t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  var icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
+  t.innerHTML = '<i class="fas ' + (icons[type]||icons.info) + '"></i><span>' + msg + '</span>';
   c.appendChild(t);
-  setTimeout(()=>{ t.style.animation='slideOut .3s ease forwards'; setTimeout(()=>t.remove(),300); }, 3500);
+  setTimeout(function() { t.style.animation='slideOut .3s ease forwards'; setTimeout(function() { t.remove(); }, 300); }, 3500);
 }
 
-function openModal(html) { document.getElementById('modal-box').innerHTML=html; document.getElementById('modal-overlay').classList.remove('hidden'); }
+function openModal(html) { document.getElementById('modal-box').innerHTML = html; document.getElementById('modal-overlay').classList.remove('hidden'); }
 function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
@@ -415,438 +369,465 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
    AUTH
    ============================================================ */
 function switchLoginTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',(tab==='admin'&&i===0)||(tab==='employee'&&i===1)));
-  document.getElementById('login-admin').classList.toggle('hidden',tab!=='admin');
-  document.getElementById('login-employee').classList.toggle('hidden',tab!=='employee');
+  document.querySelectorAll('.tab-btn').forEach(function(b,i) { b.classList.toggle('active', (tab==='admin'&&i===0)||(tab==='employee'&&i===1)); });
+  document.getElementById('login-admin').classList.toggle('hidden', tab!=='admin');
+  document.getElementById('login-employee').classList.toggle('hidden', tab!=='employee');
 }
 
 function adminLogin() {
-  const u=document.getElementById('admin-user').value.trim(), p=document.getElementById('admin-pass').value;
-  if (u===D.admin.username && p===D.admin.password) {
-    state.loggedIn=true; state.role='admin'; state.currentPage='dashboard';
-    showAdmin(); toast('Welcome, Admin','success');
-  } else toast('Invalid credentials','error');
+  var u = document.getElementById('admin-user').value.trim(), p = document.getElementById('admin-pass').value;
+  if (u === D.admin.username && p === D.admin.password) {
+    state.loggedIn = true; state.role = 'admin'; state.currentPage = 'dashboard';
+    showAdmin(); toast('Welcome, Admin', 'success');
+  } else { toast('Invalid credentials', 'error'); }
 }
 
 function employeeLogin() {
-  const eid=document.getElementById('emp-id').value.trim().toUpperCase(), pin=document.getElementById('emp-pin').value;
-  const emp = getEmployees().find(e=>e.employeeId===eid && e.pin===pin && e.active);
+  var eid = document.getElementById('emp-id').value.trim().toUpperCase(), pin = document.getElementById('emp-pin').value;
+  var emp = getEmployees().find(function(e) { return e.employeeId === eid && e.pin === pin && e.active; });
   if (emp) {
-    state.loggedIn=true; state.role='employee'; state.currentEmployee=emp; state.empPage='clock';
-    const recs = getRecords().filter(r=>r.employeeId===emp.id && r.status==='clocked_in');
-    if (recs.length) { state.clockState='clocked_in'; state.activeRecord=recs[0]; } else { state.clockState='idle'; state.activeRecord=null; }
-    showEmployee(); toast(`Welcome, ${emp.firstName}`,'success');
-  } else toast('Invalid Employee ID or PIN','error');
+    state.loggedIn = true; state.role = 'employee'; state.currentEmployee = emp; state.empPage = 'clock';
+    var recs = getRecords().filter(function(r) { return r.employeeId === emp.id && r.status === 'clocked_in'; });
+    if (recs.length) { state.clockState = 'clocked_in'; state.activeRecord = recs[0]; } else { state.clockState = 'idle'; state.activeRecord = null; }
+    showEmployee(); toast('Welcome, ' + emp.firstName, 'success');
+  } else { toast('Invalid Employee ID or PIN', 'error'); }
 }
 
 function logout() {
   if (state.liveTimerInterval) clearInterval(state.liveTimerInterval);
-  state={loggedIn:false,role:null,currentPage:'dashboard',empPage:'clock',currentEmployee:null,clockState:'idle',activeRecord:null,gpsStatus:'pending',gpsDistance:null,gpsLat:null,gpsLng:null,liveTimerInterval:null};
+  state = { loggedIn:false, role:null, currentPage:'dashboard', empPage:'clock', currentEmployee:null, clockState:'idle', activeRecord:null, gpsStatus:'pending', gpsDistance:null, gpsLat:null, gpsLng:null, liveTimerInterval:null };
   document.getElementById('admin-layout').classList.add('hidden');
   document.getElementById('employee-layout').classList.add('hidden');
   showScreen('login-screen');
-  document.getElementById('admin-user').value=''; document.getElementById('admin-pass').value='';
-  document.getElementById('emp-id').value=''; document.getElementById('emp-pin').value='';
+  document.getElementById('admin-user').value = ''; document.getElementById('admin-pass').value = '';
+  document.getElementById('emp-id').value = ''; document.getElementById('emp-pin').value = '';
 }
 
 function showAdmin() { showScreen('admin-layout'); navigateAdmin(state.currentPage); }
-function showEmployee() { showScreen('employee-layout'); document.getElementById('emp-header-name').textContent=state.currentEmployee.firstName+' '+state.currentEmployee.lastName; navigateEmp(state.empPage); }
+function showEmployee() { showScreen('employee-layout'); document.getElementById('emp-header-name').textContent = state.currentEmployee.firstName + ' ' + state.currentEmployee.lastName; navigateEmp(state.empPage); }
 
 /* ============================================================
    ADMIN ROUTER
    ============================================================ */
 function navigateAdmin(page) {
-  state.currentPage=page;
-  document.querySelectorAll('#admin-nav .sidebar-link').forEach(l=>l.classList.toggle('active',l.dataset.page===page));
-  const el=document.getElementById('admin-content');
-  const R={dashboard:renderDashboard,sites:renderSites,employees:renderEmployees,shifts:renderShifts,records:renderRecords,export:renderExport,settings:renderSettings};
-  if(R[page]) el.innerHTML=R[page]();
-  if(page==='dashboard') startDashClock();
+  state.currentPage = page;
+  document.querySelectorAll('#admin-nav .sidebar-link').forEach(function(l) { l.classList.toggle('active', l.dataset.page === page); });
+  var el = document.getElementById('admin-content');
+  var R = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, shifts:renderShifts, records:renderRecords, export:renderExport, settings:renderSettings };
+  if (R[page]) el.innerHTML = R[page]();
+  if (page === 'dashboard') startDashClock();
 }
-document.getElementById('admin-nav').addEventListener('click',e=>{const l=e.target.closest('.sidebar-link');if(l&&l.dataset.page){navigateAdmin(l.dataset.page);document.getElementById('sidebar').classList.remove('open');}});
+document.getElementById('admin-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.page) { navigateAdmin(l.dataset.page); document.getElementById('sidebar').classList.remove('open'); } });
 
-/* EMPLOYEE ROUTER */
 function navigateEmp(page) {
-  state.empPage=page;
-  document.querySelectorAll('#emp-nav .sidebar-link').forEach(l=>l.classList.toggle('active',l.dataset.epage===page));
-  const el=document.getElementById('emp-content');
-  if(page==='clock'){el.innerHTML=renderClockPage();initClockPage();}
-  else if(page==='history') el.innerHTML=renderEmpHistory();
+  state.empPage = page;
+  document.querySelectorAll('#emp-nav .sidebar-link').forEach(function(l) { l.classList.toggle('active', l.dataset.epage === page); });
+  var el = document.getElementById('emp-content');
+  if (page === 'clock') { el.innerHTML = renderClockPage(); initClockPage(); }
+  else if (page === 'history') { el.innerHTML = renderEmpHistory(); }
 }
-document.getElementById('emp-nav').addEventListener('click',e=>{const l=e.target.closest('.sidebar-link');if(l&&l.dataset.epage)navigateEmp(l.dataset.epage);});
+document.getElementById('emp-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.epage) navigateEmp(l.dataset.epage); });
 
 /* ============================================================
    ADMIN: DASHBOARD
    ============================================================ */
-let dashCI=null;
-function startDashClock(){if(dashCI)clearInterval(dashCI);const u=()=>{const e=document.getElementById('dash-live-clock');if(e)e.textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});else clearInterval(dashCI);};u();dashCI=setInterval(u,1000);}
+var dashCI = null;
+function startDashClock() { if (dashCI) clearInterval(dashCI); var u = function() { var e = document.getElementById('dash-live-clock'); if (e) e.textContent = new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit',second:'2-digit'}); else clearInterval(dashCI); }; u(); dashCI = setInterval(u, 1000); }
 
-function renderDashboard(){
-  const emps=getEmployees(),sites=getSites(),shifts=getShifts(),recs=getRecords(),today=todayStr();
-  const todayShifts=shifts.filter(s=>s.date===today),clockedIn=recs.filter(r=>r.status==='clocked_in'),todayRecs=recs.filter(r=>r.clockIn&&r.clockIn.startsWith(today)&&r.status==='completed');
-  return `<div class="fade-in">
-    <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
-      <div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">${new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div>
-      <div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">${emps.filter(e=>e.active).length}</div></div>
-      <div class="card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">${sites.length}</div></div>
-      <div class="card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY SHIFTS</div><div class="text-2xl font-bold">${todayShifts.length}</div></div>
-      <div class="card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:${clockedIn.length?'var(--success)':'var(--muted)'}">${clockedIn.length}</div></div>
-    </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now</h3>
-        ${clockedIn.length?clockedIn.map(r=>{const emp=getEmpById(r.employeeId);const start=new Date(r.clockIn);const el=Math.floor((Date.now()-start.getTime())/60000);return`<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">${emp?emp.firstName+' '+emp.lastName:'Unknown'}</div><div class="text-xs" style="color:var(--muted)">${getSiteName(r.siteId)} &middot; Since ${fmtTime(start)}</div></div><div class="text-right"><div class="mono text-sm font-semibold" style="color:var(--success)">${Math.floor(el/60)}h ${el%60}m</div><span class="badge badge-green">Active</span></div></div>`;}).join(''):'<p class="text-sm" style="color:var(--muted)">Nobody clocked in right now.</p>'}
-      </div>
-      <div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today's Shifts</h3>
-        ${todayShifts.length?todayShifts.slice(0,6).map(s=>{const emp=getEmpById(s.employeeId);const rec=recs.find(r=>r.shiftId===s.id);let st='<span class="badge badge-amber">Pending</span>';if(rec&&rec.status==='clocked_in')st='<span class="badge badge-green">Clocked In</span>';else if(rec&&rec.status==='completed')st='<span class="badge badge-blue">Done</span>';return`<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">${emp?emp.firstName+' '+emp.lastName:'—'}</div><div class="text-xs" style="color:var(--muted)">${getSiteName(s.siteId)} &middot; ${s.startTime}-${s.endTime}</div></div>${st}</div>`;}).join(''):'<p class="text-sm" style="color:var(--muted)">No shifts today.</p>'}
-      </div>
-    </div>
-  </div>`;
+function renderDashboard() {
+  var emps = getEmployees(), sites = getSites(), shifts = getShifts(), recs = getRecords(), today = todayStr();
+  var todayShifts = shifts.filter(function(s) { return s.date === today; });
+  var clockedIn = recs.filter(function(r) { return r.status === 'clocked_in'; });
+  var todayRecs = recs.filter(function(r) { return r.clockIn && r.clockIn.startsWith(today) && r.status === 'completed'; });
+  var html = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-2"><div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">' + new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + '</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div></div>';
+  html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">';
+  html += '<div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">' + emps.filter(function(e){return e.active;}).length + '</div></div>';
+  html += '<div class="card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">' + sites.length + '</div></div>';
+  html += '<div class="card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY SHIFTS</div><div class="text-2xl font-bold">' + todayShifts.length + '</div></div>';
+  html += '<div class="card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:' + (clockedIn.length ? 'var(--success)' : 'var(--muted)') + '">' + clockedIn.length + '</div></div></div>';
+  html += '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">';
+  html += '<div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now</h3>';
+  if (clockedIn.length) { clockedIn.forEach(function(r) { var emp = getEmpById(r.employeeId); var start = new Date(r.clockIn); var el = Math.floor((Date.now() - start.getTime()) / 60000); html += '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">' + (emp ? emp.firstName + ' ' + emp.lastName : 'Unknown') + '</div><div class="text-xs" style="color:var(--muted)">' + getSiteName(r.siteId) + ' &middot; Since ' + fmtTime(start) + '</div></div><div class="text-right"><div class="mono text-sm font-semibold" style="color:var(--success)">' + Math.floor(el/60) + 'h ' + (el%60) + 'm</div><span class="badge badge-green">Active</span></div></div>'; }); }
+  else { html += '<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>'; }
+  html += '</div><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today\'s Shifts</h3>';
+  if (todayShifts.length) { todayShifts.slice(0,6).forEach(function(s) { var emp = getEmpById(s.employeeId); var rec = recs.find(function(r) { return r.shiftId === s.id; }); var st = '<span class="badge badge-amber">Pending</span>'; if (rec && rec.status === 'clocked_in') st = '<span class="badge badge-green">Clocked In</span>'; else if (rec && rec.status === 'completed') st = '<span class="badge badge-blue">Done</span>'; html += '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">' + (emp ? emp.firstName + ' ' + emp.lastName : '—') + '</div><div class="text-xs" style="color:var(--muted)">' + getSiteName(s.siteId) + ' &middot; ' + s.startTime + '-' + s.endTime + '</div></div>' + st + '</div>'; }); }
+  else { html += '<p class="text-sm" style="color:var(--muted)">No shifts today.</p>'; }
+  html += '</div></div></div>';
+  return html;
 }
 
 /* ============================================================
    ADMIN: SITES
    ============================================================ */
-function renderSites(){
-  const sites=getSites();
-  return `<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2><p class="text-sm" style="color:var(--muted)">GPS clock-in zones (5-300m radius)</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div>
-    <div class="grid gap-4">${sites.length?sites.map(s=>`<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">${s.name}</div><div class="text-sm" style="color:var(--muted)">${s.address}</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>${s.lat.toFixed(5)}, ${s.lng.toFixed(5)}</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>${s.radius}m</span><a href="https://www.google.com/maps?q=${s.lat},${s.lng}" target="_blank" class="hover:underline" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal('${s.id}')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite('${s.id}')"><i class="fas fa-trash"></i></button></div></div>`).join(''):'<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites yet.</p></div>'}</div></div>`;
+function renderSites() {
+  var sites = getSites();
+  var html = '<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2><p class="text-sm" style="color:var(--muted)">GPS clock-in zones (5-300m radius)</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-4">';
+  if (sites.length) { sites.forEach(function(s) { html += '<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">' + s.name + '</div><div class="text-sm" style="color:var(--muted)">' + s.address + '</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>' + s.lat.toFixed(5) + ', ' + s.lng.toFixed(5) + '</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>' + s.radius + 'm</span><a href="https://www.google.com/maps?q=' + s.lat + ',' + s.lng + '" target="_blank" class="hover:underline" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\'' + s.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite(\'' + s.id + '\')"><i class="fas fa-trash"></i></button></div></div>'; }); }
+  else { html += '<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites yet.</p></div>'; }
+  html += '</div></div>';
+  return html;
 }
 
-function openSiteModal(editId){
-  const s=editId?getSites().find(x=>x.id===editId):null;
-  openModal(`<h3 class="font-bold text-lg mb-4">${s?'Edit':'Add'} Site</h3><div class="grid gap-4">
-    <div><label>Site Name</label><input id="m-site-name" value="${s?s.name:''}"></div>
-    <div><label>Address</label><input id="m-site-addr" value="${s?s.address:''}"></div>
-    <div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="${s?s.lat:''}"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="${s?s.lng:''}"></div></div>
-    <div><label>GPS Radius: <span id="m-radius-val">${s?s.radius:30}</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="${s?s.radius:30}" oninput="document.getElementById('m-radius-val').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m strict</span><span>300m lenient</span></div></div>
-    <button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Current Location</button>
-    <div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite('${editId||''}')">${s?'Update':'Add'}</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>`);
+function openSiteModal(editId) {
+  var s = editId ? getSites().find(function(x) { return x.id === editId; }) : null;
+  openModal('<h3 class="font-bold text-lg mb-4">' + (s ? 'Edit' : 'Add') + ' Site</h3><div class="grid gap-4">' +
+    '<div><label>Site Name</label><input id="m-site-name" value="' + (s ? s.name : '') + '"></div>' +
+    '<div><label>Address</label><input id="m-site-addr" value="' + (s ? s.address : '') + '"></div>' +
+    '<div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="' + (s ? s.lat : '') + '"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="' + (s ? s.lng : '') + '"></div></div>' +
+    '<div><label>GPS Radius: <span id="m-radius-val">' + (s ? s.radius : 100) + '</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="' + (s ? s.radius : 100) + '" oninput="document.getElementById(\'m-radius-val\').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m strict</span><span>300m lenient</span></div></div>' +
+    '<button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Current Location</button>' +
+    '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\'' + (editId || '') + '\')">' + (s ? 'Update' : 'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 
-function getMyLocation(){if(!navigator.geolocation){toast('Geolocation not supported','error');return;}toast('Getting location...','info');navigator.geolocation.getCurrentPosition(p=>{document.getElementById('m-site-lat').value=p.coords.latitude.toFixed(5);document.getElementById('m-site-lng').value=p.coords.longitude.toFixed(5);toast('Location acquired','success');},e=>toast('Error: '+e.message,'error'),{enableHighAccuracy:true});}
-
-function saveSite(editId){
-  const name=document.getElementById('m-site-name').value.trim(),address=document.getElementById('m-site-addr').value.trim(),lat=parseFloat(document.getElementById('m-site-lat').value),lng=parseFloat(document.getElementById('m-site-lng').value),radius=parseInt(document.getElementById('').value);
-  if(!name){toast('Name required','error');return;}if(isNaN(lat)||isNaN(lng)){toast('Valid coordinates required','error');return;}
-  if(editId){fbUpdate('sites/'+editId,{name,address,lat,lng,radius});}else{const id=db.ref('sites').push().key;fbSet('sites/'+id,{id,name,address,lat,lng,radius});}
-  closeModal();navigateAdmin('sites');toast(editId?'Site updated':'Site added','success');
+function getMyLocation() {
+  if (!navigator.geolocation) { toast('Geolocation not supported', 'error'); return; }
+  toast('Getting location...', 'info');
+  navigator.geolocation.getCurrentPosition(function(p) { document.getElementById('m-site-lat').value = p.coords.latitude.toFixed(5); document.getElementById('m-site-lng').value = p.coords.longitude.toFixed(5); toast('Location acquired', 'success'); }, function(e) { toast('Error: ' + e.message, 'error'); }, { enableHighAccuracy: true });
 }
 
-function deleteSite(id){
-  if(getEmployees().filter(e=>e.siteId===id).length){toast('Cannot delete: employees assigned','error');return;}
-  openModal(`<h3 class="font-bold text-lg mb-3">Delete Site?</h3><p class="text-sm mb-4" style="color:var(--muted)">This cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRemove('sites/${id}');closeModal();navigateAdmin('sites');toast('Site deleted','success')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>`);
+function saveSite(editId) {
+  var name = document.getElementById('m-site-name').value.trim(), address = document.getElementById('m-site-addr').value.trim(), lat = parseFloat(document.getElementById('m-site-lat').value), lng = parseFloat(document.getElementById('m-site-lng').value), radius = parseInt(document.getElementById('m-site-radius').value);
+  if (!name) { toast('Name required', 'error'); return; }
+  if (isNaN(lat) || isNaN(lng)) { toast('Valid coordinates required', 'error'); return; }
+  if (editId) { fbUpdate('sites/' + editId, { name:name, address:address, lat:lat, lng:lng, radius:radius }); }
+  else { var id = db.ref('sites').push().key; fbSet('sites/' + id, { id:id, name:name, address:address, lat:lat, lng:lng, radius:radius }); }
+  closeModal(); navigateAdmin('sites'); toast(editId ? 'Site updated' : 'Site added', 'success');
+}
+
+function deleteSite(id) {
+  if (getEmployees().filter(function(e) { return e.siteId === id; }).length) { toast('Cannot delete: employees assigned', 'error'); return; }
+  openModal('<h3 class="font-bold text-lg mb-3">Delete Site?</h3><p class="text-sm mb-4" style="color:var(--muted)">This cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRemove(\'sites/' + id + '\');closeModal();navigateAdmin(\'sites\');toast(\'Site deleted\',\'success\')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
 }
 
 /* ============================================================
    ADMIN: EMPLOYEES
    ============================================================ */
-function renderEmployees(){
-  const emps=getEmployees();
-  return `<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Employees</h2><p class="text-sm" style="color:var(--muted)">${emps.length} total</p></div><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add Employee</button></div>
-    <div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-    ${emps.map(e=>`<tr><td class="font-medium">${e.firstName} ${e.lastName}</td><td class="mono text-xs">${e.employeeId}</td><td><span class="badge badge-blue">${getSiteName(e.siteId)}</span></td><td class="mono text-xs">&bull;&bull;&bull;&bull;</td><td>${e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>'}</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openEmpModal('${e.id}')"><i class="fas fa-pen"></i></button><button class="btn btn-secondary btn-sm" onclick="toggleEmp('${e.id}')">${e.active?'<i class="fas fa-ban" style="color:var(--danger)"></i>':'<i class="fas fa-check" style="color:var(--success)"></i>'}</button></div></td></tr>`).join('')}
-    </tbody></table>${!emps.length?'<p class="text-center py-8 text-sm" style="color:var(--muted)">No employees yet.</p>':''}</div></div>`;
+function renderEmployees() {
+  var emps = getEmployees();
+  var html = '<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Employees</h2><p class="text-sm" style="color:var(--muted)">' + emps.length + ' total</p></div><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add Employee</button></div>';
+  html += '<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  emps.forEach(function(e) {
+    html += '<tr><td class="font-medium">' + e.firstName + ' ' + e.lastName + '</td><td class="mono text-xs">' + e.employeeId + '</td><td><span class="badge badge-blue">' + getSiteName(e.siteId) + '</span></td><td class="mono text-xs">&bull;&bull;&bull;&bull;</td><td>' + (e.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Inactive</span>') + '</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openEmpModal(\'' + e.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-secondary btn-sm" onclick="toggleEmp(\'' + e.id + '\')">' + (e.active ? '<i class="fas fa-ban" style="color:var(--danger)"></i>' : '<i class="fas fa-check" style="color:var(--success)"></i>') + '</button></div></td></tr>';
+  });
+  html += '</tbody></table>' + (!emps.length ? '<p class="text-center py-8 text-sm" style="color:var(--muted)">No employees yet.</p>' : '') + '</div></div>';
+  return html;
 }
 
-function openEmpModal(editId){
-  const emps=getEmployees(),sites=getSites(),e=editId?emps.find(x=>x.id===editId):null;
-  if(!sites.length){toast('Add a site first','error');return;}
-  openModal(`<h3 class="font-bold text-lg mb-4">${e?'Edit':'Add'} Employee</h3><div class="grid gap-4">
-    <div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="${e?e.firstName:''}"></div><div><label>Last Name</label><input id="m-emp-ln" value="${e?e.lastName:''}"></div></div>
-    <div><label>Employee ID</label><input id="m-emp-eid" value="${e?e.employeeId:''}" ${e?'readonly style="opacity:.6"':''}></div>
-    <div><label>PIN (4 digits)</label><input id="m-emp-pin" type="password" maxlength="4" value="${e?e.pin:''}" placeholder="4-digit PIN"></div>
-    <div><label>Assigned Site</label><select id="m-emp-site">${sites.map(s=>`<option value="${s.id}" ${e&&e.siteId===s.id?'selected':''}>${s.name}</option>`).join('')}</select></div>
-    <div class="flex items-center gap-2"><input id="m-emp-active" type="checkbox" ${!e||e.active?'checked':''} class="w-4 h-4"><label for="m-emp-active" style="margin:0;cursor:pointer">Active</label></div>
-    <div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp('${editId||''}')">${e?'Update':'Add'}</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>`);
+function openEmpModal(editId) {
+  var emps = getEmployees(), sites = getSites(), e = editId ? emps.find(function(x) { return x.id === editId; }) : null;
+  if (!sites.length) { toast('Add a site first', 'error'); return; }
+  var siteOpts = ''; sites.forEach(function(s) { siteOpts += '<option value="' + s.id + '" ' + (e && e.siteId === s.id ? 'selected' : '') + '>' + s.name + '</option>'; });
+  openModal('<h3 class="font-bold text-lg mb-4">' + (e ? 'Edit' : 'Add') + ' Employee</h3><div class="grid gap-4">' +
+    '<div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="' + (e ? e.firstName : '') + '"></div><div><label>Last Name</label><input id="m-emp-ln" value="' + (e ? e.lastName : '') + '"></div></div>' +
+    '<div><label>Employee ID</label><input id="m-emp-eid" value="' + (e ? e.employeeId : '') + '" ' + (e ? 'readonly style="opacity:.6"' : '') + '></div>' +
+    '<div><label>PIN (4 digits)</label><input id="m-emp-pin" type="password" maxlength="4" value="' + (e ? e.pin : '') + '" placeholder="4-digit PIN"></div>' +
+    '<div><label>Assigned Site</label><select id="m-emp-site">' + siteOpts + '</select></div>' +
+    '<div class="flex items-center gap-2"><input id="m-emp-active" type="checkbox" ' + (!e || e.active ? 'checked' : '') + ' class="w-4 h-4"><label for="m-emp-active" style="margin:0;cursor:pointer">Active</label></div>' +
+    '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\'' + (editId || '') + '\')">' + (e ? 'Update' : 'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 
-function saveEmp(editId){
-  const fn=document.getElementById('m-emp-fn').value.trim(),ln=document.getElementById('m-emp-ln').value.trim(),eid=document.getElementById('m-emp-eid').value.trim().toUpperCase(),pin=document.getElementById('m-emp-pin').value,siteId=document.getElementById('m-emp-site').value,active=document.getElementById('m-emp-active').checked;
-  if(!fn||!ln){toast('Name required','error');return;}if(!eid){toast('Employee ID required','error');return;}if(!/^\d{4}$/.test(pin)){toast('PIN must be 4 digits','error');return;}
-  if(!editId&&getEmployees().find(e=>e.employeeId===eid)){toast('Employee ID already exists','error');return;}
-  if(editId){fbUpdate('employees/'+editId,{firstName:fn,lastName:ln,employeeId:eid,pin,siteId,active});}else{const id=db.ref('employees').push().key;fbSet('employees/'+id,{id,firstName:fn,lastName:ln,employeeId:eid,pin,siteId,active});}
-  closeModal();navigateAdmin('employees');toast(editId?'Updated':'Employee added','success');
+function saveEmp(editId) {
+  var fn = document.getElementById('m-emp-fn').value.trim(), ln = document.getElementById('m-emp-ln').value.trim(), eid = document.getElementById('m-emp-eid').value.trim().toUpperCase(), pin = document.getElementById('m-emp-pin').value, siteId = document.getElementById('m-emp-site').value, active = document.getElementById('m-emp-active').checked;
+  if (!fn || !ln) { toast('Name required', 'error'); return; }
+  if (!eid) { toast('Employee ID required', 'error'); return; }
+  if (!/^\d{4}$/.test(pin)) { toast('PIN must be 4 digits', 'error'); return; }
+  if (!editId && getEmployees().find(function(e) { return e.employeeId === eid; })) { toast('Employee ID already exists', 'error'); return; }
+  if (editId) { fbUpdate('employees/' + editId, { firstName:fn, lastName:ln, employeeId:eid, pin:pin, siteId:siteId, active:active }); }
+  else { var id = db.ref('employees').push().key; fbSet('employees/' + id, { id:id, firstName:fn, lastName:ln, employeeId:eid, pin:pin, siteId:siteId, active:active }); }
+  closeModal(); navigateAdmin('employees'); toast(editId ? 'Updated' : 'Employee added', 'success');
 }
 
-function toggleEmp(id){const e=getEmployees().find(x=>x.id===id);if(e)fbUpdate('employees/'+id,{active:!e.active});navigateAdmin('employees');toast('Status updated','success');}
+function toggleEmp(id) { var e = getEmployees().find(function(x) { return x.id === id; }); if (e) fbUpdate('employees/' + id, { active: !e.active }); navigateAdmin('employees'); toast('Status updated', 'success'); }
 
 /* ============================================================
    ADMIN: SHIFTS
    ============================================================ */
-function renderShifts(){
-  const shifts=getShifts(),byDate={};
-  shifts.forEach(s=>{if(!byDate[s.date])byDate[s.date]=[];byDate[s.date].push(s);});
-  const dates=Object.keys(byDate).sort().reverse();
-  return `<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Shift Schedule</h2><p class="text-sm" style="color:var(--muted)">${shifts.length} shifts</p></div>
-    <div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shift</button></div></div>
-    ${dates.length?dates.map(d=>{const isToday=d===todayStr();return`<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">${isToday?'<span style="color:var(--accent)">Today</span> — ':''}${new Date(d+'T12:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'})}</h3><span class="badge ${isToday?'badge-amber':'badge-blue'}">${byDate[d].length}</span></div>
-    <div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Target</th><th>Break</th><th>Status</th><th></th></tr></thead><tbody>${byDate[d].map(s=>{const emp=getEmpById(s.employeeId);const rec=getRecords().find(r=>r.shiftId===s.id);let st='<span class="badge badge-amber">Scheduled</span>';if(rec&&rec.status==='clocked_in')st='<span class="badge badge-green">Clocked In</span>';else if(rec&&rec.status==='completed')st='<span class="badge badge-blue">Done</span>';return`<tr><td class="font-medium text-sm">${emp?emp.firstName+' '+emp.lastName:'—'}</td><td class="text-xs">${getSiteName(s.siteId)}</td><td class="mono text-xs">${s.startTime}-${s.endTime}</td><td>${s.targetHours}h</td><td>${s.breakMinutes}m</td><td>${st}</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-sm" onclick="openShiftModal('${s.id}')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteShift('${s.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`;}).join('')}</tbody></table></div></div>`;}).join(''):'<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts scheduled.</p></div>'}</div>`;
+function renderShifts() {
+  var shifts = getShifts(), byDate = {};
+  shifts.forEach(function(s) { if (!byDate[s.date]) byDate[s.date] = []; byDate[s.date].push(s); });
+  var dates = Object.keys(byDate).sort().reverse();
+  var html = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Shift Schedule</h2><p class="text-sm" style="color:var(--muted)">' + shifts.length + ' shifts</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shift</button></div></div>';
+  if (dates.length) {
+    dates.forEach(function(d) {
+      var isToday = d === todayStr();
+      html += '<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">' + (isToday ? '<span style="color:var(--accent)">Today</span> — ' : '') + new Date(d + 'T12:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) + '</h3><span class="badge ' + (isToday ? 'badge-amber' : 'badge-blue') + '">' + byDate[d].length + '</span></div>';
+      html += '<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Target</th><th>Break</th><th>Status</th><th></th></tr></thead><tbody>';
+      byDate[d].forEach(function(s) {
+        var emp = getEmpById(s.employeeId); var rec = getRecords().find(function(r) { return r.shiftId === s.id; });
+        var st = '<span class="badge badge-amber">Scheduled</span>'; if (rec && rec.status === 'clocked_in') st = '<span class="badge badge-green">Clocked In</span>'; else if (rec && rec.status === 'completed') st = '<span class="badge badge-blue">Done</span>';
+        html += '<tr><td class="font-medium text-sm">' + (emp ? emp.firstName + ' ' + emp.lastName : '—') + '</td><td class="text-xs">' + getSiteName(s.siteId) + '</td><td class="mono text-xs">' + s.startTime + '-' + s.endTime + '</td><td>' + s.targetHours + 'h</td><td>' + s.breakMinutes + 'm</td><td>' + st + '</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-sm" onclick="openShiftModal(\'' + s.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteShift(\'' + s.id + '\')"><i class="fas fa-trash"></i></button></div></td></tr>';
+      });
+      html += '</tbody></table></div></div>';
+    });
+  } else { html += '<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts scheduled.</p></div>'; }
+  html += '</div>';
+  return html;
 }
 
-function openShiftModal(editId){
-  const s=editId?getShifts().find(x=>x.id===editId):null,emps=getEmployees().filter(e=>e.active),sites=getSites(),st=getSettings();
-  if(!emps.length||!sites.length){toast('Add employees and sites first','error');return;}
-  openModal(`<h3 class="font-bold text-lg mb-4">${s?'Edit':'Add'} Shift</h3><div class="grid gap-4">
-    <div><label>Employee</label><select id="m-shift-emp">${emps.map(e=>`<option value="${e.id}" ${s&&s.employeeId===e.id?'selected':''}>${e.firstName} ${e.lastName} (${e.employeeId})</option>`).join('')}</select></div>
-    <div><label>Site</label><select id="m-shift-site">${sites.map(si=>`<option value="${si.id}" ${s&&s.siteId===si.id?'selected':''}>${si.name}</option>`).join('')}</select></div>
-    <div><label>Date</label><input id="m-shift-date" type="date" value="${s?s.date:todayStr()}"></div>
-    <div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="m-shift-start" type="time" value="${s?s.startTime:'07:00'}"></div><div><label>End</label><input id="m-shift-end" type="time" value="${s?s.endTime:'15:30'}"></div></div>
-    <div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-shift-target" type="number" step="0.5" min="1" max="16" value="${s?s.targetHours:st.defaultTarget||8}"></div><div><label>Break (min)</label><input id="m-shift-break" type="number" step="5" min="0" max="120" value="${s?s.breakMinutes:st.defaultBreak||30}"></div></div>
-    <div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift('${editId||''}')">${s?'Update':'Add'}</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>`);
+function openShiftModal(editId) {
+  var s = editId ? getShifts().find(function(x) { return x.id === editId; }) : null;
+  var emps = getEmployees().filter(function(e) { return e.active; }), sites = getSites(), st = getSettings();
+  if (!emps.length || !sites.length) { toast('Add employees and sites first', 'error'); return; }
+  var empOpts = ''; emps.forEach(function(e) { empOpts += '<option value="' + e.id + '" ' + (s && s.employeeId === e.id ? 'selected' : '') + '>' + e.firstName + ' ' + e.lastName + ' (' + e.employeeId + ')</option>'; });
+  var siteOpts = ''; sites.forEach(function(si) { siteOpts += '<option value="' + si.id + '" ' + (s && s.siteId === si.id ? 'selected' : '') + '>' + si.name + '</option>'; });
+  openModal('<h3 class="font-bold text-lg mb-4">' + (s ? 'Edit' : 'Add') + ' Shift</h3><div class="grid gap-4">' +
+    '<div><label>Employee</label><select id="m-shift-emp">' + empOpts + '</select></div>' +
+    '<div><label>Site</label><select id="m-shift-site">' + siteOpts + '</select></div>' +
+    '<div><label>Date</label><input id="m-shift-date" type="date" value="' + (s ? s.date : todayStr()) + '"></div>' +
+    '<div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="m-shift-start" type="time" value="' + (s ? s.startTime : '07:00') + '"></div><div><label>End</label><input id="m-shift-end" type="time" value="' + (s ? s.endTime : '15:30') + '"></div></div>' +
+    '<div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-shift-target" type="number" step="0.5" min="1" max="16" value="' + (s ? s.targetHours : st.defaultTarget || 8) + '"></div><div><label>Break (min)</label><input id="m-shift-break" type="number" step="5" min="0" max="120" value="' + (s ? s.breakMinutes : st.defaultBreak || 30) + '"></div></div>' +
+    '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\'' + (editId || '') + '\')">' + (s ? 'Update' : 'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 
-function saveShift(editId){
-  const employeeId=document.getElementById('m-shift-emp').value,siteId=document.getElementById('m-shift-site').value,date=document.getElementById('m-shift-date').value,startTime=document.getElementById('m-shift-start').value,endTime=document.getElementById('m-shift-end').value,targetHours=parseFloat(document.getElementById('m-shift-target').value),breakMinutes=parseInt(document.getElementById('m-shift-break').value);
-  if(!date||!startTime||!endTime){toast('All time fields required','error');return;}if(endTime<=startTime){toast('End must be after start','error');return;}
-  const data={employeeId,siteId,date,startTime,endTime,targetHours,breakMinutes};
-  if(editId){fbUpdate('shifts/'+editId,data);}else{const id=db.ref('shifts').push().key;fbSet('shifts/'+id,{id,...data});}
-  closeModal();navigateAdmin('shifts');toast(editId?'Updated':'Shift added','success');
+function saveShift(editId) {
+  var employeeId = document.getElementById('m-shift-emp').value, siteId = document.getElementById('m-shift-site').value, date = document.getElementById('m-shift-date').value, startTime = document.getElementById('m-shift-start').value, endTime = document.getElementById('m-shift-end').value, targetHours = parseFloat(document.getElementById('m-shift-target').value), breakMinutes = parseInt(document.getElementById('m-shift-break').value);
+  if (!date || !startTime || !endTime) { toast('All time fields required', 'error'); return; }
+  if (endTime <= startTime) { toast('End must be after start', 'error'); return; }
+  var data = { employeeId:employeeId, siteId:siteId, date:date, startTime:startTime, endTime:endTime, targetHours:targetHours, breakMinutes:breakMinutes };
+  if (editId) { fbUpdate('shifts/' + editId, data); }
+  else { var id = db.ref('shifts').push().key; fbSet('shifts/' + id, { id:id, employeeId:data.employeeId, siteId:data.siteId, date:data.date, startTime:data.startTime, endTime:data.endTime, targetHours:data.targetHours, breakMinutes:data.breakMinutes }); }
+  closeModal(); navigateAdmin('shifts'); toast(editId ? 'Updated' : 'Shift added', 'success');
 }
 
-function deleteShift(id){if(getRecords().find(r=>r.shiftId===id&&r.status==='clocked_in')){toast('Cannot delete: employee clocked in','error');return;}fbRemove('shifts/'+id);navigateAdmin('shifts');toast('Deleted','success');}
+function deleteShift(id) { if (getRecords().find(function(r) { return r.shiftId === id && r.status === 'clocked_in'; })) { toast('Cannot delete: employee clocked in', 'error'); return; } fbRemove('shifts/' + id); navigateAdmin('shifts'); toast('Deleted', 'success'); }
 
-function openBulkShiftModal(){
-  const emps=getEmployees().filter(e=>e.active),sites=getSites(),st=getSettings();
-  if(!emps.length||!sites.length){toast('Add employees and sites first','error');return;}
-  openModal(`<h3 class="font-bold text-lg mb-4">Bulk Create Shifts</h3><p class="text-sm mb-4" style="color:var(--muted)">Same shift across a date range.</p><div class="grid gap-4">
-    <div><label>Employee</label><select id="m-bulk-emp">${emps.map(e=>`<option value="${e.id}">${e.firstName} ${e.lastName} (${e.employeeId})</option>`).join('')}</select></div>
-    <div><label>Site</label><select id="m-bulk-site">${sites.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div>
-    <div class="grid grid-cols-2 gap-3"><div><label>From</label><input id="m-bulk-from" type="date" value="${todayStr()}"></div><div><label>To</label><input id="m-bulk-to" type="date" value="${todayStr()}"></div></div>
-    <div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="m-bulk-start" type="time" value="07:00"></div><div><label>End</label><input id="m-bulk-end" type="time" value="15:30"></div></div>
-    <div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-bulk-target" type="number" step="0.5" value="${st.defaultTarget||8}"></div><div><label>Break (min)</label><input id="m-bulk-break" type="number" step="5" value="${st.defaultBreak||30}"></div></div>
-    <div class="flex items-center gap-2"><input id="m-bulk-noweekends" type="checkbox" checked class="w-4 h-4"><label for="m-bulk-noweekends" style="margin:0;cursor:pointer">Exclude weekends</label></div>
-    <div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveBulkShifts()"><i class="fas fa-layer-group"></i> Create</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>`);
+function openBulkShiftModal() {
+  var emps = getEmployees().filter(function(e) { return e.active; }), sites = getSites(), st = getSettings();
+  if (!emps.length || !sites.length) { toast('Add employees and sites first', 'error'); return; }
+  var empOpts = ''; emps.forEach(function(e) { empOpts += '<option value="' + e.id + '">' + e.firstName + ' ' + e.lastName + ' (' + e.employeeId + ')</option>'; });
+  var siteOpts = ''; sites.forEach(function(s) { siteOpts += '<option value="' + s.id + '">' + s.name + '</option>'; });
+  openModal('<h3 class="font-bold text-lg mb-4">Bulk Create Shifts</h3><p class="text-sm mb-4" style="color:var(--muted)">Same shift across a date range.</p><div class="grid gap-4">' +
+    '<div><label>Employee</label><select id="m-bulk-emp">' + empOpts + '</select></div>' +
+    '<div><label>Site</label><select id="m-bulk-site">' + siteOpts + '</select></div>' +
+    '<div class="grid grid-cols-2 gap-3"><div><label>From</label><input id="m-bulk-from" type="date" value="' + todayStr() + '"></div><div><label>To</label><input id="m-bulk-to" type="date" value="' + todayStr() + '"></div></div>' +
+    '<div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="m-bulk-start" type="time" value="07:00"></div><div><label>End</label><input id="m-bulk-end" type="time" value="15:30"></div></div>' +
+    '<div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-bulk-target" type="number" step="0.5" value="' + (st.defaultTarget || 8) + '"></div><div><label>Break (min)</label><input id="m-bulk-break" type="number" step="5" value="' + (st.defaultBreak || 30) + '"></div></div>' +
+    '<div class="flex items-center gap-2"><input id="m-bulk-noweekends" type="checkbox" checked class="w-4 h-4"><label for="m-bulk-noweekends" style="margin:0;cursor:pointer">Exclude weekends</label></div>' +
+    '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveBulkShifts()"><i class="fas fa-layer-group"></i> Create</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 
-function saveBulkShifts(){
-  const employeeId=document.getElementById('m-bulk-emp').value,siteId=document.getElementById('m-bulk-site').value,from=document.getElementById('m-bulk-from').value,to=document.getElementById('m-bulk-to').value,startTime=document.getElementById('m-bulk-start').value,endTime=document.getElementById('m-bulk-end').value,targetHours=parseFloat(document.getElementById('m-bulk-target').value),breakMinutes=parseInt(document.getElementById('m-bulk-break').value),noWeekends=document.getElementById('m-bulk-noweekends').checked;
-  if(!from||!to||!startTime||!endTime){toast('All fields required','error');return;}if(to<from){toast('To must be after From','error');return;}
-  let d=new Date(from+'T12:00:00'),end=new Date(to+'T12:00:00'),count=0;
-  const updates={};
-  while(d<=end){const dow=d.getDay();if(!noWeekends||(dow!==0&&dow!==6)){const id=db.ref('shifts').push().key;updates['shifts/'+id]={id,employeeId,siteId,date:fmtDate(d),startTime,endTime,targetHours,breakMinutes};count++;}d.setDate(d.getDate()+1);}
-  if(count){fbUpdate(updates);closeModal();navigateAdmin('shifts');toast(`${count} shifts created`,'success');}
+function saveBulkShifts() {
+  var employeeId = document.getElementById('m-bulk-emp').value, siteId = document.getElementById('m-bulk-site').value, from = document.getElementById('m-bulk-from').value, to = document.getElementById('m-bulk-to').value, startTime = document.getElementById('m-bulk-start').value, endTime = document.getElementById('m-bulk-end').value, targetHours = parseFloat(document.getElementById('m-bulk-target').value), breakMinutes = parseInt(document.getElementById('m-bulk-break').value), noWeekends = document.getElementById('m-bulk-noweekends').checked;
+  if (!from || !to || !startTime || !endTime) { toast('All fields required', 'error'); return; }
+  if (to < from) { toast('To must be after From', 'error'); return; }
+  var d = new Date(from + 'T12:00:00'), end = new Date(to + 'T12:00:00'), count = 0, updates = {};
+  while (d <= end) { var dow = d.getDay(); if (!noWeekends || (dow !== 0 && dow !== 6)) { var id = db.ref('shifts').push().key; updates['shifts/' + id] = { id:id, employeeId:employeeId, siteId:siteId, date:fmtDate(d), startTime:startTime, endTime:endTime, targetHours:targetHours, breakMinutes:breakMinutes }; count++; } d.setDate(d.getDate() + 1); }
+  if (count) { fbUpdate(updates); closeModal(); navigateAdmin('shifts'); toast(count + ' shifts created', 'success'); }
 }
 
 /* ============================================================
    ADMIN: RECORDS
    ============================================================ */
-function renderRecords(){
-  let recs=getRecords().slice().reverse(),emps=getEmployees();
-  return `<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">${recs.length} records</p></div>
-    <div class="flex gap-2 flex-wrap"><select id="rec-femp" class="text-sm" style="width:auto" onchange="filterRecs()"><option value="">All Employees</option>${emps.map(e=>`<option value="${e.id}">${e.firstName} ${e.lastName}</option>`).join('')}</select><input id="rec-ffrom" type="date" class="text-sm" style="width:auto" onchange="filterRecs()"><input id="rec-fto" type="date" class="text-sm" style="width:auto" onchange="filterRecs()"><button class="btn btn-secondary btn-sm" onclick="document.getElementById('rec-femp').value='';document.getElementById('rec-ffrom').value='';document.getElementById('rec-fto').value='';filterRecs()"><i class="fas fa-rotate"></i></button></div></div>
-    <div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>Employee</th><th>Site</th><th>In</th><th>Out</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th></tr></thead><tbody id="rec-tbody">${recRows(recs)}</tbody></table>${!recs.length?'<p class="text-center py-8 text-sm" style="color:var(--muted)">No records.</p>':''}</div></div>`;
+function renderRecords() {
+  var recs = getRecords().slice().reverse(), emps = getEmployees();
+  var empOpts = '<option value="">All Employees</option>'; emps.forEach(function(e) { empOpts += '<option value="' + e.id + '">' + e.firstName + ' ' + e.lastName + '</option>'; });
+  return '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">' + recs.length + ' records</p></div><div class="flex gap-2 flex-wrap"><select id="rec-femp" class="text-sm" style="width:auto" onchange="filterRecs()">' + empOpts + '</select><input id="rec-ffrom" type="date" class="text-sm" style="width:auto" onchange="filterRecs()"><input id="rec-fto" type="date" class="text-sm" style="width:auto" onchange="filterRecs()"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'rec-femp\').value=\'\';document.getElementById(\'rec-ffrom\').value=\'\';document.getElementById(\'rec-fto\').value=\'\';filterRecs()"><i class="fas fa-rotate"></i></button></div></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>Employee</th><th>Site</th><th>In</th><th>Out</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th></tr></thead><tbody id="rec-tbody">' + recRows(recs) + '</tbody></table>' + (!recs.length ? '<p class="text-center py-8 text-sm" style="color:var(--muted)">No records.</p>' : '') + '</div></div>';
 }
 
-function recRows(recs){return recs.map(r=>{const emp=getEmpById(r.employeeId);const st=r.status==='clocked_in'?'<span class="badge badge-green">Active</span>':'<span class="badge badge-blue">Done</span>';return`<tr data-emp="${r.employeeId}" data-date="${r.clockIn?r.clockIn.slice(0,10):''}"><td class="text-xs">${r.clockIn?r.clockIn.slice(0,10):'—'}</td><td class="font-medium text-sm">${emp?emp.firstName+' '+emp.lastName:'—'}</td><td class="text-xs">${getSiteName(r.siteId)}</td><td class="mono text-xs">${r.clockIn?fmtTime(r.clockIn):'—'}</td><td class="mono text-xs">${r.clockOut?fmtTime(r.clockOut):'—'}</td><td class="mono text-xs">${r.regularHours||0}h</td><td class="mono text-xs" style="color:var(--warning)">${r.overtimeHours||0}h</td><td class="mono text-xs" style="color:var(--danger)">${r.doubleTimeHours||0}h</td><td class="mono text-xs font-semibold">${((r.regularHours||0)+(r.overtimeHours||0)+(r.doubleTimeHours||0)).toFixed(2)}h</td><td>${st}</td></tr>`;}).join('');}
+function recRows(recs) {
+  return recs.map(function(r) {
+    var emp = getEmpById(r.employeeId); var st = r.status === 'clocked_in' ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-blue">Done</span>';
+    var total = ((r.regularHours || 0) + (r.overtimeHours || 0) + (r.doubleTimeHours || 0)).toFixed(2);
+    return '<tr data-emp="' + r.employeeId + '" data-date="' + (r.clockIn ? r.clockIn.slice(0,10) : '') + '"><td class="text-xs">' + (r.clockIn ? r.clockIn.slice(0,10) : '—') + '</td><td class="font-medium text-sm">' + (emp ? emp.firstName + ' ' + emp.lastName : '—') + '</td><td class="text-xs">' + getSiteName(r.siteId) + '</td><td class="mono text-xs">' + (r.clockIn ? fmtTime(r.clockIn) : '—') + '</td><td class="mono text-xs">' + (r.clockOut ? fmtTime(r.clockOut) : '—') + '</td><td class="mono text-xs">' + (r.regularHours || 0) + 'h</td><td class="mono text-xs" style="color:var(--warning)">' + (r.overtimeHours || 0) + 'h</td><td class="mono text-xs" style="color:var(--danger)">' + (r.doubleTimeHours || 0) + 'h</td><td class="mono text-xs font-semibold">' + total + 'h</td><td>' + st + '</td></tr>';
+  }).join('');
+}
 
-function filterRecs(){const empId=document.getElementById('rec-femp').value,from=document.getElementById('rec-ffrom').value,to=document.getElementById('rec-fto').value;let recs=getRecords().slice().reverse();if(empId)recs=recs.filter(r=>r.employeeId===empId);if(from)recs=recs.filter(r=>r.clockIn&&r.clockIn.slice(0,10)>=from);if(to)recs=recs.filter(r=>r.clockIn&&r.clockIn.slice(0,10)<=to);document.getElementById('rec-tbody').innerHTML=recRows(recs);}
+function filterRecs() {
+  var empId = document.getElementById('rec-femp').value, from = document.getElementById('rec-ffrom').value, to = document.getElementById('rec-fto').value;
+  var recs = getRecords().slice().reverse();
+  if (empId) recs = recs.filter(function(r) { return r.employeeId === empId; });
+  if (from) recs = recs.filter(function(r) { return r.clockIn && r.clockIn.slice(0,10) >= from; });
+  if (to) recs = recs.filter(function(r) { return r.clockIn && r.clockIn.slice(0,10) <= to; });
+  document.getElementById('rec-tbody').innerHTML = recRows(recs);
+}
 
 /* ============================================================
    ADMIN: EXPORT
    ============================================================ */
-function renderExport(){
-  return `<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Export to Jarrison Time</h2><p class="text-sm" style="color:var(--muted)">CSV import format</p></div>
-    <div class="card mb-4"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-filter mr-2" style="color:var(--accent)"></i>Filter Range</h3><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end"><div><label>From</label><input id="exp-from" type="date" value="${new Date(new Date().setDate(1)).toISOString().slice(0,10)}"></div><div><label>To</label><input id="exp-to" type="date" value="${todayStr()}"></div><button class="btn btn-primary" onclick="previewExport()"><i class="fas fa-eye"></i> Preview</button></div></div>
-    <div id="export-preview"></div></div>`;
+function renderExport() {
+  return '<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Export to Jarrison Time</h2><p class="text-sm" style="color:var(--muted)">CSV import format</p></div><div class="card mb-4"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-filter mr-2" style="color:var(--accent)"></i>Filter Range</h3><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end"><div><label>From</label><input id="exp-from" type="date" value="' + new Date(new Date().setDate(1)).toISOString().slice(0,10) + '"></div><div><label>To</label><input id="exp-to" type="date" value="' + todayStr() + '"></div><button class="btn btn-primary" onclick="previewExport()"><i class="fas fa-eye"></i> Preview</button></div></div><div id="export-preview"></div></div>';
 }
 
-function previewExport(){
-  const from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value;
-  if(!from||!to){toast('Select date range','error');return;}
-  let recs=getRecords().filter(r=>r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=from&&r.clockIn.slice(0,10)<=to);
-  if(!recs.length){document.getElementById('export-preview').innerHTML='<div class="card text-center py-8"><p style="color:var(--muted)">No completed records in range.</p></div>';return;}
-  let t={r:0,o:0,d:0,a:0};
-  const rows=recs.map(r=>{const emp=getEmpById(r.employeeId);const reg=r.regularHours||0,ot=r.overtimeHours||0,dt=r.doubleTimeHours||0,tot=reg+ot+dt;t.r+=reg;t.o+=ot;t.d+=dt;t.a+=tot;return`<tr><td class="mono text-xs">${emp?emp.employeeId:'—'}</td><td class="text-xs">${emp?emp.firstName:''}</td><td class="text-xs">${emp?emp.lastName:''}</td><td class="text-xs">${r.clockIn.slice(0,10)}</td><td class="text-xs">${getSiteName(r.siteId)}</td><td class="mono text-xs">${fmtTime(r.clockIn)}</td><td class="mono text-xs">${r.clockOut?fmtTime(r.clockOut):''}</td><td class="mono text-xs">${r.breakMinutes||0}</td><td class="mono text-xs">${reg.toFixed(2)}</td><td class="mono text-xs">${ot.toFixed(2)}</td><td class="mono text-xs">${dt.toFixed(2)}</td><td class="mono text-xs font-semibold">${tot.toFixed(2)}</td></tr>`;});
-  document.getElementById('export-preview').innerHTML=`<div class="card mb-3 flex items-center justify-between flex-wrap gap-3"><div class="text-sm"><span style="color:var(--muted)">Showing</span> <strong>${recs.length}</strong></div><div class="flex gap-3 text-sm"><span>Reg: <strong class="mono">${t.r.toFixed(2)}h</strong></span><span>OT: <strong class="mono" style="color:var(--warning)">${t.o.toFixed(2)}h</strong></span><span>DT: <strong class="mono" style="color:var(--danger)">${t.d.toFixed(2)}h</strong></span><span>Total: <strong class="mono" style="color:var(--accent)">${t.a.toFixed(2)}h</strong></span></div><button class="btn btn-primary" onclick="downloadCSV('${from}','${to}')"><i class="fas fa-download"></i> Download CSV</button></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Emp ID</th><th>First</th><th>Last</th><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Break</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+function previewExport() {
+  var from = document.getElementById('exp-from').value, to = document.getElementById('exp-to').value;
+  if (!from || !to) { toast('Select date range', 'error'); return; }
+  var recs = getRecords().filter(function(r) { return r.status === 'completed' && r.clockIn && r.clockIn.slice(0,10) >= from && r.clockIn.slice(0,10) <= to; });
+  if (!recs.length) { document.getElementById('export-preview').innerHTML = '<div class="card text-center py-8"><p style="color:var(--muted)">No completed records in range.</p></div>'; return; }
+  var t = { r:0, o:0, d:0, a:0 };
+  var rows = recs.map(function(r) {
+    var emp = getEmpById(r.employeeId); var reg = r.regularHours || 0, ot = r.overtimeHours || 0, dt = r.doubleTimeHours || 0, tot = reg + ot + dt;
+    t.r += reg; t.o += ot; t.d += dt; t.a += tot;
+    return '<tr><td class="mono text-xs">' + (emp ? emp.employeeId : '—') + '</td><td class="text-xs">' + (emp ? emp.firstName : '') + '</td><td class="text-xs">' + (emp ? emp.lastName : '') + '</td><td class="text-xs">' + r.clockIn.slice(0,10) + '</td><td class="text-xs">' + getSiteName(r.siteId) + '</td><td class="mono text-xs">' + fmtTime(r.clockIn) + '</td><td class="mono text-xs">' + (r.clockOut ? fmtTime(r.clockOut) : '') + '</td><td class="mono text-xs">' + (r.breakMinutes || 0) + '</td><td class="mono text-xs">' + reg.toFixed(2) + '</td><td class="mono text-xs">' + ot.toFixed(2) + '</td><td class="mono text-xs">' + dt.toFixed(2) + '</td><td class="mono text-xs font-semibold">' + tot.toFixed(2) + '</td></tr>';
+  });
+  document.getElementById('export-preview').innerHTML = '<div class="card mb-3 flex items-center justify-between flex-wrap gap-3"><div class="text-sm"><span style="color:var(--muted)">Showing</span> <strong>' + recs.length + '</strong></div><div class="flex gap-3 text-sm"><span>Reg: <strong class="mono">' + t.r.toFixed(2) + 'h</strong></span><span>OT: <strong class="mono" style="color:var(--warning)">' + t.o.toFixed(2) + 'h</strong></span><span>DT: <strong class="mono" style="color:var(--danger)">' + t.d.toFixed(2) + 'h</strong></span><span>Total: <strong class="mono" style="color:var(--accent)">' + t.a.toFixed(2) + 'h</strong></span></div><button class="btn btn-primary" onclick="downloadCSV(\'' + from + '\',\'' + to + '\')"><i class="fas fa-download"></i> Download CSV</button></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Emp ID</th><th>First</th><th>Last</th><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Break</th><th>Regular</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div>';
 }
 
-function downloadCSV(from,to){
-  let recs=getRecords().filter(r=>r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=from&&r.clockIn.slice(0,10)<=to);
-  if(!recs.length){toast('No records','error');return;}
-  const h='Employee ID,First Name,Last Name,Date,Site,Clock In,Clock Out,Break (mins),Regular Hours,Overtime Hours (1.5x),Double Time Hours (2x),Total Hours';
-  const rows=recs.map(r=>{const emp=getEmpById(r.employeeId);const reg=(r.regularHours||0).toFixed(2),ot=(r.overtimeHours||0).toFixed(2),dt=(r.doubleTimeHours||0).toFixed(2),tot=((r.regularHours||0)+(r.overtimeHours||0)+(r.doubleTimeHours||0)).toFixed(2);return`${emp?emp.employeeId:''},${emp?emp.firstName:''},${emp?emp.lastName:''},${r.clockIn.slice(0,10)},"${getSiteName(r.siteId)}",${fmtTime(r.clockIn)},${r.clockOut?fmtTime(r.clockOut):''},${r.breakMinutes||0},${reg},${ot},${dt},${tot}`;});
-  const blob=new Blob(['\uFEFF'+h+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`jarrison_export_${from}_to_${to}.csv`;a.click();URL.revokeObjectURL(url);toast('CSV downloaded','success');
+function downloadCSV(from, to) {
+  var recs = getRecords().filter(function(r) { return r.status === 'completed' && r.clockIn && r.clockIn.slice(0,10) >= from && r.clockIn.slice(0,10) <= to; });
+  if (!recs.length) { toast('No records', 'error'); return; }
+  var h = 'Employee ID,First Name,Last Name,Date,Site,Clock In,Clock Out,Break (mins),Regular Hours,Overtime Hours (1.5x),Double Time Hours (2x),Total Hours';
+  var rows = recs.map(function(r) { var emp = getEmpById(r.employeeId); var reg = (r.regularHours||0).toFixed(2), ot = (r.overtimeHours||0).toFixed(2), dt = (r.doubleTimeHours||0).toFixed(2), tot = ((r.regularHours||0)+(r.overtimeHours||0)+(r.doubleTimeHours||0)).toFixed(2); return (emp?emp.employeeId:'') + ',' + (emp?emp.firstName:'') + ',' + (emp?emp.lastName:'') + ',' + r.clockIn.slice(0,10) + ',"' + getSiteName(r.siteId) + '",' + fmtTime(r.clockIn) + ',' + (r.clockOut?fmtTime(r.clockOut):'') + ',' + (r.breakMinutes||0) + ',' + reg + ',' + ot + ',' + dt + ',' + tot; });
+  var blob = new Blob(['\uFEFF' + h + '\n' + rows.join('\n')], { type:'text/csv;charset=utf-8;' }); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'jarrison_export_' + from + '_to_' + to + '.csv'; a.click(); URL.revokeObjectURL(url); toast('CSV downloaded', 'success');
 }
 
 /* ============================================================
    ADMIN: SETTINGS
    ============================================================ */
-function renderSettings(){
-  const st=getSettings(),admin=D.admin||{};
-  return `<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Settings</h2><p class="text-sm" style="color:var(--muted)">System configuration</p></div>
-    <div class="grid gap-4 max-w-xl">
-      <div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-calculator mr-2" style="color:var(--accent)"></i>Hours Calculation</h3><div class="grid gap-4">
-        <div><label>Default Target Hours</label><input id="s-target" type="number" step="0.5" min="1" max="16" value="${st.defaultTarget||8}"></div>
-        <div><label>OT Threshold (hours before double time)</label><input id="s-ot" type="number" step="0.5" min="0.5" max="8" value="${st.otThreshold||2}"><p class="text-xs mt-1" style="color:var(--muted)">After target, next ${st.otThreshold||2}h = OT 1.5x. Beyond = DT 2x.</p></div>
-        <div><label>Default Break (min)</label><input id="s-break" type="number" step="5" min="0" max="120" value="${st.defaultBreak||30}"></div>
-      </div></div>
-      <div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-shield-halved mr-2" style="color:var(--info)"></i>Admin Credentials</h3><div class="grid gap-4">
-        <div><label>Username</label><input id="s-user" value="${admin.username||''}"></div>
-        <div><label>New Password</label><input id="s-pass" type="password" placeholder="Leave blank to keep current"></div>
-      </div></div>
-      <div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-flask mr-2" style="color:var(--warning)"></i>Demo Mode</h3>
-        <div class="flex items-center justify-between"><div><p class="text-sm">Bypass GPS check</p><p class="text-xs" style="color:var(--muted)">Disables 5-50m range requirement for testing.</p></div>
-        <label class="relative inline-flex items-center cursor-pointer"><input id="s-demo" type="checkbox" ${st.demoMode?'checked':''} class="sr-only peer"><div class="w-11 h-6 rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-5 after:w-5 after:transition-all" style="background:${st.demoMode?'var(--accent)':'var(--border)'}" onclick="this.style.background=this.previousElementSibling.checked?'var(--border)':'var(--accent)'"></div></label>
-        <style>.peer~div::after{background:var(--fg)}</style>
-      </div></div>
-      <div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-cloud mr-2" style="color:var(--info)"></i>Firebase Connection</h3>
-        <div class="flex items-center gap-2 mb-3"><span class="conn-dot ${fbConnected?'on':'off'}"></span><span class="text-sm">${fbConnected?'Connected — syncing across all devices':'Disconnected'}</span></div>
-        <button class="btn btn-secondary btn-sm" onclick="resetFirebaseConfig()"><i class="fas fa-rotate"></i> Reconfigure Firebase</button>
-      </div>
-      <div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-database mr-2" style="color:var(--danger)"></i>Data</h3>
-        <div class="flex gap-3 flex-wrap"><button class="btn btn-danger btn-sm" onclick="confirmResetAll()"><i class="fas fa-triangle-exclamation"></i> Reset All Data</button></div>
-      </div>
-      <button class="btn btn-primary justify-center" onclick="saveSettingsPage()"><i class="fas fa-save"></i> Save Settings</button>
-    </div></div>`;
+function renderSettings() {
+  var st = getSettings(), admin = D.admin || {};
+  return '<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Settings</h2><p class="text-sm" style="color:var(--muted)">System configuration</p></div><div class="grid gap-4 max-w-xl">' +
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-calculator mr-2" style="color:var(--accent)"></i>Hours Calculation</h3><div class="grid gap-4"><div><label>Default Target Hours</label><input id="s-target" type="number" step="0.5" min="1" max="16" value="' + (st.defaultTarget || 8) + '"></div><div><label>OT Threshold (hours before double time)</label><input id="s-ot" type="number" step="0.5" min="0.5" max="8" value="' + (st.otThreshold || 2) + '"><p class="text-xs mt-1" style="color:var(--muted)">After target, next ' + (st.otThreshold||2) + 'h = OT 1.5x. Beyond = DT 2x.</p></div><div><label>Default Break (min)</label><input id="s-break" type="number" step="5" min="0" max="120" value="' + (st.defaultBreak || 30) + '"></div></div></div>' +
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-shield-halved mr-2" style="color:var(--info)"></i>Admin Credentials</h3><div class="grid gap-4"><div><label>Username</label><input id="s-user" value="' + (admin.username || '') + '"></div><div><label>New Password</label><input id="s-pass" type="password" placeholder="Leave blank to keep current"></div></div></div>' +
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-flask mr-2" style="color:var(--warning)"></i>Demo Mode</h3><div class="flex items-center justify-between"><div><p class="text-sm">Bypass GPS check</p><p class="text-xs" style="color:var(--muted)">Disables range requirement for testing.</p></div><label class="relative inline-flex items-center cursor-pointer"><input id="s-demo" type="checkbox" ' + (st.demoMode ? 'checked' : '') + ' class="sr-only peer"><div class="w-11 h-6 rounded-full peer-checked:after:translate-x-full after:content-[\'\'] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-5 after:w-5 after:transition-all" style="background:' + (st.demoMode ? 'var(--accent)' : 'var(--border)') + '" onclick="this.style.background=this.previousElementSibling.checked?\'var(--border)\':\'var(--accent)\'"></div></label><style>.peer~div::after{background:var(--fg)}</style></div></div>' +
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-cloud mr-2" style="color:var(--info)"></i>Firebase Connection</h3><div class="flex items-center gap-2 mb-3"><span class="conn-dot ' + (fbConnected ? 'on' : 'off') + '"></span><span class="text-sm">' + (fbConnected ? 'Connected — syncing' : 'Disconnected') + '</span></div><button class="btn btn-secondary btn-sm" onclick="resetFirebaseConfig()"><i class="fas fa-rotate"></i> Reconfigure Firebase</button></div>' +
+    '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-database mr-2" style="color:var(--danger)"></i>Data</h3><button class="btn btn-danger btn-sm" onclick="confirmResetAll()"><i class="fas fa-triangle-exclamation"></i> Reset All Data</button></div>' +
+    '<button class="btn btn-primary justify-center" onclick="saveSettingsPage()"><i class="fas fa-save"></i> Save Settings</button></div></div>';
 }
 
-function saveSettingsPage(){
-  const st=getSettings();
-  fbSet('settings',{...st,defaultTarget:parseFloat(document.getElementById('s-target').value)||8,otThreshold:parseFloat(document.getElementById('s-ot').value)||2,defaultBreak:parseInt(document.getElementById('s-break').value)||30,demoMode:document.getElementById('s-demo').checked});
-  const updates={username:document.getElementById('s-user').value.trim()||'admin'};
-  const np=document.getElementById('s-pass').value;if(np)updates.password=np;
-  fbUpdate('admin',updates);
-  toast('Settings saved','success');
+function saveSettingsPage() {
+  var st = getSettings();
+  fbSet('settings', { otThreshold:parseFloat(document.getElementById('s-ot').value) || 2, defaultTarget:parseFloat(document.getElementById('s-target').value) || 8, defaultBreak:parseInt(document.getElementById('s-break').value) || 30, demoMode:document.getElementById('s-demo').checked });
+  var updates = { username:document.getElementById('s-user').value.trim() || 'admin' };
+  var np = document.getElementById('s-pass').value; if (np) updates.password = np;
+  fbUpdate('admin', updates);
+  toast('Settings saved', 'success');
 }
 
-function resetFirebaseConfig(){
-  openModal(`<h3 class="font-bold text-lg mb-3">Reconfigure Firebase?</h3><p class="text-sm mb-4" style="color:var(--muted)">This will disconnect and show the setup screen again. Your data in Firebase is not deleted.</p>
-    <div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="localStorage.removeItem('scp_fb_config');location.reload()">Reconfigure</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>`);
+function resetFirebaseConfig() {
+  openModal('<h3 class="font-bold text-lg mb-3">Reconfigure Firebase?</h3><p class="text-sm mb-4" style="color:var(--muted)">Shows setup screen again. Data in Firebase is not deleted.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="localStorage.removeItem(\'scp_fb_config\');location.reload()">Reconfigure</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
 }
 
-function confirmResetAll(){
-  openModal(`<h3 class="font-bold text-lg mb-3" style="color:var(--danger)">Reset ALL Data?</h3><p class="text-sm mb-4" style="color:var(--muted)">This deletes everything from Firebase. Every device will be affected. Cannot be undone.</p>
-    <div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet('sites',null);fbSet('employees',null);fbSet('shifts',null);fbSet('records',null);fbSet('settings',null);fbSet('admin',null);closeModal();toast('All data reset — reloading','success');setTimeout(()=>location.reload(),1500)"><i class="fas fa-triangle-exclamation"></i> Reset Everything</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>`);
+function confirmResetAll() {
+  openModal('<h3 class="font-bold text-lg mb-3" style="color:var(--danger)">Reset ALL Data?</h3><p class="text-sm mb-4" style="color:var(--muted)">Deletes everything from Firebase. Every device affected. Cannot undo.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'sites\',null);fbSet(\'employees\',null);fbSet(\'shifts\',null);fbSet(\'records\',null);fbSet(\'settings\',null);fbSet(\'admin\',null);closeModal();toast(\'All data reset — reloading\',\'success\');setTimeout(function(){location.reload();},1500)"><i class="fas fa-triangle-exclamation"></i> Reset Everything</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
 }
 
 /* ============================================================
    EMPLOYEE: CLOCK PAGE
    ============================================================ */
-function renderClockPage(){
-  const emp=state.currentEmployee,site=getSites().find(s=>s.id===emp.siteId),todayShift=getShifts().find(s=>s.employeeId===emp.id&&s.date===todayStr()),isIn=state.clockState==='clocked_in';
-  return `<div class="fade-in flex flex-col items-center text-center max-w-lg mx-auto">
-    <div class="mono text-5xl font-bold mb-1" id="emp-live-clock"></div>
-    <div class="text-sm mb-6" style="color:var(--muted)">${new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
-    <div class="card w-full mb-6 text-left"><div class="flex items-center gap-2 mb-3"><i class="fas fa-calendar-check" style="color:var(--accent)"></i><span class="font-semibold text-sm">Today's Shift</span></div>
-      ${todayShift?`<div class="grid grid-cols-2 gap-y-2 text-sm"><div style="color:var(--muted)">Site:</div><div class="font-medium">${getSiteName(todayShift.siteId)}</div><div style="color:var(--muted)">Scheduled:</div><div class="mono font-medium">${todayShift.startTime} — ${todayShift.endTime}</div><div style="color:var(--muted)">Target:</div><div>${todayShift.targetHours} hours</div><div style="color:var(--muted)">Break:</div><div>${todayShift.breakMinutes} min</div></div>`:'<p class="text-sm" style="color:var(--muted)">No shift assigned for today.</p>'}
-    </div>
-    <div class="card w-full mb-6 text-left"><div class="flex items-center gap-2 mb-3"><i class="fas fa-satellite-dish" style="color:var(--info)"></i><span class="font-semibold text-sm">GPS Status</span></div>
-      <div class="flex items-center gap-3"><span class="gps-dot pending" id="gps-dot"></span><div><div class="text-sm font-medium" id="gps-text">Acquiring location...</div><div class="text-xs" style="color:var(--muted)" id="gps-detail">Checking distance to ${site?site.name:'site'}</div></div></div>
-      <div class="mt-2 text-xs mono" style="color:var(--muted)" id="gps-coords"></div>
-      ${site?`<div class="mt-1 text-xs" style="color:var(--muted)">Required radius: ${site.radius}m</div>`:''}
-    </div>
-    ${isIn?`<div class="card w-full mb-6"><div class="text-xs font-semibold mb-1" style="color:var(--success)">CURRENTLY CLOCKED IN</div><div class="mono text-3xl font-bold" style="color:var(--success)" id="elapsed-timer">00:00:00</div><div class="text-xs mt-1" style="color:var(--muted)">Since ${state.activeRecord?fmtTime(state.activeRecord.clockIn):''}</div></div>`:''}
-    <div class="mb-6"><button class="clock-btn" id="clock-btn" disabled onclick="handleClockAction()"><i class="fas ${isIn?'fa-right-from-bracket':'fa-right-to-bracket'} text-2xl"></i><span>${isIn?'CLOCK OUT':'CLOCK IN'}</span></button></div>
-    <p class="text-xs" style="color:var(--muted);max-width:300px">${getSettings().demoMode?'<span class="badge badge-amber mb-1">Demo Mode — GPS bypassed</span>':'GPS verification active. Must be within site radius.'}</p>
-  </div>`;
+function renderClockPage() {
+  var emp = state.currentEmployee, site = getSites().find(function(s) { return s.id === emp.siteId; }), todayShift = getShifts().find(function(s) { return s.employeeId === emp.id && s.date === todayStr(); }), isIn = state.clockState === 'clocked_in';
+  var html = '<div class="fade-in flex flex-col items-center text-center max-w-lg mx-auto">';
+  html += '<div class="mono text-5xl font-bold mb-1" id="emp-live-clock"></div>';
+  html += '<div class="text-sm mb-6" style="color:var(--muted)">' + new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + '</div>';
+  html += '<div class="card w-full mb-6 text-left"><div class="flex items-center gap-2 mb-3"><i class="fas fa-calendar-check" style="color:var(--accent)"></i><span class="font-semibold text-sm">Today\'s Shift</span></div>';
+  if (todayShift) { html += '<div class="grid grid-cols-2 gap-y-2 text-sm"><div style="color:var(--muted)">Site:</div><div class="font-medium">' + getSiteName(todayShift.siteId) + '</div><div style="color:var(--muted)">Scheduled:</div><div class="mono font-medium">' + todayShift.startTime + ' — ' + todayShift.endTime + '</div><div style="color:var(--muted)">Target:</div><div>' + todayShift.targetHours + ' hours</div><div style="color:var(--muted)">Break:</div><div>' + todayShift.breakMinutes + ' min</div></div>'; }
+  else { html += '<p class="text-sm" style="color:var(--muted)">No shift assigned for today.</p>'; }
+  html += '</div>';
+  html += '<div class="card w-full mb-6 text-left"><div class="flex items-center gap-2 mb-3"><i class="fas fa-satellite-dish" style="color:var(--info)"></i><span class="font-semibold text-sm">GPS Status</span></div>';
+  html += '<div class="flex items-center gap-3"><span class="gps-dot pending" id="gps-dot"></span><div><div class="text-sm font-medium" id="gps-text">Acquiring location...</div><div class="text-xs" style="color:var(--muted)" id="gps-detail">Checking distance to ' + (site ? site.name : 'site') + '</div></div></div>';
+  html += '<div class="mt-2 text-xs mono" style="color:var(--muted)" id="gps-coords"></div>';
+  if (site) html += '<div class="mt-1 text-xs" style="color:var(--muted)">Required radius: ' + site.radius + 'm</div>';
+  html += '</div>';
+  if (isIn) { html += '<div class="card w-full mb-6"><div class="text-xs font-semibold mb-1" style="color:var(--success)">CURRENTLY CLOCKED IN</div><div class="mono text-3xl font-bold" style="color:var(--success)" id="elapsed-timer">00:00:00</div><div class="text-xs mt-1" style="color:var(--muted)">Since ' + (state.activeRecord ? fmtTime(state.activeRecord.clockIn) : '') + '</div></div>'; }
+  html += '<div class="mb-6"><button class="clock-btn" id="clock-btn" disabled onclick="handleClockAction()"><i class="fas ' + (isIn ? 'fa-right-from-bracket' : 'fa-right-to-bracket') + ' text-2xl"></i><span>' + (isIn ? 'CLOCK OUT' : 'CLOCK IN') + '</span></button></div>';
+  html += '<p class="text-xs" style="color:var(--muted);max-width:300px">' + (getSettings().demoMode ? '<span class="badge badge-amber mb-1">Demo Mode — GPS bypassed</span>' : 'GPS verification active. Must be within site radius.') + '</p>';
+  html += '</div>';
+  return html;
 }
 
-function initClockPage(){
-  if(state.liveTimerInterval)clearInterval(state.liveTimerInterval);
-  state.liveTimerInterval=setInterval(()=>{
-    const el=document.getElementById('emp-live-clock');if(el)el.textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    const timer=document.getElementById('elapsed-timer');if(timer&&state.activeRecord){const ms=Date.now()-new Date(state.activeRecord.clockIn).getTime();const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);timer.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;}
-  },1000);
-  if(getSettings().demoMode){state.gpsStatus='in_range';updateGPS();updateClockBtn();return;}
+function initClockPage() {
+  if (state.liveTimerInterval) clearInterval(state.liveTimerInterval);
+  state.liveTimerInterval = setInterval(function() {
+    var el = document.getElementById('emp-live-clock'); if (el) el.textContent = new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    var timer = document.getElementById('elapsed-timer'); if (timer && state.activeRecord) { var ms = Date.now() - new Date(state.activeRecord.clockIn).getTime(); var h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000); timer.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
+  }, 1000);
+  if (getSettings().demoMode) { state.gpsStatus = 'in_range'; updateGPS(); updateClockBtn(); return; }
   checkGPS();
 }
 
-function checkGPS(){
-  if(!navigator.geolocation){state.gpsStatus='error';updateGPS();updateClockBtn();return;}
+function checkGPS() {
+  if (!navigator.geolocation) { state.gpsStatus = 'error'; updateGPS(); updateClockBtn(); return; }
   updateGPS();
-  navigator.geolocation.getCurrentPosition(pos=>{
-    state.gpsLat=pos.coords.latitude;state.gpsLng=pos.coords.longitude;
-    const site=getSites().find(s=>s.id===state.currentEmployee.siteId);
-    if(!site){state.gpsStatus='error';updateGPS();updateClockBtn();return;}
-    const dist=haversine(state.gpsLat,state.gpsLng,site.lat,site.lng);
-    state.gpsDistance=Math.round(dist);state.gpsStatus=dist<=site.radius?'in_range':'out_of_range';
-    updateGPS();updateClockBtn();
-  },()=>{state.gpsStatus='error';state.gpsDistance=null;updateGPS();updateClockBtn();},{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    state.gpsLat = pos.coords.latitude; state.gpsLng = pos.coords.longitude;
+    var site = getSites().find(function(s) { return s.id === state.currentEmployee.siteId; });
+    if (!site) { state.gpsStatus = 'error'; updateGPS(); updateClockBtn(); return; }
+    var dist = haversine(state.gpsLat, state.gpsLng, site.lat, site.lng);
+    state.gpsDistance = Math.round(dist); state.gpsStatus = dist <= site.radius ? 'in_range' : 'out_of_range';
+    updateGPS(); updateClockBtn();
+  }, function() { state.gpsStatus = 'error'; state.gpsDistance = null; updateGPS(); updateClockBtn(); }, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
 }
 
-function updateGPS(){
-  const dot=document.getElementById('gps-dot'),text=document.getElementById('gps-text'),detail=document.getElementById('gps-detail'),coords=document.getElementById('gps-coords');
-  if(!dot)return;
-  if(getSettings().demoMode){dot.className='gps-dot active';text.textContent='Demo Mode — GPS bypassed';detail.textContent='Location check disabled';if(coords)coords.textContent='';return;}
-  const m={pending:{c:'gps-dot pending',t:'Acquiring location...',d:'Please allow location access'},in_range:{c:'gps-dot active',t:'Within range',d:`${state.gpsDistance}m from site`},out_of_range:{c:'gps-dot inactive',t:'Out of range',d:`${state.gpsDistance}m from site — move closer`},error:{c:'gps-dot inactive',t:'Location error',d:'Check permissions and try again'}};
-  const s=m[state.gpsStatus]||m.pending;dot.className=s.c;text.textContent=s.t;detail.textContent=s.d;
-  if(coords)coords.textContent=state.gpsLat!=null?`${state.gpsLat.toFixed(6)}, ${state.gpsLng.toFixed(6)}`:'';
+function updateGPS() {
+  var dot = document.getElementById('gps-dot'), text = document.getElementById('gps-text'), detail = document.getElementById('gps-detail'), coords = document.getElementById('gps-coords');
+  if (!dot) return;
+  if (getSettings().demoMode) { dot.className = 'gps-dot active'; text.textContent = 'Demo Mode — GPS bypassed'; detail.textContent = 'Location check disabled'; if (coords) coords.textContent = ''; return; }
+  var m = { pending:{c:'gps-dot pending',t:'Acquiring location...',d:'Please allow location access'}, in_range:{c:'gps-dot active',t:'Within range',d:state.gpsDistance + 'm from site'}, out_of_range:{c:'gps-dot inactive',t:'Out of range',d:state.gpsDistance + 'm from site — move closer'}, error:{c:'gps-dot inactive',t:'Location error',d:'Check permissions and try again'} };
+  var s = m[state.gpsStatus] || m.pending; dot.className = s.c; text.textContent = s.t; detail.textContent = s.d;
+  if (coords) coords.textContent = state.gpsLat != null ? state.gpsLat.toFixed(6) + ', ' + state.gpsLng.toFixed(6) : '';
 }
 
-function updateClockBtn(){
-  const btn=document.getElementById('clock-btn');if(!btn)return;
-  const isIn=state.clockState==='clocked_in',demo=getSettings().demoMode,inR=state.gpsStatus==='in_range',canAct=isIn?(demo||inR):(demo||inR);
-  if(isIn){btn.style.borderColor=canAct?'var(--accent)':'var(--border)';btn.style.color=canAct?'var(--accent)':'var(--muted)';btn.style.background=canAct?'rgba(232,168,56,.08)':'var(--card)';}
-  else{btn.style.borderColor=canAct?'var(--success)':'var(--border)';btn.style.color=canAct?'var(--success)':'var(--muted)';btn.style.background=canAct?'rgba(52,211,153,.08)':'var(--card)';}
-  btn.disabled=!canAct;
-  if(canAct)btn.classList.add('pulse');else btn.classList.remove('pulse');
+function updateClockBtn() {
+  var btn = document.getElementById('clock-btn'); if (!btn) return;
+  var isIn = state.clockState === 'clocked_in', demo = getSettings().demoMode, inR = state.gpsStatus === 'in_range', canAct = isIn ? (demo || inR) : (demo || inR);
+  if (isIn) { btn.style.borderColor = canAct ? 'var(--accent)' : 'var(--border)'; btn.style.color = canAct ? 'var(--accent)' : 'var(--muted)'; btn.style.background = canAct ? 'rgba(232,168,56,.08)' : 'var(--card)'; }
+  else { btn.style.borderColor = canAct ? 'var(--success)' : 'var(--border)'; btn.style.color = canAct ? 'var(--success)' : 'var(--muted)'; btn.style.background = canAct ? 'rgba(52,211,153,.08)' : 'var(--card)'; }
+  btn.disabled = !canAct;
+  if (canAct) btn.classList.add('pulse'); else btn.classList.remove('pulse');
 }
 
-function handleClockAction(){
-  const demo=getSettings().demoMode,site=getSites().find(s=>s.id===state.currentEmployee.siteId);
-  if(state.clockState==='idle'){
-    if(!demo&&state.gpsStatus!=='in_range'){toast('Must be within site range','error');return;}
-    const todayShift=getShifts().find(s=>s.employeeId===state.currentEmployee.id&&s.date===todayStr());
-    const now=new Date().toISOString();
-    const id=db.ref('records').push().key;
-    const rec={id,employeeId:state.currentEmployee.id,siteId:state.currentEmployee.siteId,shiftId:todayShift?todayShift.id:null,clockIn:now,clockOut:null,clockInLat:demo?(site?site.lat:0):state.gpsLat,clockInLng:demo?(site?site.lng:0):state.gpsLng,clockOutLat:null,clockOutLng:null,regularHours:0,overtimeHours:0,doubleTimeHours:0,breakMinutes:todayShift?todayShift.breakMinutes:getSettings().defaultBreak||30,status:'clocked_in'};
-    fbSet('records/'+id,rec);
-    state.clockState='clocked_in';state.activeRecord=rec;
-    toast('Clocked in','success');navigateEmp('clock');
+function handleClockAction() {
+  var demo = getSettings().demoMode, site = getSites().find(function(s) { return s.id === state.currentEmployee.siteId; });
+  if (state.clockState === 'idle') {
+    if (!demo && state.gpsStatus !== 'in_range') { toast('Must be within site range', 'error'); return; }
+    var todayShift = getShifts().find(function(s) { return s.employeeId === state.currentEmployee.id && s.date === todayStr(); });
+    var now = new Date().toISOString();
+    var id = db.ref('records').push().key;
+    var rec = { id:id, employeeId:state.currentEmployee.id, siteId:state.currentEmployee.siteId, shiftId:todayShift ? todayShift.id : null, clockIn:now, clockOut:null, clockInLat:demo ? (site ? site.lat : 0) : state.gpsLat, clockInLng:demo ? (site ? site.lng : 0) : state.gpsLng, clockOutLat:null, clockOutLng:null, regularHours:0, overtimeHours:0, doubleTimeHours:0, breakMinutes:todayShift ? todayShift.breakMinutes : (getSettings().defaultBreak || 30), status:'clocked_in' };
+    fbSet('records/' + id, rec);
+    state.clockState = 'clocked_in'; state.activeRecord = rec;
+    toast('Clocked in', 'success'); navigateEmp('clock');
   } else {
-    if(!demo&&state.gpsStatus!=='in_range'){toast('Must be within site range to clock out','error');return;}
-    const now=new Date().toISOString(),st=getSettings();
-    const todayShift=state.activeRecord.shiftId?getShifts().find(s=>s.id===state.activeRecord.shiftId):null;
-    const target=todayShift?todayShift.targetHours:st.defaultTarget||8;
-    const hrs=calcHours(state.activeRecord.clockIn,now,target,state.activeRecord.breakMinutes||0,st.otThreshold||2);
-    fbUpdate('records/'+state.activeRecord.id,{clockOut:now,clockOutLat:demo?(site?site.lat:0):state.gpsLat,clockOutLng:demo?(site?site.lng:0):state.gpsLng,...hrs,status:'completed'});
-    state.clockState='idle';state.activeRecord=null;
-    toast('Clocked out','success');navigateEmp('clock');
+    if (!demo && state.gpsStatus !== 'in_range') { toast('Must be within site range to clock out', 'error'); return; }
+    var now2 = new Date().toISOString(), st = getSettings();
+    var todayShift2 = state.activeRecord.shiftId ? getShifts().find(function(s) { return s.id === state.activeRecord.shiftId; }) : null;
+    var target = todayShift2 ? todayShift2.targetHours : (st.defaultTarget || 8);
+    var hrs = calcHours(state.activeRecord.clockIn, now2, target, state.activeRecord.breakMinutes || 0, st.otThreshold || 2);
+    fbUpdate('records/' + state.activeRecord.id, { clockOut:now2, clockOutLat:demo ? (site ? site.lat : 0) : state.gpsLat, clockOutLng:demo ? (site ? site.lng : 0) : state.gpsLng, regularHours:hrs.regularHours, overtimeHours:hrs.overtimeHours, doubleTimeHours:hrs.doubleTimeHours, status:'completed' });
+    state.clockState = 'idle'; state.activeRecord = null;
+    toast('Clocked out', 'success'); navigateEmp('clock');
   }
 }
 
 /* ============================================================
    EMPLOYEE: HISTORY
    ============================================================ */
-function renderEmpHistory(){
-  const recs=getRecords().filter(r=>r.employeeId===state.currentEmployee.id).reverse();
-  return `<div class="fade-in max-w-2xl mx-auto"><h2 class="text-xl font-bold mb-1">My History</h2><p class="text-sm mb-6" style="color:var(--muted)">${recs.length} records</p>
-    ${recs.length?recs.map(r=>{const total=(r.regularHours||0)+(r.overtimeHours||0)+(r.doubleTimeHours||0),done=r.status==='completed';return`<div class="card mb-3"><div class="flex items-center justify-between mb-2"><div class="font-semibold text-sm">${r.clockIn?new Date(r.clockIn+'Z').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}):'—'}</div>${done?'<span class="badge badge-blue">Completed</span>':'<span class="badge badge-green">Active</span>'}</div><div class="grid grid-cols-2 gap-y-1 text-sm"><div style="color:var(--muted)">Site:</div><div>${getSiteName(r.siteId)}</div><div style="color:var(--muted)">In:</div><div class="mono">${r.clockIn?fmtTime(r.clockIn):'—'}</div><div style="color:var(--muted)">Out:</div><div class="mono">${r.clockOut?fmtTime(r.clockOut):'—'}</div><div style="color:var(--muted)">Break:</div><div>${r.breakMinutes||0} min</div></div>${done?`<div class="flex gap-4 mt-3 pt-3 border-t text-sm" style="border-color:var(--border)"><div><span style="color:var(--muted)">Regular:</span> <strong class="mono">${r.regularHours}h</strong></div><div><span style="color:var(--muted)">OT:</span> <strong class="mono" style="color:var(--warning)">${r.overtimeHours}h</strong></div><div><span style="color:var(--muted)">DT:</span> <strong class="mono" style="color:var(--danger)">${r.doubleTimeHours}h</strong></div><div><span style="color:var(--muted)">Total:</span> <strong class="mono" style="color:var(--accent)">${total.toFixed(2)}h</strong></div></div>`:''}</div>`;}).join(''):'<div class="card text-center py-12"><i class="fas fa-history text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No records yet.</p></div>'}</div>`;
+function renderEmpHistory() {
+  var recs = getRecords().filter(function(r) { return r.employeeId === state.currentEmployee.id; }).reverse();
+  var html = '<div class="fade-in max-w-2xl mx-auto"><h2 class="text-xl font-bold mb-1">My History</h2><p class="text-sm mb-6" style="color:var(--muted)">' + recs.length + ' records</p>';
+  if (recs.length) {
+    recs.forEach(function(r) {
+      var total = (r.regularHours||0) + (r.overtimeHours||0) + (r.doubleTimeHours||0), done = r.status === 'completed';
+      html += '<div class="card mb-3"><div class="flex items-center justify-between mb-2"><div class="font-semibold text-sm">' + (r.clockIn ? new Date(r.clockIn + 'Z').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) : '—') + '</div>' + (done ? '<span class="badge badge-blue">Completed</span>' : '<span class="badge badge-green">Active</span>') + '</div>';
+      html += '<div class="grid grid-cols-2 gap-y-1 text-sm"><div style="color:var(--muted)">Site:</div><div>' + getSiteName(r.siteId) + '</div><div style="color:var(--muted)">In:</div><div class="mono">' + (r.clockIn ? fmtTime(r.clockIn) : '—') + '</div><div style="color:var(--muted)">Out:</div><div class="mono">' + (r.clockOut ? fmtTime(r.clockOut) : '—') + '</div><div style="color:var(--muted)">Break:</div><div>' + (r.breakMinutes||0) + ' min</div></div>';
+      if (done) { html += '<div class="flex gap-4 mt-3 pt-3 border-t text-sm" style="border-color:var(--border)"><div><span style="color:var(--muted)">Regular:</span> <strong class="mono">' + r.regularHours + 'h</strong></div><div><span style="color:var(--muted)">OT:</span> <strong class="mono" style="color:var(--warning)">' + r.overtimeHours + 'h</strong></div><div><span style="color:var(--muted)">DT:</span> <strong class="mono" style="color:var(--danger)">' + r.doubleTimeHours + 'h</strong></div><div><span style="color:var(--muted)">Total:</span> <strong class="mono" style="color:var(--accent)">' + total.toFixed(2) + 'h</strong></div></div>'; }
+      html += '</div>';
+    });
+  } else { html += '<div class="card text-center py-12"><i class="fas fa-history text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No records yet.</p></div>'; }
+  html += '</div>';
+  return html;
 }
 
 /* ============================================================
-   INIT — decide which screen to show
+   INIT
    ============================================================ */
-const savedConfig = localStorage.getItem('scp_fb_config');
+var savedConfig = localStorage.getItem('scp_fb_config');
 if (savedConfig) {
   try {
-    const config = JSON.parse(savedConfig);
+    var config = JSON.parse(savedConfig);
     if (config.databaseURL) {
       showScreen('loading-screen');
       initFirebase(config);
-      /* Timeout fallback */
-      setTimeout(() => {
-        if (dataLoaded < 6) {
-          localStorage.removeItem('scp_fb_config');
-          showScreen('setup-screen');
-          toast('Connection failed — please reconfigure', 'error');
-        }
+      setTimeout(function() {
+        if (dataLoaded < 6) { localStorage.removeItem('scp_fb_config'); showScreen('setup-screen'); toast('Connection failed — reconfigure', 'error'); }
       }, 10000);
     } else { showScreen('setup-screen'); }
-  } catch { showScreen('setup-screen'); }
-} else {
-  showScreen('setup-screen');
-}
+  } catch(e) { showScreen('setup-screen'); }
+} else { showScreen('setup-screen'); }
 
-/* Enter key on login */
-document.getElementById('admin-pass').addEventListener('keydown',e=>{if(e.key==='Enter')adminLogin();});
-document.getElementById('emp-pin').addEventListener('keydown',e=>{if(e.key==='Enter')employeeLogin();});
-
-/* Close sidebar on outside click */
-document.addEventListener('click',e=>{const sb=document.getElementById('sidebar');if(sb&&sb.classList.contains('open')&&!sb.contains(e.target)&&!e.target.closest('[onclick*="toggleSidebar"]'))sb.classList.remove('open');});
+document.getElementById('admin-pass').addEventListener('keydown', function(e) { if (e.key === 'Enter') adminLogin(); });
+document.getElementById('emp-pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') employeeLogin(); });
+document.addEventListener('click', function(e) { var sb = document.getElementById('sidebar'); if (sb && sb.classList.contains('open') && !sb.contains(e.target) && !e.target.closest('[onclick*="toggleSidebar"]')) sb.classList.remove('open'); });
 </script>
 </body>
 </html>
