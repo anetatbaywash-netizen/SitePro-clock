@@ -596,23 +596,48 @@ function openBulkShiftModal() {
   if (!emps.length || !sites.length) { toast('Add employees and sites first', 'error'); return; }
   var empOpts = ''; emps.forEach(function(e) { empOpts += '<option value="' + e.id + '">' + e.firstName + ' ' + e.lastName + ' (' + e.employeeId + ')</option>'; });
   var siteOpts = ''; sites.forEach(function(s) { siteOpts += '<option value="' + s.id + '">' + s.name + '</option>'; });
+  var defaultTo = new Date(); defaultTo.setDate(defaultTo.getDate() + 7);
   openModal('<h3 class="font-bold text-lg mb-4">Bulk Create Shifts</h3><p class="text-sm mb-4" style="color:var(--muted)">Same shift across a date range.</p><div class="grid gap-4">' +
     '<div><label>Employee</label><select id="m-bulk-emp">' + empOpts + '</select></div>' +
     '<div><label>Site</label><select id="m-bulk-site">' + siteOpts + '</select></div>' +
-    '<div class="grid grid-cols-2 gap-3"><div><label>From</label><input id="m-bulk-from" type="date" value="' + todayStr() + '"></div><div><label>To</label><input id="m-bulk-to" type="date" value="' + todayStr() + '"></div></div>' +
-    '<div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="m-bulk-start" type="time" value="07:00"></div><div><label>End</label><input id="m-bulk-end" type="time" value="15:30"></div></div>' +
+    '<div class="grid grid-cols-2 gap-3"><div><label>From Date</label><input id="m-bulk-from" type="date" value="' + todayStr() + '"></div><div><label>To Date</label><input id="m-bulk-to" type="date" value="' + fmtDate(defaultTo) + '"></div></div>' +
+    '<div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-bulk-start" type="time" value="07:00"></div><div><label>End Time</label><input id="m-bulk-end" type="time" value="15:30"></div></div>' +
     '<div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-bulk-target" type="number" step="0.5" value="' + (st.defaultTarget || 8) + '"></div><div><label>Break (min)</label><input id="m-bulk-break" type="number" step="5" value="' + (st.defaultBreak || 30) + '"></div></div>' +
     '<div class="flex items-center gap-2"><input id="m-bulk-noweekends" type="checkbox" checked class="w-4 h-4"><label for="m-bulk-noweekends" style="margin:0;cursor:pointer">Exclude weekends</label></div>' +
+    '<div id="bulk-preview" class="text-sm" style="color:var(--muted)"></div>' +
     '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveBulkShifts()"><i class="fas fa-layer-group"></i> Create</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+  /* Auto-preview */
+  setTimeout(updateBulkPreview, 100);
+  ['m-bulk-from','m-bulk-to','m-bulk-noweekends'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', updateBulkPreview);
+    if (el) el.addEventListener('input', updateBulkPreview);
+  });
 }
 
+function updateBulkPreview() {
+  var from = document.getElementById('m-bulk-from').value;
+  var to = document.getElementById('m-bulk-to').value;
+  var noWeekends = document.getElementById('m-bulk-noweekends').checked;
+  var el = document.getElementById('bulk-preview');
+  if (!el) return;
+  if (!from || !to) { el.innerHTML = ''; return; }
+  if (to < from) { el.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> "To" date must be after "From" date</span>'; return; }
+  var d = new Date(from + 'T12:00:00'), end = new Date(to + 'T12:00:00'), count = 0;
+  while (d <= end) { var dow = d.getDay(); if (!noWeekends || (dow !== 0 && dow !== 6)) count++; d.setDate(d.getDate() + 1); }
+  if (count === 0) { el.innerHTML = '<span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> No weekdays in this range — uncheck "Exclude weekends" or pick different dates</span>'; }
+  else { el.innerHTML = '<span style="color:var(--success)"><i class="fas fa-circle-check"></i> Will create <strong>' + count + ' shifts</strong></span>'; }
+}
 function saveBulkShifts() {
   var employeeId = document.getElementById('m-bulk-emp').value, siteId = document.getElementById('m-bulk-site').value, from = document.getElementById('m-bulk-from').value, to = document.getElementById('m-bulk-to').value, startTime = document.getElementById('m-bulk-start').value, endTime = document.getElementById('m-bulk-end').value, targetHours = parseFloat(document.getElementById('m-bulk-target').value), breakMinutes = parseInt(document.getElementById('m-bulk-break').value), noWeekends = document.getElementById('m-bulk-noweekends').checked;
   if (!from || !to || !startTime || !endTime) { toast('All fields required', 'error'); return; }
-  if (to < from) { toast('To must be after From', 'error'); return; }
+  if (to < from) { toast('To date must be after From date', 'error'); return; }
+  if (endTime <= startTime) { toast('End time must be after start time', 'error'); return; }
   var d = new Date(from + 'T12:00:00'), end = new Date(to + 'T12:00:00'), count = 0, updates = {};
   while (d <= end) { var dow = d.getDay(); if (!noWeekends || (dow !== 0 && dow !== 6)) { var id = db.ref('shifts').push().key; updates['shifts/' + id] = { id:id, employeeId:employeeId, siteId:siteId, date:fmtDate(d), startTime:startTime, endTime:endTime, targetHours:targetHours, breakMinutes:breakMinutes }; count++; } d.setDate(d.getDate() + 1); }
-  if (count) { fbUpdate(updates); closeModal(); navigateAdmin('shifts'); toast(count + ' shifts created', 'success'); }
+  if (count === 0) { toast('No weekdays in this range — uncheck "Exclude weekends"', 'error'); return; }
+  fbUpdate(updates);
+  closeModal(); navigateAdmin('shifts'); toast(count + ' shifts created', 'success');
 }
 
 /* ============================================================
