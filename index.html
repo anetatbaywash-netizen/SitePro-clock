@@ -154,7 +154,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
       <button class="btn btn-primary w-full justify-center" onclick="adminLogin()"><i class="fas fa-right-to-bracket"></i> Sign In</button>
     </div>
     <div id="login-employee" class="hidden">
-      <div class="mb-4"><label>Employee ID</label><input id="emp-id" type="text" placeholder="e.g. EMP001" autocomplete="off"></div>
+      <div class="mb-4"><label>Employee ID</label><input id="emp-id" type="text" placeholder="e.g. BC001" autocomplete="off"></div>
       <div class="mb-5"><label>PIN</label><input id="emp-pin" type="password" placeholder="4-digit PIN" maxlength="4"></div>
       <button class="btn btn-primary w-full justify-center" onclick="employeeLogin()"><i class="fas fa-right-to-bracket"></i> Clock In Portal</button>
     </div>
@@ -305,9 +305,8 @@ function seedFirebase() {
   const e1 = db.ref('employees').push().key;
   const e2 = db.ref('employees').push().key;
   const e3 = db.ref('employees').push().key;
-  fbSet('employees/' + e1, { id:e1, firstName:'James', lastName:'Carter', employeeId:'EMP001', pin:'1234', siteId:s1, active:true });
-  fbSet('employees/' + e2, { id:e2, firstName:'Sarah', lastName:'Mitchell', employeeId:'EMP002', pin:'5678', siteId:s1, active:true });
-  fbSet('employees/' + e3, { id:e3, firstName:'Daniel', lastName:'Nguyen', employeeId:'EMP003', pin:'4321', siteId:s2, active:true });
+  fbSet('employees/' + e1, { id:e1, firstName:'James', lastName:'Short', employeeId:'BC0007', pin:'1234', siteId:s1, active:true });
+  fbSet('employees/' + e2, { id:e2, firstName:'Anet', lastName:'Wolmarans', employeeId:'BC0012', pin:'1234', siteId:s1, active:true });  
 }
 
 /* ============================================================
@@ -512,7 +511,7 @@ function renderDashboard(){
    ============================================================ */
 function renderSites(){
   const sites=getSites();
-  return `<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2><p class="text-sm" style="color:var(--muted)">GPS clock-in zones (5-50m radius)</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div>
+  return `<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2><p class="text-sm" style="color:var(--muted)">GPS clock-in zones (5-300m radius)</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div>
     <div class="grid gap-4">${sites.length?sites.map(s=>`<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">${s.name}</div><div class="text-sm" style="color:var(--muted)">${s.address}</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>${s.lat.toFixed(5)}, ${s.lng.toFixed(5)}</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>${s.radius}m</span><a href="https://www.google.com/maps?q=${s.lat},${s.lng}" target="_blank" class="hover:underline" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal('${s.id}')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite('${s.id}')"><i class="fas fa-trash"></i></button></div></div>`).join(''):'<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites yet.</p></div>'}</div></div>`;
 }
 
@@ -522,7 +521,7 @@ function openSiteModal(editId){
     <div><label>Site Name</label><input id="m-site-name" value="${s?s.name:''}"></div>
     <div><label>Address</label><input id="m-site-addr" value="${s?s.address:''}"></div>
     <div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="${s?s.lat:''}"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="${s?s.lng:''}"></div></div>
-    <div><label>GPS Radius: <span id="m-radius-val">${s?s.radius:30}</span>m</label><input id="m-site-radius" type="range" min="5" max="100" value="${s?s.radius:30}" oninput="document.getElementById('m-radius-val').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m strict</span><span>300m lenient</span></div></div>
+    <div><label>GPS Radius: <span id="m-radius-val">${s?s.radius:30}</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="${s?s.radius:30}" oninput="document.getElementById('m-radius-val').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m strict</span><span>300m lenient</span></div></div>
     <button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Current Location</button>
     <div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite('${editId||''}')">${s?'Update':'Add'}</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>`);
 }
@@ -530,7 +529,7 @@ function openSiteModal(editId){
 function getMyLocation(){if(!navigator.geolocation){toast('Geolocation not supported','error');return;}toast('Getting location...','info');navigator.geolocation.getCurrentPosition(p=>{document.getElementById('m-site-lat').value=p.coords.latitude.toFixed(5);document.getElementById('m-site-lng').value=p.coords.longitude.toFixed(5);toast('Location acquired','success');},e=>toast('Error: '+e.message,'error'),{enableHighAccuracy:true});}
 
 function saveSite(editId){
-  const name=document.getElementById('m-site-name').value.trim(),address=document.getElementById('m-site-addr').value.trim(),lat=parseFloat(document.getElementById('m-site-lat').value),lng=parseFloat(document.getElementById('m-site-lng').value),radius=parseInt(document.getElementById('m-site-radius').value);
+  const name=document.getElementById('m-site-name').value.trim(),address=document.getElementById('m-site-addr').value.trim(),lat=parseFloat(document.getElementById('m-site-lat').value),lng=parseFloat(document.getElementById('m-site-lng').value),radius=parseInt(document.getElementById('').value);
   if(!name){toast('Name required','error');return;}if(isNaN(lat)||isNaN(lng)){toast('Valid coordinates required','error');return;}
   if(editId){fbUpdate('sites/'+editId,{name,address,lat,lng,radius});}else{const id=db.ref('sites').push().key;fbSet('sites/'+id,{id,name,address,lat,lng,radius});}
   closeModal();navigateAdmin('sites');toast(editId?'Site updated':'Site added','success');
