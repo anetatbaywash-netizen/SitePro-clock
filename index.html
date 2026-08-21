@@ -226,6 +226,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
 let db = null; // firebase.database reference
 let fbConnected = false;
 let dataLoaded = 0;
+let initialLoadDone = false;
 
 /* Local cache mirrors Firebase — updated by real-time listeners */
 let D = { sites:[], employees:[], shifts:[], records:[], settings:{}, admin:{} };
@@ -248,9 +249,9 @@ function initFirebase(config) {
 }
 
 function checkAllLoaded() {
-  if (dataLoaded >= 6) {
+  if (dataLoaded >= 6 && !initialLoadDone) {
+    initialLoadDone = true;
     document.getElementById('loading-screen').classList.add('hidden');
-    /* Seed if empty */
     if (!D.admin || !D.admin.username) seedFirebase();
     showScreen('login-screen');
   }
