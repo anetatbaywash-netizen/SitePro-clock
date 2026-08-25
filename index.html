@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SitePro Clock In</title>
+<title>BayWash Clock In</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
@@ -90,9 +90,8 @@ tr:hover td{background:rgba(232,168,56,.03)}
 .big-time{font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;letter-spacing:-.02em;line-height:1}
 .big-date{font-size:.85rem;color:var(--muted);margin-top:.25rem}
 .week-bar-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem}
-.tier-row{display:flex;align-items:center;gap:.75rem;padding:.5rem 0;font-size:.8rem}
+.tier-row{display:flex;align-items:center;gap:.75rem;padding:.4rem 0;font-size:.8rem}
 .tier-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.tier-arrow{color:var(--muted);font-size:.7rem}
 @media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:1rem}.clock-face{width:220px;height:220px}.clock-face .cf-icon{font-size:2rem}.big-time{font-size:2.5rem}}
 </style>
 </head>
@@ -105,7 +104,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
   <div class="card w-full max-w-md fade-in" style="border-color:color-mix(in srgb,var(--accent) 20%,var(--border))">
     <div class="text-center mb-6">
       <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xl" style="color:#0c0e16"></i></div>
-      <h1 class="text-2xl font-bold">SitePro Clock In</h1>
+      <h1 class="text-2xl font-bold">BayWash Clock In</h1>
       <p class="text-sm mt-1 flex items-center justify-center gap-2" style="color:var(--muted)">Workforce Time Tracking <span class="conn-dot loading" id="login-conn-dot"></span></p>
     </div>
     <div class="flex mb-6 border-b" style="border-color:var(--border)">
@@ -126,7 +125,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
 </div>
 <div id="admin-layout" class="hidden">
   <aside class="sidebar" id="sidebar">
-    <div class="p-5 border-b" style="border-color:var(--border)"><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-sm" style="color:#0c0e16"></i></div><div><div class="font-bold text-sm">SitePro Clock In</div><div class="text-xs flex items-center gap-1.5" style="color:var(--muted)"><span class="conn-dot on" id="admin-conn-dot"></span><span id="admin-conn-label">Synced</span></div></div></div></div>
+    <div class="p-5 border-b" style="border-color:var(--border)"><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-sm" style="color:#0c0e16"></i></div><div><div class="font-bold text-sm">BayWash Clock In</div><div class="text-xs flex items-center gap-1.5" style="color:var(--muted)"><span class="conn-dot on" id="admin-conn-dot"></span><span id="admin-conn-label">Synced</span></div></div></div></div>
     <nav class="py-3" id="admin-nav">
       <div class="px-4 py-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Main</div>
       <a class="sidebar-link active" data-page="dashboard"><i class="fas fa-gauge-high w-5 text-center"></i> Dashboard</a>
@@ -148,7 +147,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
 <div id="employee-layout" class="hidden">
   <div class="min-h-screen flex flex-col">
     <header class="p-4 flex items-center justify-between border-b" style="border-color:var(--border);background:var(--bg2)">
-      <div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xs" style="color:#0c0e16"></i></div><span class="font-bold text-sm">SitePro</span><span class="conn-dot on" id="emp-conn-dot"></span></div>
+      <div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xs" style="color:#0c0e16"></i></div><span class="font-bold text-sm">BayWash</span><span class="conn-dot on" id="emp-conn-dot"></span></div>
       <div class="flex items-center gap-3"><span id="emp-header-name" class="text-sm hidden sm:inline" style="color:var(--muted)"></span><button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-right-from-bracket"></i></button></div>
     </header>
     <div class="flex-1 flex">
@@ -164,7 +163,6 @@ tr:hover td{background:rgba(232,168,56,.03)}
 
 <script>
 var EMBEDDED_FB={apiKey:"AIzaSyAkHU3eWCWTUt3Ks0Vxq3PkgcATtin0Zaw",authDomain:"baywashclock.firebaseapp.com",databaseURL:"https://baywashclock-default-rtdb.firebaseio.com",projectId:"baywashclock",storageBucket:"baywashclock.firebasestorage.app",messagingSenderId:"207388184141",appId:"1:207388184141:web:718d4348bc91672a369604"};
-
 var db=null,fbConnected=false,dataLoaded=0,initialLoadDone=false;
 var D={sites:[],employees:[],shifts:[],records:[],settings:{},admin:{},recycleBin:{}};
 
@@ -179,9 +177,7 @@ function initFirebase(config){
   db.ref('admin').on('value',function(s){D.admin=s.val()||{};dataLoaded++;checkAllLoaded();});
   db.ref('recycleBin').on('value',function(s){D.recycleBin=s.val()||{};dataLoaded++;checkAllLoaded();});
 }
-function checkAllLoaded(){
-  if(dataLoaded>=7&&!initialLoadDone){initialLoadDone=true;document.getElementById('loading-screen').classList.add('hidden');if(!D.admin||!D.admin.username)seedFirebase();cleanExpiredBin();showScreen('login-screen');}
-}
+function checkAllLoaded(){if(dataLoaded>=7&&!initialLoadDone){initialLoadDone=true;document.getElementById('loading-screen').classList.add('hidden');if(!D.admin||!D.admin.username)seedFirebase();cleanExpiredBin();showScreen('login-screen');}}
 function updateConnDots(){var cls=fbConnected?'conn-dot on':'conn-dot off',lbl=fbConnected?'Synced':'Offline';document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot').forEach(function(d){d.className=cls;});var el=document.getElementById('admin-conn-label');if(el)el.textContent=lbl;}
 function fbSet(p,d){if(!db)return;db.ref(p).set(d).catch(function(e){toast('Sync error: '+e.message,'error');});}
 function fbUpdate(p,d){if(!db)return;db.ref(p).update(d).catch(function(e){toast('Sync error: '+e.message,'error');});}
@@ -190,7 +186,7 @@ function getSites(){return D.sites||[];}function getEmployees(){return D.employe
 
 function seedFirebase(){
   fbSet('admin',{username:'admin',password:'admin123'});
-  fbSet('settings',{weeklyTarget:45,overtimeAfter:45,doubleTimeAfter:50,defaultBreak:30,holidays:[
+  fbSet('settings',{weeklyTarget:45,overtimeAfter:45,defaultBreak:30,holidays:[
     '2025-01-01','2025-03-21','2025-04-18','2025-04-21','2025-05-01','2025-05-04','2025-05-25','2025-05-29','2025-08-26','2025-12-10','2025-12-25','2025-12-26',
     '2026-01-01','2026-03-21','2026-04-03','2026-04-06','2026-05-01','2026-05-04','2026-05-14','2026-05-25','2026-08-26','2026-12-10','2026-12-25','2026-12-26',
     '2027-01-01','2027-03-21','2027-03-26','2027-03-29','2027-05-01','2027-05-04','2027-05-06','2027-05-25','2027-08-26','2027-12-10','2027-12-25','2027-12-26',
@@ -206,10 +202,8 @@ function seedFirebase(){
   fbSet('employees/'+e3,{id:e3,firstName:'Daniel',lastName:'Nguyen',employeeId:'EMP003',pin:'4321',siteId:s2,active:true});
 }
 
-/* ===== STATE ===== */
 var state={loggedIn:false,role:null,currentPage:'dashboard',empPage:'clock',currentEmployee:null,clockState:'idle',activeRecord:null,gpsStatus:'pending',gpsDistance:null,gpsLat:null,gpsLng:null,liveTimerInterval:null,clockTimeInterval:null};
 
-/* ===== UTILITIES ===== */
 function fmtDate(d){var dt=d instanceof Date?d:new Date(d);return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
 function fmtTime(d){var dt=d instanceof Date?d:new Date(d);return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');}
 function todayStr(){return fmtDate(new Date());}
@@ -218,29 +212,28 @@ function getEmpById(id){return getEmployees().find(function(x){return x.id===id;
 function haversine(lat1,lon1,lat2,lon2){var R=6371000,t=function(n){return n*Math.PI/180;},dLat=t(lat2-lat1),dLon=t(lon2-lon1),a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(t(lat1))*Math.cos(t(lat2))*Math.sin(dLon/2)*Math.sin(dLon/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function fmtHrs(h){return(Math.round((h||0)*10)/10).toFixed(1);}
 function timeAgo(ts){var s=Math.floor((Date.now()-new Date(ts).getTime())/1000);if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
-function getTierConfig(){var s=getSettings();return{target:s.weeklyTarget||45,otAfter:s.overtimeAfter!=null?s.overtimeAfter:(s.weeklyTarget||45),dtAfter:s.doubleTimeAfter||50};}
+function getTierConfig(){var s=getSettings();return{target:s.weeklyTarget||45,otAfter:s.overtimeAfter!=null?s.overtimeAfter:(s.weeklyTarget||45)};}
 
-/* ===== HOURS CALCULATION — 3 tiers ===== */
+/* ===== HOURS — 2 tiers: Regular + OT. Sunday/Holiday = always double time, nothing else ===== */
 function isSunday(ds){return new Date(ds+'T12:00:00').getDay()===0;}
 function isHoliday(ds){return getHolidays().indexOf(ds)!==-1;}
 function getDayType(ds){if(isSunday(ds))return'Sunday';if(isHoliday(ds))return'Holiday';return'Weekday';}
 function getWeekStart(ds){var d=new Date(ds+'T12:00:00'),day=d.getDay();d.setDate(d.getDate()-(day===0?6:day-1));return fmtDate(d);}
 
-/* Total non-Sunday/non-holiday hours worked so far this week (Mon-Sat) */
 function getEmployeeWeekWorkedHours(empId,curDate){
   var ws=getWeekStart(curDate),we=new Date(ws+'T12:00:00');we.setDate(we.getDate()+5);var wes=fmtDate(we);
   return getRecords().filter(function(r){return r.employeeId===empId&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=wes&&r.dayType!=='Sunday'&&r.dayType!=='Holiday';}).reduce(function(s,r){return s+(r.totalHours||0);},0);
 }
 
-/* 3-tier calculation: Regular → OT → Double Time. Sunday/Holiday always double time. */
 function calcHours(ci,co,bm,weekWorked,dayType,tierCfg){
   var totalMs=new Date(co)-new Date(ci),totalMin=Math.max(0,totalMs/60000-bm),totalHrs=Math.round(totalMin/6)/10;
+  /* Sunday and public holidays: ALWAYS double time. Not counted toward weekly tiers. */
   if(dayType==='Sunday'||dayType==='Holiday')return{regularHours:0,overtimeHours:0,doubleTimeHours:totalHrs,totalHours:totalHrs};
-  var start=weekWorked,end=weekWorked+totalHrs,regular=0,overtime=0,doubleTime=0;
+  /* Mon–Sat: 2 tiers only — regular then overtime. No double time threshold. */
+  var start=weekWorked,end=weekWorked+totalHrs,regular=0,overtime=0;
   if(start<tierCfg.otAfter)regular+=Math.min(end,tierCfg.otAfter)-start;
-  if(end>tierCfg.otAfter&&start<tierCfg.dtAfter)overtime+=Math.min(end,tierCfg.dtAfter)-Math.max(start,tierCfg.otAfter);
-  if(end>tierCfg.dtAfter)doubleTime+=end-Math.max(start,tierCfg.dtAfter);
-  return{regularHours:regular,overtimeHours:overtime,doubleTimeHours:doubleTime,totalHours:totalHrs};
+  if(end>tierCfg.otAfter)overtime+=end-Math.max(start,tierCfg.otAfter);
+  return{regularHours:regular,overtimeHours:overtime,doubleTimeHours:0,totalHours:totalHrs};
 }
 
 function getMondaysInMonth(year,month){var count=0,d=new Date(year,month,1),dow=d.getDay(),daysToMon=dow===0?1:(dow===1?0:8-dow);d.setDate(d.getDate()+daysToMon);while(d.getMonth()===month&&d.getFullYear()===year){count++;d.setDate(d.getDate()+7);}return count;}
@@ -278,14 +271,12 @@ function renderRecycleBin(){
   h+='</div>';return h;
 }
 
-/* ===== UI HELPERS ===== */
 function toast(msg,type){type=type||'info';var c=document.getElementById('toast-container'),t=document.createElement('div');t.className='toast toast-'+type;var icons={success:'fa-circle-check',error:'fa-circle-xmark',info:'fa-circle-info'};t.innerHTML='<i class="fas '+(icons[type]||icons.info)+'"></i><span>'+msg+'</span>';c.appendChild(t);setTimeout(function(){t.style.animation='slideOut .3s ease forwards';setTimeout(function(){t.remove();},300);},3500);}
 function openModal(html){document.getElementById('modal-box').innerHTML=html;document.getElementById('modal-overlay').classList.remove('hidden');}
 function closeModal(){document.getElementById('modal-overlay').classList.add('hidden');}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
 function showScreen(id){['loading-screen','login-screen','admin-layout','employee-layout'].forEach(function(s){document.getElementById(s).classList.toggle('hidden',s!==id);});}
 
-/* ===== AUTH ===== */
 function switchLoginTab(tab){document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',(tab==='admin'&&i===0)||(tab==='employee'&&i===1));});document.getElementById('login-admin').classList.toggle('hidden',tab!=='admin');document.getElementById('login-employee').classList.toggle('hidden',tab!=='employee');}
 function adminLogin(){var u=document.getElementById('admin-user').value.trim(),p=document.getElementById('admin-pass').value;if(u===D.admin.username&&p===D.admin.password){state.loggedIn=true;state.role='admin';state.currentPage='dashboard';showAdmin();toast('Welcome, Admin','success');}else toast('Invalid credentials','error');}
 function employeeLogin(){var eid=document.getElementById('emp-id').value.trim().toUpperCase(),pin=document.getElementById('emp-pin').value;var emp=getEmployees().find(function(e){return e.employeeId===eid&&e.pin===pin&&e.active;});if(emp){state.loggedIn=true;state.role='employee';state.currentEmployee=emp;state.empPage='clock';var recs=getRecords().filter(function(r){return r.employeeId===emp.id&&r.status==='clocked_in';});if(recs.length){state.clockState='clocked_in';state.activeRecord=recs[0];}else{state.clockState='idle';state.activeRecord=null;}showEmployee();toast('Welcome, '+emp.firstName,'success');}else toast('Invalid Employee ID or PIN','error');}
@@ -293,7 +284,6 @@ function logout(){if(state.liveTimerInterval)clearInterval(state.liveTimerInterv
 function showAdmin(){showScreen('admin-layout');navigateAdmin(state.currentPage);}
 function showEmployee(){showScreen('employee-layout');document.getElementById('emp-header-name').textContent=state.currentEmployee.firstName+' '+state.currentEmployee.lastName;navigateEmp(state.empPage);}
 
-/* ===== ROUTERS ===== */
 function navigateAdmin(page){state.currentPage=page;document.querySelectorAll('#admin-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.page===page);});var el=document.getElementById('admin-content');var R={dashboard:renderDashboard,sites:renderSites,employees:renderEmployees,shifts:renderShifts,records:renderRecords,export:renderExport,recyclebin:renderRecycleBin,settings:renderSettings};if(R[page])el.innerHTML=R[page]();if(page==='dashboard')startDashClock();}
 document.getElementById('admin-nav').addEventListener('click',function(e){var l=e.target.closest('.sidebar-link');if(l&&l.dataset.page){navigateAdmin(l.dataset.page);document.getElementById('sidebar').classList.remove('open');}});
 function navigateEmp(page){state.empPage=page;document.querySelectorAll('#emp-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.epage===page);});var el=document.getElementById('emp-content');if(page==='clock'){el.innerHTML=renderClockPage();initClockPage();}else if(page==='history')el.innerHTML=renderEmpHistory();}
@@ -304,7 +294,6 @@ var dashCI=null;
 function startDashClock(){if(dashCI)clearInterval(dashCI);var u=function(){var e=document.getElementById('dash-live-clock');if(e)e.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});else clearInterval(dashCI);};u();dashCI=setInterval(u,1000);}
 function renderDashboard(){var emps=getEmployees(),sites=getSites(),shifts=getShifts(),recs=getRecords(),today=todayStr(),todayShifts=shifts.filter(function(s){return s.date===today;}),clockedIn=recs.filter(function(r){return r.status==='clocked_in';});
 var bin=getBinItems();var binCount=0;['sites','employees','shifts','records'].forEach(function(t){if(bin[t])binCount+=Object.keys(bin[t]).length;});
-var tc=getTierConfig();
 var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-2"><div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">'+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div></div>';
 h+='<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">';
 h+='<div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">'+emps.filter(function(e){return e.active;}).length+'</div></div>';
@@ -351,9 +340,8 @@ function saveBulkShifts(){var employeeId=document.getElementById('m-bulk-emp').v
 
 /* ===== CLOCK RECORDS ===== */
 function renderRecords(){var emps=getEmployees();var now=new Date(),curMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');var tc=getTierConfig();
-var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">Mon–Sat: '+tc.target+'h target → '+fmtHrs(tc.otAfter)+'h OT → '+fmtHrs(tc.dtAfter)+'h DT · Sunday &amp; holiday = double time</p></div></div>';
-h+='<div class="card mb-4"><div class="grid grid-cols-1 sm:grid-cols-3 gap-3"><div><label>Employee</label><select id="rec-filter-emp" onchange="filterRecords()"><option value="all">All Employees</option>';emps.forEach(function(e){h+='<option value="'+e.id+'">'+e.firstName+' '+e.lastName+' ('+e.employeeId+')</option>';});
-h+='</select></div><div><label>Month</label><input id="rec-filter-month" type="month" value="'+curMonth+'" onchange="filterRecords()"></div><div class="flex items-end"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'rec-filter-emp\').value=\'all\';document.getElementById(\'rec-filter-month\').value=\''+curMonth+'\';filterRecords()"><i class="fas fa-rotate"></i> Reset</button></div></div></div><div id="records-body"></div></div>';return h;}
+var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">Mon–Sat: '+tc.target+'h regular → '+fmtHrs(tc.otAfter)+'h OT (x1.5) · Sunday &amp; holiday = double time (x2.0)</p></div></div>';
+h+='<div class="card mb-4"><div class="grid grid-cols-1 sm:grid-cols-3 gap-3"><div><label>Employee</label><select id="rec-filter-emp" onchange="filterRecords()"><option value="all">All Employees</option>';emps.forEach(function(e){h+='<option value="'+e.id+'">'+e.firstName+' '+e.lastName+' ('+e.employeeId+')</option>';});h+='</select></div><div><label>Month</label><input id="rec-filter-month" type="month" value="'+curMonth+'" onchange="filterRecords()"></div><div class="flex items-end"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'rec-filter-emp\').value=\'all\';document.getElementById(\'rec-filter-month\').value=\''+curMonth+'\';filterRecords()"><i class="fas fa-rotate"></i> Reset</button></div></div></div><div id="records-body"></div></div>';return h;}
 function filterRecords(){
   var empId=document.getElementById('rec-filter-emp').value,monthVal=document.getElementById('rec-filter-month').value;var parts=monthVal.split('-'),fYear=parseInt(parts[0]),fMonth=parseInt(parts[1])-1;var tc=getTierConfig();
   var recs=getRecords().filter(function(r){if(r.status!=='completed'||!r.clockIn)return false;if(empId!=='all'&&r.employeeId!==empId)return false;return r.clockIn.slice(0,7)===monthVal;}).sort(function(a,b){return a.clockIn.localeCompare(b.clockIn);});
@@ -366,7 +354,7 @@ function filterRecords(){
   h+='<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">';
   h+='<div class="stat-card sc-regular"><div class="text-xs font-semibold" style="color:var(--muted)">REGULAR (x1.0)</div><div class="text-xl font-bold mono" style="color:var(--success)">'+fmtHrs(mTot.regular)+'h</div></div>';
   h+='<div class="stat-card sc-overtime"><div class="text-xs font-semibold" style="color:var(--muted)">OVERTIME (x1.5)</div><div class="text-xl font-bold mono" style="color:var(--warning)">'+fmtHrs(mTot.overtime)+'h</div></div>';
-  h+='<div class="stat-card sc-double"><div class="text-xs font-semibold" style="color:var(--muted)">DOUBLE TIME (x2.0)</div><div class="text-xl font-bold mono" style="color:var(--danger)">'+fmtHrs(mTot.doubleTime)+'h</div></div>';
+  h+='<div class="stat-card sc-double"><div class="text-xs font-semibold" style="color:var(--muted)">DOUBLE TIME (x2.0)</div><div class="text-xl font-bold mono" style="color:var(--danger)">'+fmtHrs(mTot.doubleTime)+'h</div><div class="text-xs" style="color:var(--muted)">Sun &amp; holidays only</div></div>';
   h+='<div class="stat-card sc-total"><div class="text-xs font-semibold" style="color:var(--muted)">TOTAL</div><div class="text-xl font-bold mono" style="color:var(--accent)">'+fmtHrs(mTot.total)+'h</div><div class="text-xs" style="color:var(--muted)">Target: '+fmtHrs(mTot.target)+'h ('+mondays+' wk)</div></div></div>';
   var pct=monthlyTarget>0?Math.min(100,(mTot.total/monthlyTarget)*100):0;
   h+='<div class="card mb-4" style="padding:.8rem 1.25rem"><div class="flex justify-between text-xs mb-1" style="color:var(--muted)"><span>Monthly progress</span><span>'+fmtHrs(mTot.total)+' / '+fmtHrs(mTot.target)+'h</span></div><div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:'+(mTot.overTarget>0?'var(--warning)':'var(--accent)')+'"></div></div></div>';
@@ -384,32 +372,31 @@ function filterRecords(){
 function deleteRecord(id){var r=getRecords().find(function(x){return x.id===id;});if(r)moveToBin('records',id,r);toast('Record moved to bin','info');setTimeout(filterRecords,500);}
 
 /* ===== EXPORT ===== */
-function renderExport(){var emps=getEmployees(),now=new Date(),curMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');var tc=getTierConfig();var h='<div class="fade-in"><h2 class="text-xl font-bold mb-2">Export</h2><p class="text-sm mb-6" style="color:var(--muted)">Mon–Sat: '+tc.target+'h regular → '+fmtHrs(tc.otAfter)+'h OT (x1.5) → '+fmtHrs(tc.dtAfter)+'h DT (x2.0) · Sunday &amp; holiday = double time</p><div class="card mb-4"><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label>Employee</label><select id="exp-emp"><option value="all">All Employees</option>';emps.forEach(function(e){h+='<option value="'+e.id+'">'+e.firstName+' '+e.lastName+' ('+e.employeeId+')</option>';});h+='</select></div><div><label>Month</label><input id="exp-month" type="month" value="'+curMonth+'"></div></div><div class="mt-3 flex gap-2"><button class="btn btn-primary" onclick="generateExport()"><i class="fas fa-file-lines"></i> Generate</button><button class="btn btn-secondary" onclick="copyExport()"><i class="fas fa-clipboard"></i> Copy</button></div></div><div id="export-output"></div></div>';return h;}
+function renderExport(){var emps=getEmployees(),now=new Date(),curMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');var tc=getTierConfig();
+var h='<div class="fade-in"><h2 class="text-xl font-bold mb-2">Export</h2><p class="text-sm mb-6" style="color:var(--muted)">Mon–Sat: '+tc.target+'h regular → '+fmtHrs(tc.otAfter)+'h OT (x1.5) · Sunday &amp; holiday = double time (x2.0)</p><div class="card mb-4"><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label>Employee</label><select id="exp-emp"><option value="all">All Employees</option>';emps.forEach(function(e){h+='<option value="'+e.id+'">'+e.firstName+' '+e.lastName+' ('+e.employeeId+')</option>';});h+='</select></div><div><label>Month</label><input id="exp-month" type="month" value="'+curMonth+'"></div></div><div class="mt-3 flex gap-2"><button class="btn btn-primary" onclick="generateExport()"><i class="fas fa-file-lines"></i> Generate</button><button class="btn btn-secondary" onclick="copyExport()"><i class="fas fa-clipboard"></i> Copy</button></div></div><div id="export-output"></div></div>';return h;}
 function generateExport(){var empId=document.getElementById('exp-emp').value,monthVal=document.getElementById('exp-month').value;var parts=monthVal.split('-'),fYear=parseInt(parts[0]),fMonth=parseInt(parts[1])-1;var monthName=['January','February','March','April','May','June','July','August','September','October','November','December'][fMonth];var tc=getTierConfig();
-if(empId==='all'){var emps=getEmployees().filter(function(e){return e.active;});var text='SITEPRO MONTHLY SUMMARY — '+monthName+' '+fYear+'\n'+'='.repeat(55)+'\nWeekly Target (Mon-Sat): '+tc.target+'h regular\nOvertime (x1.5) after: '+tc.otAfter+'h\nDouble Time (x2.0) after: '+tc.dtAfter+'h\nSunday & Public Holidays: Double Time (x2.0)\n\n';emps.forEach(function(emp){var m=getEmployeeMonthHours(emp.id,fYear,fMonth);if(m.recordCount===0)return;text+=emp.firstName+' '+emp.lastName+' ('+emp.employeeId+')\n  Regular:     '+fmtHrs(m.regular)+'h (x1.0 = '+fmtHrs(m.regular)+'h)\n  Overtime:    '+fmtHrs(m.overtime)+'h (x1.5 = '+fmtHrs(m.overtime*1.5)+'h)\n  Double Time: '+fmtHrs(m.doubleTime)+'h (x2.0 = '+fmtHrs(m.doubleTime*2)+'h)\n  Total:       '+fmtHrs(m.total)+'h / '+fmtHrs(m.target)+'h target ('+m.mondays+' weeks)\n  Effective:   '+fmtHrs(m.effective)+'h\n';if(m.overTarget>0)text+='  ** OVER TARGET: '+fmtHrs(m.overTarget)+'h **\n';text+='\n';});document.getElementById('export-output').innerHTML='<div class="card"><pre class="mono text-xs whitespace-pre-wrap" style="color:var(--fg)">'+text+'</pre></div>';document.getElementById('export-output').dataset.text=text;}
-else{var emp=getEmpById(empId);var m=getEmployeeMonthHours(empId,fYear,fMonth);var text='SITEPRO — '+monthName+' '+fYear+'\n'+'-'.repeat(45)+'\nEmployee: '+(emp?emp.firstName+' '+emp.lastName:'?')+' ('+(emp?emp.employeeId:'')+')\nWeekly Target (Mon-Sat): '+tc.target+'h regular\nOvertime (x1.5) after: '+tc.otAfter+'h\nDouble Time (x2.0) after: '+tc.dtAfter+'h\nSunday & Holidays: Double Time (x2.0)\nWeeks: '+m.mondays+' · Monthly Target: '+fmtHrs(m.target)+'h\n\nRegular:     '+fmtHrs(m.regular)+'h (x1.0 = '+fmtHrs(m.regular)+'h)\nOvertime:    '+fmtHrs(m.overtime)+'h (x1.5 = '+fmtHrs(m.overtime*1.5)+'h)\nDouble Time: '+fmtHrs(m.doubleTime)+'h (x2.0 = '+fmtHrs(m.doubleTime*2)+'h)\n'+'-'.repeat(45)+'\nTotal:       '+fmtHrs(m.total)+'h\nEffective:   '+fmtHrs(m.effective)+'h\n';if(m.overTarget>0)text+='\n** OVER MONTHLY TARGET: '+fmtHrs(m.overTarget)+'h **\n';document.getElementById('export-output').innerHTML='<div class="card"><pre class="mono text-xs whitespace-pre-wrap" style="color:var(--fg)">'+text+'</pre></div>';document.getElementById('export-output').dataset.text=text;}}
+if(empId==='all'){var emps=getEmployees().filter(function(e){return e.active;});var text='BAYWASH MONTHLY SUMMARY — '+monthName+' '+fYear+'\n'+'='.repeat(55)+'\nWeekly Target (Mon-Sat): '+tc.target+'h regular\nOvertime (x1.5) after: '+tc.otAfter+'h\nSunday & Public Holidays: Double Time (x2.0)\n\n';emps.forEach(function(emp){var m=getEmployeeMonthHours(emp.id,fYear,fMonth);if(m.recordCount===0)return;text+=emp.firstName+' '+emp.lastName+' ('+emp.employeeId+')\n  Regular:     '+fmtHrs(m.regular)+'h (x1.0 = '+fmtHrs(m.regular)+'h)\n  Overtime:    '+fmtHrs(m.overtime)+'h (x1.5 = '+fmtHrs(m.overtime*1.5)+'h)\n  Double Time: '+fmtHrs(m.doubleTime)+'h (x2.0 = '+fmtHrs(m.doubleTime*2)+'h)\n  Total:       '+fmtHrs(m.total)+'h / '+fmtHrs(m.target)+'h target ('+m.mondays+' weeks)\n  Effective:   '+fmtHrs(m.effective)+'h\n';if(m.overTarget>0)text+='  ** OVER TARGET: '+fmtHrs(m.overTarget)+'h **\n';text+='\n';});document.getElementById('export-output').innerHTML='<div class="card"><pre class="mono text-xs whitespace-pre-wrap" style="color:var(--fg)">'+text+'</pre></div>';document.getElementById('export-output').dataset.text=text;}
+else{var emp=getEmpById(empId);var m=getEmployeeMonthHours(empId,fYear,fMonth);var text='BAYWASH — '+monthName+' '+fYear+'\n'+'-'.repeat(45)+'\nEmployee: '+(emp?emp.firstName+' '+emp.lastName:'?')+' ('+(emp?emp.employeeId:'')+')\nWeekly Target (Mon-Sat): '+tc.target+'h regular\nOvertime (x1.5) after: '+tc.otAfter+'h\nSunday & Holidays: Double Time (x2.0)\nWeeks: '+m.mondays+' · Monthly Target: '+fmtHrs(m.target)+'h\n\nRegular:     '+fmtHrs(m.regular)+'h (x1.0 = '+fmtHrs(m.regular)+'h)\nOvertime:    '+fmtHrs(m.overtime)+'h (x1.5 = '+fmtHrs(m.overtime*1.5)+'h)\nDouble Time: '+fmtHrs(m.doubleTime)+'h (x2.0 = '+fmtHrs(m.doubleTime*2)+'h)\n'+'-'.repeat(45)+'\nTotal:       '+fmtHrs(m.total)+'h\nEffective:   '+fmtHrs(m.effective)+'h\n';if(m.overTarget>0)text+='\n** OVER MONTHLY TARGET: '+fmtHrs(m.overTarget)+'h **\n';document.getElementById('export-output').innerHTML='<div class="card"><pre class="mono text-xs whitespace-pre-wrap" style="color:var(--fg)">'+text+'</pre></div>';document.getElementById('export-output').dataset.text=text;}}
 function copyExport(){var el=document.getElementById('export-output');if(!el||!el.dataset.text){toast('Generate first','error');return;}navigator.clipboard.writeText(el.dataset.text).then(function(){toast('Copied','success');}).catch(function(){toast('Copy failed','error');});}
 
-/* ===== SETTINGS — 3-tier thresholds ===== */
+/* ===== SETTINGS ===== */
 function renderSettings(){var st=getSettings(),holidays=getHolidays();var tc=getTierConfig();
 var h='<div class="fade-in"><h2 class="text-xl font-bold mb-6">Settings</h2><div class="grid gap-4 max-w-2xl">';
 
 h+='<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-clock mr-2" style="color:var(--accent)"></i>Hours Tiers (Mon–Sat)</h3>';
-h+='<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">';
-h+='<div><label>Weekly Target (Regular x1.0)</label><input id="set-target" type="number" step="1" min="1" max="80" value="'+tc.target+'"><div class="text-xs mt-1" style="color:var(--success)">0 – '+tc.target+'h</div></div>';
-h+='<div><label>OT Starts After (x1.5)</label><input id="set-ot" type="number" step="1" min="1" max="80" value="'+tc.otAfter+'"><div class="text-xs mt-1" style="color:var(--warning)">'+tc.otAfter+' – '+tc.dtAfter+'h</div></div>';
-h+='<div><label>Double Time After (x2.0)</label><input id="set-dt" type="number" step="1" min="1" max="100" value="'+tc.dtAfter+'"><div class="text-xs mt-1" style="color:var(--danger)">Over '+tc.dtAfter+'h</div></div>';
+h+='<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">';
+h+='<div><label>Weekly Target (Regular x1.0)</label><input id="set-target" type="number" step="1" min="1" max="80" value="'+tc.target+'"><div class="text-xs mt-1" style="color:var(--success)">0 – '+tc.otAfter+'h at x1.0</div></div>';
+h+='<div><label>OT Starts After (x1.5)</label><input id="set-ot" type="number" step="1" min="1" max="80" value="'+tc.otAfter+'"><div class="text-xs mt-1" style="color:var(--warning)">Over '+tc.otAfter+'h at x1.5</div></div>';
 h+='</div>';
 h+='<div class="card" style="padding:.75rem 1rem;background:var(--bg2);border:1px solid var(--border)"><div class="text-xs font-semibold mb-2" style="color:var(--muted)">TIER BREAKDOWN</div>';
-h+='<div class="tier-row"><span class="tier-dot" style="background:var(--success)"></span><span>Regular (x1.0)</span><span class="tier-arrow"><i class="fas fa-arrow-right"></i></span><span>0h to <span class="mono font-bold">'+tc.otAfter+'h</span></span></div>';
-h+='<div class="tier-row"><span class="tier-dot" style="background:var(--warning)"></span><span>Overtime (x1.5)</span><span class="tier-arrow"><i class="fas fa-arrow-right"></i></span><span><span class="mono font-bold">'+tc.otAfter+'h</span> to <span class="mono font-bold">'+tc.dtAfter+'h</span></span></div>';
-h+='<div class="tier-row"><span class="tier-dot" style="background:var(--danger)"></span><span>Double Time (x2.0)</span><span class="tier-arrow"><i class="fas fa-arrow-right"></i></span><span>Over <span class="mono font-bold">'+tc.dtAfter+'h</span></span></div>';
-h+='<div class="tier-row" style="border-top:1px solid var(--border);padding-top:.6rem;margin-top:.3rem"><span class="tier-dot" style="background:var(--danger);opacity:.5"></span><span style="color:var(--muted)">Sunday &amp; Holidays</span><span class="tier-arrow"><i class="fas fa-arrow-right"></i></span><span style="color:var(--muted)">Always x2.0 (not counted toward tiers)</span></div>';
+h+='<div class="tier-row"><span class="tier-dot" style="background:var(--success)"></span><span>Regular (x1.0)</span><span class="text-xs" style="color:var(--muted)">0h → '+tc.otAfter+'h</span></div>';
+h+='<div class="tier-row"><span class="tier-dot" style="background:var(--warning)"></span><span>Overtime (x1.5)</span><span class="text-xs" style="color:var(--muted)">Over '+tc.otAfter+'h</span></div>';
+h+='<div class="tier-row" style="border-top:1px solid var(--border);padding-top:.6rem;margin-top:.3rem"><span class="tier-dot" style="background:var(--danger);opacity:.5"></span><span style="color:var(--muted)">Sunday &amp; Holidays</span><span class="text-xs" style="color:var(--muted)">Always x2.0 — not counted toward weekly target</span></div>';
 h+='</div>';
 h+='<div class="mb-3"><label>Default Break (minutes)</label><input id="set-break" type="number" step="5" min="0" max="120" value="'+(st.defaultBreak||30)+'"></div>';
-h+='<button class="btn btn-primary btn-sm" onclick="saveHoursSettings()"><i class="fas fa-save"></i> Save Tiers</button></div>';
+h+='<button class="btn btn-primary btn-sm" onclick="saveHoursSettings()"><i class="fas fa-save"></i> Save</button></div>';
 
-h+='<div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-umbrella-beach mr-2" style="color:var(--danger)"></i>Public Holidays <span class="badge badge-red ml-2">'+holidays.length+'</span></h3><p class="text-xs mb-3" style="color:var(--muted)">All hours on these dates are double time (x2.0), same as Sundays. Not counted toward weekly tiers.</p>';
+h+='<div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-umbrella-beach mr-2" style="color:var(--danger)"></i>Public Holidays <span class="badge badge-red ml-2">'+holidays.length+'</span></h3><p class="text-xs mb-3" style="color:var(--muted)">All hours on these dates are double time (x2.0), same as Sundays. Not counted toward weekly target.</p>';
 if(holidays.length){holidays.sort().forEach(function(d){var dt=new Date(d+'T12:00:00');var label=dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div class="text-sm"><span class="mono text-xs" style="color:var(--accent)">'+d+'</span> <span style="color:var(--muted)">— '+label+'</span></div><button class="btn btn-danger btn-sm" onclick="removeHoliday(\''+d+'\')"><i class="fas fa-trash"></i></button></div>';});}
 else h+='<p class="text-sm" style="color:var(--muted)">No holidays set.</p>';
 h+='<div class="flex gap-2 mt-3"><input id="set-hol-date" type="date"><input id="set-hol-name" type="text" placeholder="Holiday name (optional)"><button class="btn btn-secondary btn-sm" onclick="addHoliday()"><i class="fas fa-plus"></i> Add</button></div></div>';
@@ -417,7 +404,7 @@ h+='<div class="flex gap-2 mt-3"><input id="set-hol-date" type="date"><input id=
 h+='<div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-database mr-2" style="color:var(--info)"></i>Danger Zone</h3><button class="btn btn-danger btn-sm" onclick="confirmClearAll()"><i class="fas fa-recycle"></i> Move All Records to Bin</button></div>';
 
 h+='</div></div>';return h;}
-function saveHoursSettings(){var target=parseInt(document.getElementById('set-target').value),ot=parseInt(document.getElementById('set-ot').value),dt=parseInt(document.getElementById('set-dt').value),brk=parseInt(document.getElementById('set-break').value);if(!target||target<1){toast('Invalid target','error');return;}if(!ot||ot<1){toast('Invalid OT threshold','error');return;}if(!dt||dt<1){toast('Invalid DT threshold','error');return;}if(ot>dt){toast('OT must be less than or equal to Double Time threshold','error');return;}fbUpdate('settings',{weeklyTarget:target,overtimeAfter:ot,doubleTimeAfter:dt,defaultBreak:brk});toast('Saved','success');navigateAdmin('settings');}
+function saveHoursSettings(){var target=parseInt(document.getElementById('set-target').value),ot=parseInt(document.getElementById('set-ot').value),brk=parseInt(document.getElementById('set-break').value);if(!target||target<1){toast('Invalid target','error');return;}if(!ot||ot<1){toast('Invalid OT threshold','error');return;}fbUpdate('settings',{weeklyTarget:target,overtimeAfter:ot,defaultBreak:brk});toast('Saved','success');navigateAdmin('settings');}
 function addHoliday(){var d=document.getElementById('set-hol-date').value;if(!d){toast('Pick a date','error');return;}var holidays=getHolidays().slice();if(holidays.indexOf(d)===-1)holidays.push(d);holidays.sort();fbUpdate('settings',{holidays:holidays});document.getElementById('set-hol-date').value='';document.getElementById('set-hol-name').value='';toast('Holiday added','success');navigateAdmin('settings');}
 function removeHoliday(d){var holidays=getHolidays().filter(function(h){return h!==d;});fbUpdate('settings',{holidays:holidays});toast('Removed','success');navigateAdmin('settings');}
 function confirmClearAll(){openModal('<h3 class="font-bold text-lg mb-3">Move ALL Records to Recycle Bin?</h3><p class="text-sm mb-4" style="color:var(--muted)">Records recoverable for 30 days.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="clearAllToBin()"><i class="fas fa-recycle"></i> Move to Bin</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
@@ -441,11 +428,11 @@ function renderClockPage(){
   if(clockedIn)h+='<div class="text-center mb-6"><div class="text-xs" style="color:var(--muted)">Started at '+fmtTime(new Date(state.activeRecord.clockIn))+'</div><div class="mono text-3xl font-bold mt-1" style="color:var(--success)" id="live-timer">0.0h</div></div>';
   h+='<div class="flex items-center justify-center gap-2 text-xs mb-6" style="color:var(--muted)"><span class="conn-dot '+(state.gpsStatus==='active'?'on':state.gpsStatus==='inactive'?'off':'loading')+'" id="gps-dot"></span>';
   if(state.gpsStatus==='active')h+='GPS verified ('+Math.round(state.gpsDistance)+'m)';else if(state.gpsStatus==='inactive')h+='Outside site radius';else h+='Checking GPS...';h+='</div>';
-  h+='<div class="week-bar-card"><div class="wbc-header"><span class="text-xs font-semibold" style="color:var(--muted)">THIS WEEK (MON–SAT)</span><span class="mono text-sm font-bold" style="color:'+(weekWorked>=tc.dtAfter?'var(--danger)':weekWorked>=tc.otAfter?'var(--warning)':'var(--accent)')+'">'+fmtHrs(weekWorked)+'h</span></div>';
-  h+='<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:'+(weekWorked>=tc.dtAfter?'var(--danger)':weekWorked>=tc.otAfter?'var(--warning)':'var(--success)')+'"></div></div>';
+  h+='<div class="week-bar-card"><div class="wbc-header"><span class="text-xs font-semibold" style="color:var(--muted)">THIS WEEK (MON–SAT)</span><span class="mono text-sm font-bold" style="color:'+(weekWorked>=tc.otAfter?'var(--warning)':'var(--accent)')+'">'+fmtHrs(weekWorked)+'h</span></div>';
+  h+='<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:'+(weekWorked>=tc.otAfter?'var(--warning)':'var(--success)')+'"></div></div>';
   h+='<div class="tier-row mt-2"><span class="tier-dot" style="background:var(--success)"></span><span class="text-xs" style="color:var(--muted)">0–'+tc.otAfter+'h x1.0</span></div>';
-  h+='<div class="tier-row"><span class="tier-dot" style="background:var(--warning)"></span><span class="text-xs" style="color:var(--muted)">'+tc.otAfter+'–'+tc.dtAfter+'h x1.5</span></div>';
-  h+='<div class="tier-row"><span class="tier-dot" style="background:var(--danger)"></span><span class="text-xs" style="color:var(--muted)">Over '+tc.dtAfter+'h x2.0</span></div>';
+  h+='<div class="tier-row"><span class="tier-dot" style="background:var(--warning)"></span><span class="text-xs" style="color:var(--muted)">Over '+tc.otAfter+'h x1.5</span></div>';
+  h+='<div class="tier-row" style="border-top:1px solid var(--border);padding-top:.4rem;margin-top:.2rem"><span class="tier-dot" style="background:var(--danger);opacity:.5"></span><span class="text-xs" style="color:var(--muted)">Sun &amp; holidays = always x2.0</span></div>';
   h+='</div></div>';return h;
 }
 function initClockPage(){if(state.clockState==='clocked_in')startLiveTimer();startClockFaceTimer();checkGPS();}
@@ -457,12 +444,12 @@ function doClockOut(){if(!state.activeRecord)return;var rec=state.activeRecord;v
 
 /* ===== EMPLOYEE HISTORY ===== */
 function renderEmpHistory(){var emp=state.currentEmployee;var recs=getRecords().filter(function(r){return r.employeeId===emp.id&&r.status==='completed';}).sort(function(a,b){return(b.clockIn||'').localeCompare(a.clockIn||'');});var tc=getTierConfig();
-var h='<div class="fade-in"><h2 class="text-xl font-bold mb-2">My History</h2><p class="text-sm mb-4" style="color:var(--muted)">Mon–Sat: '+tc.target+'h → '+fmtHrs(tc.otAfter)+'h OT → '+fmtHrs(tc.dtAfter)+'h DT · Sunday &amp; holidays = double time</p>';
+var h='<div class="fade-in"><h2 class="text-xl font-bold mb-2">My History</h2><p class="text-sm mb-4" style="color:var(--muted)">Mon–Sat: '+tc.target+'h regular → '+fmtHrs(tc.otAfter)+'h OT (x1.5) · Sunday &amp; holidays = double time (x2.0)</p>';
 var now=new Date(),mData=getEmployeeMonthHours(emp.id,now.getFullYear(),now.getMonth());
-if(mData.recordCount>0){h+='<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">';
+if(mData.recordCount>0){h+='<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4>';
 h+='<div class="stat-card sc-regular"><div class="text-xs" style="color:var(--muted)">REGULAR</div><div class="text-lg font-bold mono" style="color:var(--success)">'+fmtHrs(mData.regular)+'h</div></div>';
 h+='<div class="stat-card sc-overtime"><div class="text-xs" style="color:var(--muted)">OVERTIME</div><div class="text-lg font-bold mono" style="color:var(--warning)">'+fmtHrs(mData.overtime)+'h</div></div>';
-h+='<div class="stat-card sc-double"><div class="text-xs" style="color:var(--muted)">DOUBLE TIME</div><div class="text-lg font-bold mono" style="color:var(--danger)">'+fmtHrs(mData.doubleTime)+'h</div></div>';
+h+='<div class="stat-card sc-double"><div class="text-xs" style="color:var(--muted)">DOUBLE TIME</div><div class="text-lg font-bold mono" style="color:var(--danger)">'+fmtHrs(mData.doubleTime)+'h</div><div class="text-xs" style="color:var(--muted)">Sun &amp; holidays only</div></div>';
 h+='<div class="stat-card sc-total"><div class="text-xs" style="color:var(--muted)">THIS MONTH</div><div class="text-lg font-bold mono" style="color:var(--accent)">'+fmtHrs(mData.total)+'h</div><div class="text-xs" style="color:var(--muted)">Target: '+fmtHrs(mData.target)+'h</div></div></div>';
 if(mData.overTarget>0)h+='<div class="mb-4 p-3 rounded-lg text-sm" style="background:rgba(250,204,21,.08);color:var(--warning)"><i class="fas fa-arrow-up mr-1"></i> '+fmtHrs(mData.overTarget)+'h over monthly target</div>';}
 h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Type</th><th>Day</th></tr></thead><tbody>';
@@ -470,7 +457,6 @@ if(recs.length)recs.forEach(function(r){var ds=r.clockIn.slice(0,10),dt=getDayTy
 else h+='<tr><td colspan="6" class="text-center py-8" style="color:var(--muted)">No records yet.</td></tr>';
 h+='</tbody></table></div></div>';return h;}
 
-/* ===== INIT ===== */
 initFirebase(EMBEDDED_FB);
 </script>
 </body>
