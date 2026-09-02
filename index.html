@@ -63,18 +63,11 @@ th{text-align:left;padding:.55rem .75rem;font-size:.7rem;text-transform:uppercas
 td{padding:.55rem .75rem;font-size:.83rem;border-bottom:1px solid color-mix(in srgb,var(--border) 40%,transparent)}
 tr:hover td{background:rgba(232,168,56,.025)}
 .badge{display:inline-flex;align-items:center;gap:.25rem;padding:.12rem .5rem;border-radius:20px;font-size:.68rem;font-weight:600}
-.badge-green{background:rgba(52,211,153,.12);color:var(--success)}
-.badge-red{background:rgba(248,113,113,.12);color:var(--danger)}
-.badge-amber{background:rgba(232,168,56,.12);color:var(--accent)}
-.badge-blue{background:rgba(56,189,248,.12);color:var(--info)}
-.badge-purple{background:rgba(168,85,247,.12);color:var(--purple)}
+.badge-green{background:rgba(52,211,153,.12);color:var(--success)}.badge-red{background:rgba(248,113,113,.12);color:var(--danger)}.badge-amber{background:rgba(232,168,56,.12);color:var(--accent)}.badge-blue{background:rgba(56,189,248,.12);color:var(--info)}.badge-purple{background:rgba(168,85,247,.12);color:var(--purple)}
 .conn-dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
-.conn-dot.on{background:var(--success);box-shadow:0 0 6px var(--success)}
-.conn-dot.off{background:var(--danger);box-shadow:0 0 6px var(--danger)}
-.conn-dot.loading{background:var(--warning);animation:pulseRing 1.2s infinite}
+.conn-dot.on{background:var(--success);box-shadow:0 0 6px var(--success)}.conn-dot.off{background:var(--danger);box-shadow:0 0 6px var(--danger)}.conn-dot.loading{background:var(--warning);animation:pulseRing 1.2s infinite}
 .tab-btn{padding:.5rem 1rem;font-size:.85rem;color:var(--muted);cursor:pointer;border:none;border-bottom:2px solid transparent;transition:all .2s;background:none;font-family:inherit}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tab-btn:hover{color:var(--fg)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}.tab-btn:hover{color:var(--fg)}
 .progress-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
 .progress-fill{height:100%;border-radius:3px;transition:width .6s ease}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.15rem;position:relative;overflow:hidden;transition:all .25s}
@@ -100,8 +93,7 @@ tr:hover td{background:rgba(232,168,56,.025)}
 .filter-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:end;margin-bottom:1rem}
 .filter-row .fg{display:flex;flex-direction:column;gap:.2rem;min-width:140px;flex:1}
 .filter-row .fg label{font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-.empty-state{text-align:center;padding:3rem 1rem;color:var(--muted)}
-.empty-state i{font-size:2.5rem;margin-bottom:.75rem;opacity:.3}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--muted)}.empty-state i{font-size:2.5rem;margin-bottom:.75rem;opacity:.3}
 .tier-legend{display:flex;gap:1rem;flex-wrap:wrap}
 .tier-legend span{display:flex;align-items:center;gap:.35rem;font-size:.72rem;color:var(--muted)}
 .tier-legend .td{width:8px;height:8px;border-radius:2px;flex-shrink:0}
@@ -162,492 +154,898 @@ tr:hover td{background:rgba(232,168,56,.025)}
         <a class="sidebar-link active" data-epage="clock" style="padding:.65rem .4rem;justify-content:center;flex-direction:column;gap:1px;font-size:.7rem"><i class="fas fa-fingerprint text-base"></i><span class="hidden sm:inline mt-0.5">Clock</span></a>
         <a class="sidebar-link" data-epage="history" style="padding:.65rem .4rem;justify-content:center;flex-direction:column;gap:1px;font-size:.7rem"><i class="fas fa-history text-base"></i><span class="hidden sm:inline mt-0.5">History</span></a>
       </nav>
-      <main class="flex-1 p-4 sm:p-6 overflow-y:auto" id="emp-content"></main>
+      <main class="flex-1 p-4 sm:p-6 overflow-y-auto" id="emp-content"></main>
     </div>
   </div>
 </div>
 <div id="modal-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()"><div class="modal-box" id="modal-box"></div></div>
 
 <script>
-var FB_CONFIG={apiKey:"AIzaSyAkHU3eWCWTUt3Ks0Vxq3PkgcATtin0Zaw",authDomain:"baywashclock.firebaseapp.com",databaseURL:"https://baywashclock-default-rtdb.firebaseio.com",projectId:"baywashclock",storageBucket:"baywashclock.firebasestorage.app",messagingSenderId:"207388184141",appId:"1:207388184141:web:718d4348bc91672a369604"};
-var db=null,fbConnected=false,loadCount=0,ready=false;
-var D={sites:[],employees:[],shifts:[],records:[],settings:{},admin:{},recycleBin:{}};
-var S={loggedIn:false,role:null,page:'dashboard',empPage:'clock',emp:null,clockState:'idle',activeRec:null,gpsDist:null,gpsLat:null,gpsLng:null,timerInt:null,clockInt:null,dashInt:null,searchTerms:{},recFilterDate:'',recFilterStatus:'',recFilterSite:'',pendingImport:[]};
+/* ===== Firebase Config ===== */
+var FB_CONFIG = {
+  apiKey: "AIzaSyAkHU3eWCWTUt3Ks0Vxq3PkgcATtin0Zaw",
+  authDomain: "baywashclock.firebaseapp.com",
+  databaseURL: "https://baywashclock-default-rtdb.firebaseio.com",
+  projectId: "baywashclock",
+  storageBucket: "baywashclock.firebasestorage.app",
+  messagingSenderId: "207388184141",
+  appId: "1:207388184141:web:718d4348bc91672a369604"
+};
 
-/* ===== FIREBASE — admin & recycleBin are objects, rest are arrays ===== */
-function initFirebase(cfg){
-  firebase.initializeApp(cfg);db=firebase.database();
-  db.ref('.info/connected').on('value',function(s){fbConnected=s.val()===true;updateDots();});
-  var OBJ_PATHS={'recycleBin':1,'admin':1};
-  ['sites','employees','shifts','records','settings','admin','recycleBin'].forEach(function(p){
-    db.ref(p).on('value',function(s){
-      if(OBJ_PATHS[p])D[p]=s.val()||{};
-      else D[p]=s.val()?Object.values(s.val()):[];
-      loadCount++;checkReady();
-    });
+var db = null, fbConnected = false, loadCount = 0, ready = false;
+var D = { sites: [], employees: [], shifts: [], records: [], settings: {}, admin: {}, recycleBin: {} };
+var S = {
+  loggedIn: false, role: null, page: 'dashboard', empPage: 'clock', emp: null,
+  clockState: 'idle', activeRec: null, gpsDist: null, gpsLat: null, gpsLng: null,
+  timerInt: null, clockInt: null, dashInt: null, searchTerms: {},
+  recFilterDate: '', recFilterStatus: '', recFilterSite: '', pendingImport: []
+};
+
+/* ===== Firebase Init — FIXED: proper closing braces ===== */
+function initFirebase(cfg) {
+  firebase.initializeApp(cfg);
+  db = firebase.database();
+  db.ref('.info/connected').on('value', function(s) {
+    fbConnected = (s.val() === true);
+    updateDots();
   });
-}
-function checkReady(){
-  if(loadCount>=7&&!ready){
-    ready=true;
+  var OBJ = { 'recycleBin': 1, 'admin': 1 };
+  ['sites', 'employees', 'shifts', 'records', 'settings', 'admin', 'recycleBin'].forEach(function(p) {
+    db.ref(p).on('value', function(s) {
+      D[p] = OBJ[p] ? (s.val() || {}) : (s.val() ? Object.values(s.val()) : []);
+      loadCount++;
+      checkReady();
+    });
+  }); // <-- FIX: was missing );
+} // <-- FIX: was missing }
+
+function checkReady() {
+  if (loadCount >= 7 && !ready) {
+    ready = true;
     document.getElementById('loading-screen').classList.add('hidden');
-    if(!D.admin||!D.admin.username)seedData();
+    if (!D.admin || !D.admin.username) seedData();
     cleanBin();
     showScreen('login-screen');
   }
 }
-function updateDots(){
-  var c=fbConnected?'conn-dot on':'conn-dot off',l=fbConnected?'Synced':'Offline';
-  document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot').forEach(function(d){d.className=c;});
-  var el=document.getElementById('admin-conn-label');if(el)el.textContent=l;
+
+function updateDots() {
+  var c = fbConnected ? 'conn-dot on' : 'conn-dot off';
+  var l = fbConnected ? 'Synced' : 'Offline';
+  document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot').forEach(function(d) {
+    d.className = c;
+  });
+  var el = document.getElementById('admin-conn-label');
+  if (el) el.textContent = l;
 }
-function fbSet(p,d){if(!db)return;db.ref(p).set(d).catch(function(){toast('Sync error','error');});}
-function fbUpd(p,d){if(!db)return;db.ref(p).update(d).catch(function(){toast('Sync error','error');});}
-function fbRm(p){if(!db)return;db.ref(p).remove().catch(function(){toast('Sync error','error');});}
 
-/* ===== HELPERS ===== */
-function sites(){return D.sites||[];}function emps(){return D.employees||[];}function shifts(){return D.shifts||[];}function recs(){return D.records||[];}function sett(){return D.settings||{};}function hols(){return sett().holidays||[];}
-function siteName(id){var s=sites().find(function(x){return x.id===id;});return s?s.name:'Unknown';}
-function empById(id){return emps().find(function(x){return x.id===id;});}
-function empFullName(id){var e=empById(id);return e?e.firstName+' '+e.lastName:'Unknown';}
-function fmtDate(d){var dt=d instanceof Date?d:new Date(d);return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
-function fmtTime(d){var dt=d instanceof Date?d:new Date(d);return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');}
-function today(){return fmtDate(new Date());}
-function haversine(a1,o1,a2,o2){var R=6371000,t=function(n){return n*Math.PI/180;},dL=t(a2-a1),dO=t(o2-o1),a=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(t(a1))*Math.cos(t(a2))*Math.sin(dO/2)*Math.sin(dO/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
-function fmtH(h){return(Math.round((h||0)*10)/10).toFixed(1);}
-function timeAgo(ts){var s=Math.floor((Date.now()-new Date(ts).getTime())/1000);if(s<60)return 'Just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
-function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function downloadFile(content,filename,mime){var b=new Blob([content],{type:mime}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
+function fbSet(p, d) { if (!db) return; db.ref(p).set(d).catch(function() { toast('Sync error', 'error'); }); }
+function fbUpd(p, d) { if (!db) return; db.ref(p).update(d).catch(function() { toast('Sync error', 'error'); }); }
+function fbRm(p) { if (!db) return; db.ref(p).remove().catch(function() { toast('Sync error', 'error'); }); }
 
-/* ===== HOURS SYSTEM =====
-   Mon-Fri: 8h regular, over 8h = Unauthorised OT
-   Saturday: 5h regular, over 5h = Unauthorised OT
-   Sunday/Holiday: ALL Double Time
-   Weekly target = 45h (5×8 + 1×5) for progress display */
-function isHol(ds){return hols().indexOf(ds)!==-1;}
-function dayType(ds){
-  var d=new Date(ds+'T12:00:00'),day=d.getDay();
-  if(day===0)return 'Sunday';
-  if(isHol(ds))return 'Holiday';
-  if(day===6)return 'Saturday';
+/* ===== Data Accessors ===== */
+function sites() { return D.sites || []; }
+function emps() { return D.employees || []; }
+function shifts() { return D.shifts || []; }
+function recs() { return D.records || []; }
+function sett() { return D.settings || {}; }
+function hols() { return sett().holidays || []; }
+
+function siteName(id) { var s = sites().find(function(x) { return x.id === id; }); return s ? s.name : 'Unknown'; }
+function empById(id) { return emps().find(function(x) { return x.id === id; }); }
+function empFullName(id) { var e = empById(id); return e ? e.firstName + ' ' + e.lastName : 'Unknown'; }
+
+function fmtDate(d) { var dt = d instanceof Date ? d : new Date(d); return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0'); }
+function fmtTime(d) { var dt = d instanceof Date ? d : new Date(d); return String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0'); }
+function today() { return fmtDate(new Date()); }
+
+function haversine(a1, o1, a2, o2) {
+  var R = 6371000, t = function(n) { return n * Math.PI / 180; };
+  var dL = t(a2 - a1), dO = t(o2 - o1);
+  var a = Math.sin(dL / 2) * Math.sin(dL / 2) + Math.cos(t(a1)) * Math.cos(t(a2)) * Math.sin(dO / 2) * Math.sin(dO / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function fmtDec(h) { return (parseFloat(h) || 0).toFixed(2); }
+function fmtClock(h) {
+  if (h == null || isNaN(h) || h < 0) return '00:00:00';
+  var ts = Math.round(h * 3600), hr = Math.floor(ts / 3600), mn = Math.floor((ts % 3600) / 60), sc = ts % 60;
+  return String(hr).padStart(2, '0') + ':' + String(mn).padStart(2, '0') + ':' + String(sc).padStart(2, '0');
+}
+function fmtHM(h) {
+  if (h == null || isNaN(h) || h < 0) return '0:00';
+  var tm = Math.round(h * 60), hr = Math.floor(tm / 60), mn = tm % 60;
+  return hr + ':' + String(mn).padStart(2, '0');
+}
+function timeAgo(ts) {
+  var s = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (s < 60) return 'Just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  return Math.floor(s / 86400) + 'd ago';
+}
+function escHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function downloadFile(content, filename, mime) {
+  var b = new Blob([content], { type: mime }), u = URL.createObjectURL(b), a = document.createElement('a');
+  a.href = u; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
+}
+
+/* ===== Hours System ===== */
+function isHol(ds) { return hols().indexOf(ds) !== -1; }
+function dayType(ds) {
+  var d = new Date(ds + 'T12:00:00'), day = d.getDay();
+  if (day === 0) return 'Sunday';
+  if (isHol(ds)) return 'Holiday';
+  if (day === 6) return 'Saturday';
   return 'Weekday';
 }
-function dayBadge(dt){
-  var cls=dt==='Sunday'?'badge-purple':dt==='Holiday'?'badge-red':dt==='Saturday'?'badge-amber':'badge-blue';
-  return '<span class="badge '+cls+'">'+dt+'</span>';
+function dayBadge(dt) {
+  var cls = dt === 'Sunday' ? 'badge-purple' : dt === 'Holiday' ? 'badge-red' : dt === 'Saturday' ? 'badge-amber' : 'badge-blue';
+  return '<span class="badge ' + cls + '">' + dt + '</span>';
 }
-function getDailyTarget(dt){
-  var s=sett();
-  if(dt==='Weekday')return s.weekdayDailyTarget||8;
-  if(dt==='Saturday')return s.saturdayDailyTarget||5;
+function getDailyTarget(dt) {
+  var s = sett();
+  if (dt === 'Weekday') return s.weekdayDailyTarget || 8;
+  if (dt === 'Saturday') return s.saturdayDailyTarget || 5;
   return 0;
 }
-function getWeeklyTarget(){return sett().weeklyTarget||45;}
-function weekStart(ds){var d=new Date(ds+'T12:00:00'),day=d.getDay();d.setDate(d.getDate()-(day===0?6:day-1));return fmtDate(d);}
-function weekEnd(ws){var d=new Date(ws+'T12:00:00');d.setDate(d.getDate()+5);return fmtDate(d);}
+function getWeeklyTarget() { return sett().weeklyTarget || 45; }
+function weekStart(ds) {
+  var d = new Date(ds + 'T12:00:00'), day = d.getDay();
+  d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  return fmtDate(d);
+}
+function weekEnd(ws) { var d = new Date(ws + 'T12:00:00'); d.setDate(d.getDate() + 5); return fmtDate(d); }
 
-/* Core calculation — daily-based, not cumulative */
-function calcHours(ci,co,bm,dt){
-  var ms=new Date(co)-new Date(ci),min=Math.max(0,ms/60000-bm),th=Math.round(min/6)/10;
-  if(dt==='Sunday'||dt==='Holiday')return{regularHours:0,unauthOT:0,doubleTimeHours:th,totalHours:th};
-  var tgt=getDailyTarget(dt),reg=Math.min(th,tgt),uot=Math.max(0,th-tgt);
-  return{regularHours:reg,unauthOT:uot,doubleTimeHours:0,totalHours:th};
+function calcHours(ci, co, bm, dt) {
+  var ms = new Date(co) - new Date(ci), min = Math.max(0, ms / 60000 - bm), th = Math.round(min / 6) / 10;
+  if (dt === 'Sunday' || dt === 'Holiday') return { regularHours: 0, unauthOT: 0, doubleTimeHours: th, totalHours: th };
+  var tgt = getDailyTarget(dt), reg = Math.min(th, tgt), uot = Math.max(0, th - tgt);
+  return { regularHours: reg, unauthOT: uot, doubleTimeHours: 0, totalHours: th };
 }
 
-/* Backward-compat getter: old records used overtimeHours, new use unauthOT */
-function getUOT(r){return(r.unauthOT!=null?r.unauthOT:(r.overtimeHours||0));}
+function getUOT(r) { return (r.unauthOT != null ? r.unauthOT : (r.overtimeHours || 0)); }
 
-function empWeekTotal(eid,curDate){
-  var ws=weekStart(curDate),we=weekEnd(ws);
-  return recs().filter(function(r){return r.employeeId===eid&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=we;}).reduce(function(s,r){return s+(r.totalHours||0);},0);
+function empWeekTotal(eid, curDate) {
+  var ws = weekStart(curDate), we = weekEnd(ws);
+  return recs().filter(function(r) {
+    return r.employeeId === eid && r.status === 'completed' && r.clockIn && r.clockIn.slice(0, 10) >= ws && r.clockIn.slice(0, 10) <= we;
+  }).reduce(function(s, r) { return s + (r.totalHours || 0); }, 0);
 }
-function mondaysInMonth(y,m){var c=0,d=new Date(y,m,1),dw=d.getDay(),toM=dw===0?1:(dw===1?0:8-dw);d.setDate(d.getDate()+toM);while(d.getMonth()===m&&d.getFullYear()===y){c++;d.setDate(d.getDate()+7);}return c;}
-function empMonthHours(eid,y,m){
-  var ms=y+'-'+String(m+1).padStart(2,'0');
-  var rs=recs().filter(function(r){return r.employeeId===eid&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,7)===ms;});
-  var t={regular:0,unauthOT:0,doubleTime:0,total:0,count:rs.length};
-  rs.forEach(function(r){t.regular+=(r.regularHours||0);t.unauthOT+=getUOT(r);t.doubleTime+=(r.doubleTimeHours||0);t.total+=(r.totalHours||0);});
-  t.target=getWeeklyTarget()*mondaysInMonth(y,m);t.overTarget=Math.max(0,t.total-t.target);
+
+function mondaysInMonth(y, m) {
+  var c = 0, d = new Date(y, m, 1), dw = d.getDay(), toM = dw === 0 ? 1 : (dw === 1 ? 0 : 8 - dw);
+  d.setDate(d.getDate() + toM);
+  while (d.getMonth() === m && d.getFullYear() === y) { c++; d.setDate(d.getDate() + 7); }
+  return c;
+}
+
+function empMonthHours(eid, y, m) {
+  var ms = y + '-' + String(m + 1).padStart(2, '0');
+  var rs = recs().filter(function(r) { return r.employeeId === eid && r.status === 'completed' && r.clockIn && r.clockIn.slice(0, 7) === ms; });
+  var t = { regular: 0, unauthOT: 0, doubleTime: 0, total: 0, count: rs.length };
+  rs.forEach(function(r) { t.regular += (r.regularHours || 0); t.unauthOT += getUOT(r); t.doubleTime += (r.doubleTimeHours || 0); t.total += (r.totalHours || 0); });
+  t.target = getWeeklyTarget() * mondaysInMonth(y, m);
+  t.overTarget = Math.max(0, t.total - t.target);
   return t;
 }
 
-/* ===== SEED ===== */
-function seedData(){
-  var adminObj={username:'admin',password:'admin123'};
-  fbSet('admin',adminObj);D.admin=adminObj;
-  var settObj={weekdayDailyTarget:8,saturdayDailyTarget:5,weeklyTarget:45,defaultBreak:30,holidays:[
-    '2025-01-01','2025-03-21','2025-04-18','2025-04-21','2025-05-01','2025-05-04','2025-05-25','2025-05-29','2025-08-26','2025-12-10','2025-12-25','2025-12-26',
-    '2026-01-01','2026-03-21','2026-04-03','2026-04-06','2026-05-01','2026-05-04','2026-05-14','2026-05-25','2026-08-26','2026-12-10','2026-12-25','2026-12-26',
-    '2027-01-01','2027-03-21','2027-03-26','2027-03-29','2027-05-01','2027-05-04','2027-05-06','2027-05-25','2027-08-26','2027-12-10','2027-12-25','2027-12-26'
-  ]};
-  fbSet('settings',settObj);D.settings=settObj;
-  fbSet('recycleBin',{});
-  var s1=db.ref('sites').push().key,s2=db.ref('sites').push().key;
-  fbSet('sites/'+s1,{id:s1,name:'Baywash Chemicals Windhoek',address:'Windhoek, Namibia',lat:-22.5609,lng:17.0658,radius:100});
-  fbSet('sites/'+s2,{id:s2,name:'Baywash Chemicals Swakopmund',address:'Swakopmund, Namibia',lat:-22.6754,lng:14.5256,radius:100});
-  var e1=db.ref('employees').push().key,e2=db.ref('employees').push().key,e3=db.ref('employees').push().key;
-  fbSet('employees/'+e1,{id:e1,firstName:'James',lastName:'Carter',employeeId:'EMP001',pin:'1234',siteId:s1,active:true});
-  fbSet('employees/'+e2,{id:e2,firstName:'Sarah',lastName:'Mitchell',employeeId:'EMP002',pin:'5678',siteId:s1,active:true});
-  fbSet('employees/'+e3,{id:e3,firstName:'Daniel',lastName:'Nguyen',employeeId:'EMP003',pin:'4321',siteId:s2,active:true});
+/* ===== Seed Data ===== */
+function seedData() {
+  var a = { username: 'admin', password: 'admin123' };
+  fbSet('admin', a); D.admin = a;
+  var s = {
+    weekdayDailyTarget: 8, saturdayDailyTarget: 5, weeklyTarget: 45, defaultBreak: 30,
+    holidays: ['2025-01-01','2025-03-21','2025-04-18','2025-04-21','2025-05-01','2025-05-04','2025-05-25','2025-05-29','2025-08-26','2025-12-10','2025-12-25','2025-12-26','2026-01-01','2026-03-21','2026-04-03','2026-04-06','2026-05-01','2026-05-04','2026-05-14','2026-05-25','2026-08-26','2026-12-10','2026-12-25','2026-12-26','2027-01-01','2027-03-21','2027-03-26','2027-03-29','2027-05-01','2027-05-04','2027-05-06','2027-05-25','2027-08-26','2027-12-10','2027-12-25','2027-12-26']
+  };
+  fbSet('settings', s); D.settings = s;
+  fbSet('recycleBin', {});
+  var s1 = db.ref('sites').push().key, s2 = db.ref('sites').push().key;
+  fbSet('sites/' + s1, { id: s1, name: 'Baywash Chemicals Windhoek', address: 'Windhoek, Namibia', lat: -22.5609, lng: 17.0658, radius: 100 });
+  fbSet('sites/' + s2, { id: s2, name: 'Baywash Chemicals Swakopmund', address: 'Swakopmund, Namibia', lat: -22.6754, lng: 14.5256, radius: 100 });
+  var e1 = db.ref('employees').push().key, e2 = db.ref('employees').push().key, e3 = db.ref('employees').push().key;
+  fbSet('employees/' + e1, { id: e1, firstName: 'James', lastName: 'Carter', employeeId: 'EMP001', pin: '1234', siteId: s1, active: true });
+  fbSet('employees/' + e2, { id: e2, firstName: 'Sarah', lastName: 'Mitchell', employeeId: 'EMP002', pin: '5678', siteId: s1, active: true });
+  fbSet('employees/' + e3, { id: e3, firstName: 'Daniel', lastName: 'Nguyen', employeeId: 'EMP003', pin: '4321', siteId: s2, active: true });
 }
 
-/* ===== RECYCLE BIN ===== */
-var BIN_TTL=30*24*60*60*1000;
-function toBin(type,id,data){var bid=db.ref('recycleBin/'+type).push().key;fbSet('recycleBin/'+type+'/'+bid,{oid:id,data:data,at:new Date().toISOString()});fbRm(type+'/'+id);}
-function fromBin(type,bid){var it=(D.recycleBin[type]||{})[bid];if(!it)return;fbSet(type+'/'+(it.oid||it.data.id),it.data);fbRm('recycleBin/'+type+'/'+bid);toast('Restored','success');nav('recyclebin');}
-function permDelBin(type,bid){openModal('<h3 class="font-bold text-lg mb-3">Permanently Delete?</h3><p class="text-sm mb-4" style="color:var(--muted)">Cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRm(\'recycleBin/'+type+'/'+bid+'\');closeModal();nav(\'recyclebin\');toast(\'Deleted\',\'success\')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
-function cleanBin(){var bin=D.recycleBin,now=Date.now();['sites','employees','shifts','records'].forEach(function(t){if(!bin[t])return;Object.keys(bin[t]).forEach(function(bid){var it=bin[t][bid];if(it.at&&(now-new Date(it.at).getTime())>BIN_TTL)fbRm('recycleBin/'+t+'/'+bid);});});}
-function emptyBin(){openModal('<h3 class="font-bold text-lg mb-3">Empty Recycle Bin?</h3><p class="text-sm mb-4" style="color:var(--muted)">All items permanently deleted.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'recycleBin\',{});closeModal();nav(\'recyclebin\');toast(\'Bin emptied\',\'success\')"><i class="fas fa-trash"></i> Empty</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
-
-/* ===== UI ===== */
-function toast(msg,type){type=type||'info';var c=document.getElementById('toast-container'),t=document.createElement('div');t.className='toast toast-'+type;var ic={success:'fa-circle-check',error:'fa-circle-xmark',info:'fa-circle-info'};t.innerHTML='<i class="fas '+(ic[type]||ic.info)+'"></i><span>'+msg+'</span>';c.appendChild(t);setTimeout(function(){t.style.animation='toastOut .3s ease forwards';setTimeout(function(){t.remove();},300);},3200);}
-function openModal(html){document.getElementById('modal-box').innerHTML=html;var o=document.getElementById('modal-overlay');o.classList.remove('hidden');requestAnimationFrame(function(){o.classList.add('show');});}
-function closeModal(){var o=document.getElementById('modal-overlay');o.classList.remove('show');setTimeout(function(){o.classList.add('hidden');},200);}
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
-function showScreen(id){['loading-screen','login-screen','admin-layout','employee-layout'].forEach(function(s){document.getElementById(s).classList.toggle('hidden',s!==id);});}
-function switchLoginTab(tab){document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',(tab==='admin'&&i===0)||(tab==='employee'&&i===1));});document.getElementById('login-admin').classList.toggle('hidden',tab!=='admin');document.getElementById('login-employee').classList.toggle('hidden',tab!=='employee');}
-function statusBadge(st){if(st==='clocked_in')return '<span class="badge badge-green"><i class="fas fa-circle" style="font-size:.4rem"></i> Active</span>';if(st==='completed')return '<span class="badge badge-blue">Done</span>';return '<span class="badge badge-amber">Pending</span>';}
-function hrsBreakdown(r){
-  var parts=[];
-  if(r.regularHours>0)parts.push('<span style="color:var(--success)">'+fmtH(r.regularHours)+'</span>');
-  var uot=getUOT(r);if(uot>0)parts.push('<span style="color:var(--danger)">'+fmtH(uot)+'</span>');
-  if(r.doubleTimeHours>0)parts.push('<span style="color:var(--purple)">'+fmtH(r.doubleTimeHours)+'</span>');
-  return parts.join(', ')||'—';
+/* ===== Recycle Bin ===== */
+var BIN_TTL = 30 * 24 * 60 * 60 * 1000;
+function toBin(type, id, data) {
+  var bid = db.ref('recycleBin/' + type).push().key;
+  fbSet('recycleBin/' + type + '/' + bid, { oid: id, data: data, at: new Date().toISOString() });
+  fbRm(type + '/' + id);
+}
+function fromBin(type, bid) {
+  var it = (D.recycleBin[type] || {})[bid];
+  if (!it) return;
+  fbSet(type + '/' + (it.oid || it.data.id), it.data);
+  fbRm('recycleBin/' + type + '/' + bid);
+  toast('Restored', 'success'); nav('recyclebin');
+}
+function permDelBin(type, bid) {
+  openModal('<h3 class="font-bold text-lg mb-3">Permanently Delete?</h3><p class="text-sm mb-4" style="color:var(--muted)">Cannot undo.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRm(\'recycleBin/' + type + '/' + bid + '\');closeModal();nav(\'recyclebin\');toast(\'Deleted\',\'success\')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
+}
+function cleanBin() {
+  var bin = D.recycleBin, now = Date.now();
+  ['sites', 'employees', 'shifts', 'records'].forEach(function(t) {
+    if (!bin[t]) return;
+    Object.keys(bin[t]).forEach(function(bid) {
+      var it = bin[t][bid];
+      if (it.at && (now - new Date(it.at).getTime()) > BIN_TTL) fbRm('recycleBin/' + t + '/' + bid);
+    });
+  });
+}
+function emptyBin() {
+  openModal('<h3 class="font-bold text-lg mb-3">Empty Bin?</h3><p class="text-sm mb-4" style="color:var(--muted)">All permanently deleted.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'recycleBin\',{});closeModal();nav(\'recyclebin\');toast(\'Emptied\',\'success\')"><i class="fas fa-trash"></i> Empty</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
 }
 
-/* ===== AUTH ===== */
-function adminLogin(){
-  var u=document.getElementById('admin-user').value.trim(),p=document.getElementById('admin-pass').value;
-  if(u===D.admin.username&&p===D.admin.password){S.loggedIn=true;S.role='admin';S.page='dashboard';showAdmin();toast('Welcome back, Admin','success');}
-  else toast('Invalid credentials','error');
+/* ===== UI Helpers ===== */
+function toast(msg, type) {
+  type = type || 'info';
+  var c = document.getElementById('toast-container'), t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  var ic = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
+  t.innerHTML = '<i class="fas ' + (ic[type] || ic.info) + '"></i><span>' + msg + '</span>';
+  c.appendChild(t);
+  setTimeout(function() { t.style.animation = 'toastOut .3s ease forwards'; setTimeout(function() { t.remove(); }, 300); }, 3200);
 }
-function employeeLogin(){
-  var eid=document.getElementById('emp-id').value.trim().toUpperCase(),pin=document.getElementById('emp-pin').value;
-  var emp=emps().find(function(e){return e.employeeId===eid&&e.pin===pin&&e.active;});
-  if(!emp){toast('Invalid ID or PIN','error');return;}
-  S.loggedIn=true;S.role='employee';S.emp=emp;S.empPage='clock';
-  var ar=recs().filter(function(r){return r.employeeId===emp.id&&r.status==='clocked_in';});
-  S.clockState=ar.length?'clocked_in':'idle';S.activeRec=ar.length?ar[0]:null;
-  showEmployee();toast('Welcome, '+emp.firstName,'success');
+function openModal(html) {
+  document.getElementById('modal-box').innerHTML = html;
+  var o = document.getElementById('modal-overlay');
+  o.classList.remove('hidden');
+  requestAnimationFrame(function() { o.classList.add('show'); });
 }
-function logout(){
-  clearInterval(S.timerInt);clearInterval(S.clockInt);clearInterval(S.dashInt);
-  S={loggedIn:false,role:null,page:'dashboard',empPage:'clock',emp:null,clockState:'idle',activeRec:null,gpsDist:null,gpsLat:null,gpsLng:null,timerInt:null,clockInt:null,dashInt:null,searchTerms:{},recFilterDate:'',recFilterStatus:'',recFilterSite:'',pendingImport:[]};
-  document.getElementById('admin-layout').classList.add('hidden');document.getElementById('employee-layout').classList.add('hidden');
-  showScreen('login-screen');['admin-user','admin-pass','emp-id','emp-pin'].forEach(function(id){document.getElementById(id).value='';});
+function closeModal() {
+  var o = document.getElementById('modal-overlay');
+  o.classList.remove('show');
+  setTimeout(function() { o.classList.add('hidden'); }, 200);
 }
-function showAdmin(){showScreen('admin-layout');nav(S.page);}
-function showEmployee(){showScreen('employee-layout');document.getElementById('emp-header-name').textContent=S.emp.firstName+' '+S.emp.lastName;navEmp(S.empPage);}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+function showScreen(id) {
+  ['loading-screen', 'login-screen', 'admin-layout', 'employee-layout'].forEach(function(s) {
+    document.getElementById(s).classList.toggle('hidden', s !== id);
+  });
+}
+function switchLoginTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+    b.classList.toggle('active', (tab === 'admin' && i === 0) || (tab === 'employee' && i === 1));
+  });
+  document.getElementById('login-admin').classList.toggle('hidden', tab !== 'admin');
+  document.getElementById('login-employee').classList.toggle('hidden', tab !== 'employee');
+}
+function statusBadge(st) {
+  if (st === 'clocked_in') return '<span class="badge badge-green"><i class="fas fa-circle" style="font-size:.4rem"></i> Active</span>';
+  if (st === 'completed') return '<span class="badge badge-blue">Done</span>';
+  return '<span class="badge badge-amber">Pending</span>';
+}
+function hrsBreakdown(r) {
+  var parts = [];
+  if (r.regularHours > 0) parts.push('<span style="color:var(--success)">' + fmtDec(r.regularHours) + '</span>');
+  var uot = getUOT(r);
+  if (uot > 0) parts.push('<span style="color:var(--danger)">' + fmtDec(uot) + '</span>');
+  if (r.doubleTimeHours > 0) parts.push('<span style="color:var(--purple)">' + fmtDec(r.doubleTimeHours) + '</span>');
+  return parts.join(' / ') || '—';
+}
 
-/* ===== NAV ===== */
-var PR={dashboard:renderDashboard,sites:renderSites,employees:renderEmployees,shifts:renderShifts,records:renderRecords,export:renderExport,recyclebin:renderRecycleBin,settings:renderSettings};
-function nav(page){
-  S.page=page;S.searchTerms[page]='';
-  document.querySelectorAll('#admin-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.page===page);});
-  var el=document.getElementById('admin-content');if(PR[page])el.innerHTML=PR[page]();
-  if(page==='dashboard')initDashCharts();
+/* ===== Auth ===== */
+function adminLogin() {
+  var u = document.getElementById('admin-user').value.trim(), p = document.getElementById('admin-pass').value;
+  if (u === D.admin.username && p === D.admin.password) {
+    S.loggedIn = true; S.role = 'admin'; S.page = 'dashboard';
+    showAdmin(); toast('Welcome back', 'success');
+  } else toast('Invalid credentials', 'error');
+}
+function employeeLogin() {
+  var eid = document.getElementById('emp-id').value.trim().toUpperCase(), pin = document.getElementById('emp-pin').value;
+  var emp = emps().find(function(e) { return e.employeeId === eid && e.pin === pin && e.active; });
+  if (!emp) { toast('Invalid ID or PIN', 'error'); return; }
+  S.loggedIn = true; S.role = 'employee'; S.emp = emp; S.empPage = 'clock';
+  var ar = recs().filter(function(r) { return r.employeeId === emp.id && r.status === 'clocked_in'; });
+  S.clockState = ar.length ? 'clocked_in' : 'idle';
+  S.activeRec = ar.length ? ar[0] : null;
+  showEmployee(); toast('Welcome, ' + emp.firstName, 'success');
+}
+function logout() {
+  clearInterval(S.timerInt); clearInterval(S.clockInt); clearInterval(S.dashInt);
+  S = { loggedIn: false, role: null, page: 'dashboard', empPage: 'clock', emp: null, clockState: 'idle', activeRec: null, gpsDist: null, gpsLat: null, gpsLng: null, timerInt: null, clockInt: null, dashInt: null, searchTerms: {}, recFilterDate: '', recFilterStatus: '', recFilterSite: '', pendingImport: [] };
+  document.getElementById('admin-layout').classList.add('hidden');
+  document.getElementById('employee-layout').classList.add('hidden');
+  showScreen('login-screen');
+  ['admin-user', 'admin-pass', 'emp-id', 'emp-pin'].forEach(function(id) { document.getElementById(id).value = ''; });
+}
+function showAdmin() { showScreen('admin-layout'); nav(S.page); }
+function showEmployee() { showScreen('employee-layout'); document.getElementById('emp-header-name').textContent = S.emp.firstName + ' ' + S.emp.lastName; navEmp(S.empPage); }
+
+/* ===== Navigation ===== */
+var PR = { dashboard: renderDashboard, sites: renderSites, employees: renderEmployees, shifts: renderShifts, records: renderRecords, export: renderExport, recyclebin: renderRecycleBin, settings: renderSettings };
+function nav(page) {
+  S.page = page; S.searchTerms[page] = '';
+  document.querySelectorAll('#admin-nav .sidebar-link').forEach(function(l) { l.classList.toggle('active', l.dataset.page === page); });
+  var el = document.getElementById('admin-content');
+  if (PR[page]) el.innerHTML = PR[page]();
+  if (page === 'dashboard') initDashCharts();
   document.getElementById('sidebar').classList.remove('open');
 }
-function navEmp(page){
-  S.empPage=page;document.querySelectorAll('#emp-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.epage===page);});
-  var el=document.getElementById('emp-content');
-  if(page==='clock'){el.innerHTML=renderClockPage();initClockPage();}else el.innerHTML=renderEmpHistory();
+function navEmp(page) {
+  S.empPage = page;
+  document.querySelectorAll('#emp-nav .sidebar-link').forEach(function(l) { l.classList.toggle('active', l.dataset.epage === page); });
+  var el = document.getElementById('emp-content');
+  if (page === 'clock') { el.innerHTML = renderClockPage(); initClockPage(); }
+  else el.innerHTML = renderEmpHistory();
 }
-document.getElementById('admin-nav').addEventListener('click',function(e){var l=e.target.closest('.sidebar-link');if(l&&l.dataset.page)nav(l.dataset.page);});
-document.getElementById('emp-nav').addEventListener('click',function(e){var l=e.target.closest('.sidebar-link');if(l&&l.dataset.epage)navEmp(l.dataset.epage);});
+document.getElementById('admin-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.page) nav(l.dataset.page); });
+document.getElementById('emp-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.epage) navEmp(l.dataset.epage); });
 
-/* ===== DASHBOARD ===== */
-function renderDashboard(){
-  var es=emps(),ss=sites(),sh=shifts(),rc=recs(),td=today(),tsh=sh.filter(function(s){return s.date===td;}),ci=rc.filter(function(r){return r.status==='clocked_in';});
-  var bin=D.recycleBin,bc=0;['sites','employees','shifts','records'].forEach(function(t){if(bin[t])bc+=Object.keys(bin[t]).length;});
-  var now=new Date(),h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Dashboard</h2><p class="text-sm" style="color:var(--muted)">'+now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-clock">'+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div></div>';
-  h+='<div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">';
-  h+='<div class="stat-card sc-amber"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">'+es.filter(function(e){return e.active;}).length+'<span class="text-sm font-normal" style="color:var(--muted)"> / '+es.length+'</span></div></div>';
-  h+='<div class="stat-card sc-blue"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">'+ss.length+'</div></div>';
-  h+='<div class="stat-card sc-green"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SHIFTS TODAY</div><div class="text-2xl font-bold">'+tsh.length+'</div></div>';
-  h+='<div class="stat-card '+(ci.length?'sc-green':'sc-amber')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:'+(ci.length?'var(--success)':'var(--fg)')+'">'+ci.length+'</div></div>';
-  h+='<div class="stat-card '+(bc?'sc-red':'sc-amber')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-recycle mr-1"></i>BIN</div><div class="text-2xl font-bold" style="color:'+(bc?'var(--danger)':'var(--fg)')+'">'+bc+'</div></div></div>';
-  /* Tier reference */
-  h+='<div class="card mb-6" style="padding:.75rem 1.15rem"><div class="flex items-center gap-4 flex-wrap text-xs"><span style="color:var(--muted)">Daily Targets:</span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--success);margin-right:4px;vertical-align:middle"></span><strong>Weekday</strong> '+getDailyTarget('Weekday')+'h</span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--success);margin-right:4px;vertical-align:middle"></span><strong>Saturday</strong> '+getDailyTarget('Saturday')+'h</span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--danger);margin-right:4px;vertical-align:middle"></span><strong>Over = Unauth OT</strong></span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--purple);margin-right:4px;vertical-align:middle"></span><strong>Sun/Hol = Double Time</strong></span><span style="color:var(--muted)">· Weekly target: '+getWeeklyTarget()+'h</span></div></div>';
-  h+='<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">';
-  h+='<div class="card lg:col-span-2"><div class="flex items-center justify-between mb-3"><h3 class="text-sm font-semibold"><i class="fas fa-chart-bar mr-2" style="color:var(--accent)"></i>Weekly Hours</h3><span class="text-xs" style="color:var(--muted)">Current week</span></div><canvas id="chart-weekly" class="chart-canvas" height="180"></canvas></div>';
-  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-chart-pie mr-2" style="color:var(--info)"></i>Hours Breakdown</h3><canvas id="chart-donut" class="chart-canvas" height="180"></canvas><div class="tier-legend mt-3"><span><span class="td" style="background:var(--success)"></span>Regular</span><span><span class="td" style="background:var(--danger)"></span>Unauth OT</span><span><span class="td" style="background:var(--purple)"></span>Double</span></div></div></div>';
-  h+='<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">';
-  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In <span class="badge badge-green ml-1">'+ci.length+'</span></h3>';
-  if(ci.length)ci.forEach(function(r){var emp=empById(r.employeeId),st=new Date(r.clockIn),el=Math.floor((Date.now()-st.getTime())/60000);h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div class="min-w-0"><div class="text-sm font-medium truncate">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</div><div class="text-xs truncate" style="color:var(--muted)">'+siteName(r.siteId)+' · Since '+fmtTime(st)+'</div></div><div class="text-right flex-shrink-0 ml-2"><div class="mono text-sm font-semibold" style="color:var(--success)">'+fmtH(el/60)+'h</div></div></div>';});
-  else h+='<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>';
-  h+='</div><div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today <span class="badge badge-blue ml-1">'+tsh.length+'</span></h3><div class="mb-2">'+dayBadge(dayType(td))+'</div>';
-  if(tsh.length)tsh.slice(0,8).forEach(function(s){var rec=rc.find(function(r){return r.shiftId===s.id;});h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div class="min-w-0"><div class="text-sm font-medium truncate">'+escHtml(empFullName(s.employeeId))+'</div><div class="text-xs truncate" style="color:var(--muted)">'+escHtml(siteName(s.siteId))+' · '+s.startTime+'–'+s.endTime+'</div></div><div class="flex-shrink-0 ml-2">'+statusBadge(rec?rec.status:'pending')+'</div></div>';});
-  else h+='<p class="text-sm" style="color:var(--muted)">No shifts today.</p>';
-  h+='</div></div></div>';return h;
+/* ===== Dashboard ===== */
+function renderDashboard() {
+  var es = emps(), ss = sites(), sh = shifts(), rc = recs(), td = today();
+  var tsh = sh.filter(function(s) { return s.date === td; });
+  var ci = rc.filter(function(r) { return r.status === 'clocked_in'; });
+  var bin = D.recycleBin, bc = 0;
+  ['sites', 'employees', 'shifts', 'records'].forEach(function(t) { if (bin[t]) bc += Object.keys(bin[t]).length; });
+  var now = new Date();
+  var h = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Dashboard</h2><p class="text-sm" style="color:var(--muted)">' + now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + '</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-clock">' + now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '</div></div>';
+  h += '<div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">';
+  h += '<div class="stat-card sc-amber"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">' + es.filter(function(e) { return e.active; }).length + '<span class="text-sm font-normal" style="color:var(--muted)"> / ' + es.length + '</span></div></div>';
+  h += '<div class="stat-card sc-blue"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">' + ss.length + '</div></div>';
+  h += '<div class="stat-card sc-green"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SHIFTS TODAY</div><div class="text-2xl font-bold">' + tsh.length + '</div></div>';
+  h += '<div class="stat-card ' + (ci.length ? 'sc-green' : 'sc-amber') + '"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:' + (ci.length ? 'var(--success)' : 'var(--fg)') + '">' + ci.length + '</div></div>';
+  h += '<div class="stat-card ' + (bc ? 'sc-red' : 'sc-amber') + '"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-recycle mr-1"></i>BIN</div><div class="text-2xl font-bold" style="color:' + (bc ? 'var(--danger)' : 'var(--fg)') + '">' + bc + '</div></div></div>';
+  h += '<div class="card mb-6" style="padding:.75rem 1.15rem"><div class="flex items-center gap-4 flex-wrap text-xs"><span style="color:var(--muted)">Daily Targets:</span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--success);margin-right:4px;vertical-align:middle"></span><strong>Weekday ' + getDailyTarget('Weekday') + 'h</strong></span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--success);margin-right:4px;vertical-align:middle"></span><strong>Saturday ' + getDailyTarget('Saturday') + 'h</strong></span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--danger);margin-right:4px;vertical-align:middle"></span><strong>Over = OT</strong></span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--purple);margin-right:4px;vertical-align:middle"></span><strong>Sun/Hol = DT</strong></span><span style="color:var(--muted)">· Weekly: ' + getWeeklyTarget() + 'h</span></div></div>';
+  h += '<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">';
+  h += '<div class="card lg:col-span-2"><div class="flex items-center justify-between mb-3"><h3 class="text-sm font-semibold"><i class="fas fa-chart-bar mr-2" style="color:var(--accent)"></i>Weekly Hours</h3></div><canvas id="chart-weekly" class="chart-canvas" height="180"></canvas></div>';
+  h += '<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-chart-pie mr-2" style="color:var(--info)"></i>Breakdown</h3><canvas id="chart-donut" class="chart-canvas" height="180"></canvas><div class="tier-legend mt-3"><span><span class="td" style="background:var(--success)"></span>Normal</span><span><span class="td" style="background:var(--danger)"></span>OT</span><span><span class="td" style="background:var(--purple)"></span>Double</span></div></div></div></div>';
+  h += '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">';
+  h += '<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In <span class="badge badge-green ml-1">' + ci.length + '</span></h3>';
+  if (ci.length) ci.forEach(function(r) {
+    var emp = empById(r.employeeId), st = new Date(r.clockIn), el = Math.floor((Date.now() - st.getTime()) / 60000);
+    h += '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div class="min-w-0"><div class="text-sm font-medium truncate">' + (emp ? emp.firstName + ' ' + emp.lastName : '?') + '</div><div class="text-xs truncate" style="color:var(--muted)">' + siteName(r.siteId) + ' · Since ' + fmtTime(st) + '</div></div><div class="text-right flex-shrink-0 ml-2"><div class="mono text-sm font-semibold" style="color:var(--success)">' + fmtClock(el / 60) + '</div></div></div>';
+  });
+  else h += '<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>';
+  h += '</div>';
+  h += '<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today <span class="badge badge-blue ml-1">' + tsh.length + '</span></h3><div class="mb-2">' + dayBadge(dayType(td)) + '</div>';
+  if (tsh.length) tsh.slice(0, 8).forEach(function(s) {
+    var rec = rc.find(function(r) { return r.shiftId === s.id; });
+    h += '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div class="min-w-0"><div class="text-sm font-medium truncate">' + escHtml(empFullName(s.employeeId)) + '</div><div class="text-xs truncate" style="color:var(--muted)">' + escHtml(siteName(s.siteId)) + ' · ' + s.startTime + '–' + s.endTime + '</div></div><div class="flex-shrink-0 ml-2">' + statusBadge(rec ? rec.status : 'pending') + '</div></div>';
+  });
+  else h += '<p class="text-sm" style="color:var(--muted)">No shifts today.</p>';
+  h += '</div></div></div>';
+  return h;
 }
-function initDashCharts(){
+
+function initDashCharts() {
   clearInterval(S.dashInt);
-  (function tick(){var el=document.getElementById('dash-clock');if(el)el.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});else{clearInterval(S.dashInt);return;}S.dashInt=setInterval(tick,1000);})();
-  var ws=weekStart(today()),tc=getWeeklyTarget(),activeEmps=emps().filter(function(e){return e.active;});
-  var chartData=activeEmps.map(function(e){
-    var ers=recs().filter(function(r){return r.employeeId===e.id&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=weekEnd(ws);});
-    var reg=0,uot=0,dt=0;ers.forEach(function(r){reg+=(r.regularHours||0);uot+=getUOT(r);dt+=(r.doubleTimeHours||0);});
-    return{label:e.firstName+' '+e.lastName.charAt(0)+'.',reg:reg,uot:uot,dt:dt,total:reg+uot+dt};
+  (function tick() {
+    var el = document.getElementById('dash-clock');
+    if (el) el.textContent = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    else { clearInterval(S.dashInt); return; }
+    S.dashInt = setInterval(tick, 1000);
+  })();
+  var ws = weekStart(today()), tc = getWeeklyTarget();
+  var data = emps().filter(function(e) { return e.active; }).map(function(e) {
+    var ers = recs().filter(function(r) { return r.employeeId === e.id && r.status === 'completed' && r.clockIn && r.clockIn.slice(0, 10) >= ws && r.clockIn.slice(0, 10) <= weekEnd(ws); });
+    var reg = 0, uot = 0, dt = 0;
+    ers.forEach(function(r) { reg += (r.regularHours || 0); uot += getUOT(r); dt += (r.doubleTimeHours || 0); });
+    return { label: e.firstName + ' ' + e.lastName.charAt(0) + '.', reg: reg, uot: uot, dt: dt, total: reg + uot + dt };
   });
-  drawBarChart(document.getElementById('chart-weekly'),chartData,tc);
-  var tR=0,tU=0,tD=0;chartData.forEach(function(d){tR+=d.reg;tU+=d.uot;tD+=d.dt;});
-  drawDonut(document.getElementById('chart-donut'),[{v:tR,c:'#34d399'},{v:tU,c:'#f87171'},{v:tD,c:'#c084fc'}]);
+  drawBar(document.getElementById('chart-weekly'), data, tc);
+  var tR = 0, tU = 0, tD = 0;
+  data.forEach(function(d) { tR += d.reg; tU += d.uot; tD += d.dt; });
+  drawDonut(document.getElementById('chart-donut'), [{ v: tR, c: '#34d399' }, { v: tU, c: '#f87171' }, { v: tD, c: '#c084fc' }]);
 }
-function drawBarChart(canvas,data,maxVal){
-  if(!canvas)return;var ctx=canvas.getContext('2d'),dpr=window.devicePixelRatio||1,rect=canvas.getBoundingClientRect();
-  canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;ctx.scale(dpr,dpr);
-  var W=rect.width,H=rect.height,pad={t:10,r:10,b:30,l:10},ch=H-pad.t-pad.b,n=data.length;maxVal=Math.max(maxVal*1.2,1);
-  if(!n){ctx.fillStyle='#6a7199';ctx.font='13px Space Grotesk';ctx.textAlign='center';ctx.fillText('No data',W/2,H/2);return;}
-  var cw=W-pad.l-pad.r,gap=Math.max(4,Math.min(12,cw/n*.3)),bw=Math.max(8,(cw-gap*(n+1))/n);
-  var ty=pad.t+ch*(1-maxVal/maxVal);ctx.strokeStyle='rgba(232,168,56,.3)';ctx.setLineDash([4,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,ty);ctx.lineTo(W-pad.r,ty);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='rgba(232,168,56,.5)';ctx.font='10px JetBrains Mono';ctx.textAlign='left';ctx.fillText(maxVal+'h',pad.l+2,ty-4);
-  data.forEach(function(d,i){
-    var x=pad.l+gap+(bw+gap)*i;
-    var rh=Math.max(0,(d.reg/maxVal)*ch),ry=pad.t+ch-rh;ctx.fillStyle='#34d399';rRect(ctx,x,ry,bw*.55,rh,3);
-    var uh=Math.max(0,(d.uot/maxVal)*ch),uy=ry-uh;ctx.fillStyle='#f87171';rRect(ctx,x+bw*.55,uy,bw*.45,uh,3);
-    if(d.dt>0){ctx.fillStyle='#c084fc';ctx.beginPath();ctx.arc(x+bw/2,uy-6,3,0,Math.PI*2);ctx.fill();}
-    ctx.fillStyle='#6a7199';ctx.font='10px Space Grotesk';ctx.textAlign='center';
-    ctx.fillText(d.label.length>8?d.label.slice(0,7)+'..':d.label,x+bw/2,H-pad.b+14);
-    if(d.total>0){ctx.fillStyle='#e4e6ec';ctx.font='600 10px JetBrains Mono';ctx.fillText(fmtH(d.total),x+bw/2,Math.min(ry-10,ty-12));}
+
+function drawBar(canvas, data, maxVal) {
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1, rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr);
+  var W = rect.width, H = rect.height, pad = { t: 10, r: 10, b: 30, l: 10 }, ch = H - pad.t - pad.b, n = data.length;
+  maxVal = Math.max(maxVal * 1.2, 1);
+  if (!n) { ctx.fillStyle = '#6a7199'; ctx.font = '13px Space Grotesk'; ctx.textAlign = 'center'; ctx.fillText('No data', W / 2, H / 2); return; }
+  var cw = W - pad.l - pad.r, gap = Math.max(4, Math.min(12, cw / n * .3)), bw = Math.max(8, (cw - gap * (n + 1)) / n);
+  var ty = pad.t + ch * (1 - maxVal / maxVal);
+  ctx.strokeStyle = 'rgba(232,168,56,.3)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, ty); ctx.lineTo(W - pad.r, ty); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(232,168,56,.5)'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'left';
+  ctx.fillText(fmtHM(maxVal), pad.l + 2, ty - 4);
+  data.forEach(function(d, i) {
+    var x = pad.l + gap + (bw + gap) * i;
+    var rh = Math.max(0, (d.reg / maxVal) * ch), ry = pad.t + ch - rh;
+    ctx.fillStyle = '#34d399'; rR(ctx, x, ry, bw * .55, rh, 3);
+    var uh = Math.max(0, (d.uot / maxVal) * ch), uy = ry - uh;
+    ctx.fillStyle = '#f87171'; rR(ctx, x + bw * .55, uy, uh, 3);
+    if (d.dt > 0) { ctx.fillStyle = '#c084fc'; ctx.beginPath(); ctx.arc(x + bw / 2, uy - 6, 3, 0, Math.PI * 2); ctx.fill(); }
+    ctx.fillStyle = '#6a7199'; ctx.font = '10px Space Grotesk'; ctx.textAlign = 'center';
+    ctx.save(); ctx.translate(x + bw / 2, H - pad.b + 14); ctx.rotate(-0.4); ctx.fillText(d.label, 0, 0); ctx.restore();
   });
 }
-function drawDonut(canvas,segs){
-  if(!canvas)return;var ctx=canvas.getContext('2d'),dpr=window.devicePixelRatio||1,rect=canvas.getBoundingClientRect();
-  canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;ctx.scale(dpr,dpr);
-  var W=rect.width,H=rect.height,cx=W/2,cy=H/2-5,r=Math.min(W,H)/2-20,ir=r*.6;
-  var total=segs.reduce(function(s,x){return s+x.v;},0);
-  if(total===0){ctx.strokeStyle='#252d42';ctx.lineWidth=r-ir;ctx.beginPath();ctx.arc(cx,cy,(r+ir)/2,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#6a7199';ctx.font='13px Space Grotesk';ctx.textAlign='center';ctx.fillText('No data',cx,cy+4);return;}
-  var angle=-Math.PI/2;segs.forEach(function(seg){if(seg.v<=0)return;var sw=(seg.v/total)*Math.PI*2;ctx.beginPath();ctx.arc(cx,cy,r,angle,angle+sw);ctx.arc(cx,cy,ir,angle+sw,angle,true);ctx.closePath();ctx.fillStyle=seg.c;ctx.fill();angle+=sw;});
-  ctx.fillStyle='#e4e6ec';ctx.font='700 18px JetBrains Mono';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(fmtH(total),cx,cy-4);
-  ctx.fillStyle='#6a7199';ctx.font='11px Space Grotesk';ctx.fillText('total hrs',cx,cy+14);ctx.textBaseline='alphabetic';
-}
-function rRect(ctx,x,y,w,h,r){if(h<=0)return;r=Math.min(r,Math.abs(w)/2,Math.abs(h)/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
 
-/* ===== SITES ===== */
-function renderSites(){
-  var ss=sites(),h='<div class="fade-in"><div class="flex items-center justify-between mb-5"><div><h2 class="text-xl font-bold tracking-tight">Sites</h2><p class="text-sm" style="color:var(--muted)">'+ss.length+' location'+(ss.length!==1?'s':'')+'</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-3">';
-  if(ss.length)ss.forEach(function(s){h+='<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1 min-w-0"><div class="font-semibold truncate">'+escHtml(s.name)+'</div><div class="text-sm truncate" style="color:var(--muted)">'+escHtml(s.address)+'</div><div class="flex items-center gap-3 mt-1.5 text-xs flex-wrap" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>'+s.lat.toFixed(4)+', '+s.lng.toFixed(4)+'</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>'+s.radius+'m</span><a href="https://www.google.com/maps?q='+s.lat+','+s.lng+'" target="_blank" rel="noopener" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2 flex-shrink-0"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="delSite(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>';});
-  else h+='<div class="empty-state card"><i class="fas fa-location-dot block"></i><p>No sites yet</p></div>';
-  return h+'</div></div>';
+function drawDonut(canvas, segs) {
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1, rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr);
+  var W = rect.width, H = rect.height, cx = W / 2, cy = H / 2 - 5, r = Math.min(W, H) / 2 - 20, ir = r * .6;
+  var total = segs.reduce(function(s, x) { return s + x.v; }, 0);
+  if (total === 0) { ctx.strokeStyle = '#252d42'; ctx.lineWidth = r - ir; ctx.beginPath(); ctx.arc(cx, cy, (r + ir) / 2, 0, Math.PI * 2); ctx.stroke(); ctx.fillStyle = '#6a7199'; ctx.font = '13px Space Grotesk'; ctx.textAlign = 'center'; ctx.fillText('No data', cx, cy + 4); return; }
+  var angle = -Math.PI / 2;
+  segs.forEach(function(seg) {
+    if (seg.v <= 0) return;
+    var sw = (seg.v / total) * Math.PI * 2;
+    ctx.beginPath(); ctx.arc(cx, cy, r, angle, angle + sw); ctx.arc(cx, cy, ir, angle + sw, angle, true); ctx.closePath();
+    ctx.fillStyle = seg.c; ctx.fill(); angle += sw;
+  });
+  ctx.fillStyle = '#e4e6ec'; ctx.font = '700 16px JetBrains Mono'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(fmtDec(total), cx, cy - 4);
+  ctx.fillStyle = '#6a7199'; ctx.font = '11px Space Grotesk'; ctx.fillText('total hrs', cx, cy + 14); ctx.textBaseline = 'alphabetic';
 }
-function openSiteModal(eid){
-  var s=eid?sites().find(function(x){return x.id===eid;}):null;
-  openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Site</h3><div class="grid gap-3"><div><label>Site Name</label><input id="ms-n" value="'+escHtml(s?s.name:'')+'"></div><div><label>Address</label><input id="ms-a" value="'+escHtml(s?s.address:'')+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="ms-la" type="number" step="0.00001" value="'+(s?s.lat:'')+'"></div><div><label>Longitude</label><input id="ms-ln" type="number" step="0.00001" value="'+(s?s.lng:'')+'"></div></div><div><label>GPS Radius: <span id="ms-rv" class="mono">'+(s?s.radius:100)+'</span>m</label><input id="ms-r" type="range" min="5" max="500" value="'+(s?s.radius:100)+'" oninput="document.getElementById(\'ms-rv\').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m</span><span>500m</span></div></div><button class="btn btn-secondary btn-sm" onclick="getGps()"><i class="fas fa-crosshairs"></i> Use My Location</button><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\''+(eid||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-}
-function getGps(){if(!navigator.geolocation){toast('Not supported','error');return;}toast('Getting location...','info');navigator.geolocation.getCurrentPosition(function(p){document.getElementById('ms-la').value=p.coords.latitude.toFixed(5);document.getElementById('ms-ln').value=p.coords.longitude.toFixed(5);toast('Done','success');},function(e){toast('GPS error: '+e.message,'error');},{enableHighAccuracy:true});}
-function saveSite(eid){var n=document.getElementById('ms-n').value.trim(),a=document.getElementById('ms-a').value.trim(),la=parseFloat(document.getElementById('ms-la').value),ln=parseFloat(document.getElementById('ms-ln').value),r=parseInt(document.getElementById('ms-r').value);if(!n){toast('Name required','error');return;}if(isNaN(la)||isNaN(ln)){toast('Coordinates required','error');return;}var obj={name:n,address:a,lat:la,lng:ln,radius:r};if(eid)fbUpd('sites/'+eid,obj);else{var id=db.ref('sites').push().key;obj.id=id;fbSet('sites/'+id,obj);}closeModal();nav('sites');toast(eid?'Updated':'Added','success');}
-function delSite(id){var s=sites().find(function(x){return x.id===id;});if(emps().some(function(e){return e.siteId===id;})){toast('Employees assigned to this site','error');return;}toBin('sites',id,s);nav('sites');toast('Moved to bin','info');}
 
-/* ===== EMPLOYEES ===== */
-function renderEmployees(){
-  var es=emps(),q=(S.searchTerms.employees||'').toLowerCase();
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Employees</h2><p class="text-sm" style="color:var(--muted)">'+es.length+' total, '+es.filter(function(e){return e.active;}).length+' active</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkEmpModal()"><i class="fas fa-file-import"></i> Bulk Import</button><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
-  h+='<div class="search-box mb-4"><i class="fas fa-search"></i><input placeholder="Search name or ID..." value="'+escHtml(q)+'" oninput="S.searchTerms.employees=this.value;document.getElementById(\'emp-tbody\').innerHTML=empRows(this.value.toLowerCase())"></div>';
-  h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>Status</th><th style="width:100px">Actions</th></tr></thead><tbody id="emp-tbody">'+empRows(q)+'</tbody></table></div></div>';return h;
+function rR(ctx, x, y, w, h, r) {
+  if (h <= 0) return; r = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h); ctx.lineTo(x, y + h); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); ctx.fill();
 }
-function empRows(q){
-  var es=emps(),f=q?es.filter(function(e){return(e.firstName+' '+e.lastName+' '+e.employeeId).toLowerCase().indexOf(q)!==-1;}):es;
-  if(!f.length)return '<tr><td colspan="5" class="text-center py-8" style="color:var(--muted)">None found</td></tr>';
-  return f.map(function(e){return '<tr><td class="font-medium">'+escHtml(e.firstName+' '+e.lastName)+'</td><td class="mono text-xs">'+escHtml(e.employeeId)+'</td><td><span class="badge badge-blue">'+escHtml(siteName(e.siteId))+'</span></td><td>'+(e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>')+'</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-icon btn-sm" onclick="openEmpModal(\''+e.id+'\')"><i class="fas fa-pen" style="font-size:.7rem"></i></button><button class="btn btn-danger btn-icon btn-sm" onclick="delEmp(\''+e.id+'\')"><i class="fas fa-trash" style="font-size:.7rem"></i></button></div></td></tr>';}).join('');
+
+/* ===== Sites ===== */
+function renderSites() {
+  var ss = sites(), h = '<div class="fade-in"><div class="flex items-center justify-between mb-5"><div><h2 class="text-xl font-bold tracking-tight">Sites</h2><p class="text-sm" style="color:var(--muted)">' + ss.length + ' registered</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-3">';
+  if (ss.length) ss.forEach(function(s) {
+    var empCount = emps().filter(function(e) { return e.siteId === s.id; }).length;
+    h += '<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1 min-w-0"><div class="font-semibold truncate">' + escHtml(s.name) + '</div><div class="text-sm truncate" style="color:var(--muted)">' + escHtml(s.address) + '</div><div class="flex items-center gap-3 mt-1.5 text-xs flex-wrap" style="color:var(--muted)"><span><i class="fas fa-users mr-1" style="color:var(--accent)"></i>' + empCount + ' employees</span><span><i class="fas fa-map-pin mr-1" style="color:var(--info)"></i>' + s.lat.toFixed(4) + ', ' + s.lng.toFixed(4) + '</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--success)"></i>' + s.radius + 'm radius</span><a href="https://www.google.com/maps?q=' + s.lat + ',' + s.lng + '" target="_blank" rel="noopener" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2 flex-shrink-0"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\'' + s.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="delSite(\'' + s.id + '\')"><i class="fas fa-trash"></i></button></div></div>';
+  });
+  else h += '<div class="empty-state card"><i class="fas fa-location-dot block"></i><p>No sites yet</p></div>';
+  return h + '</div></div>';
 }
-/* Bulk import */
-function openBulkEmpModal(){
-  var ss=sites();if(!ss.length){toast('Add a site first','error');return;}
-  var so=ss.map(function(s){return '<option value="'+s.id+'">'+escHtml(s.name)+'</option>';}).join('');
-  openModal('<h3 class="font-bold text-lg mb-1">Bulk Import Employees</h3><p class="text-sm mb-3" style="color:var(--muted)">Paste CSV data. Each row = one employee.</p><div class="format-hint mb-3"><b>Format:</b>\nFirstName,LastName,EmployeeID,PIN,SiteName\nJohn,Smith,EMP010,1234,Baywash Chemicals Windhoek\nJane,Doe,EMP011,5678,\n\n<b>PIN</b> = 4 digits · <b>SiteName</b> = exact match or leave blank for default\nHeader row auto-skipped · Duplicates skipped</div><div class="mb-3"><label>Default Site</label><select id="mbe-site">'+so+'</select></div><div class="mb-3"><label>Paste CSV</label><textarea id="mbe-data" rows="7" placeholder="FirstName,LastName,EmployeeID,PIN,SiteName"></textarea></div><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="parseBulkEmps()"><i class="fas fa-magnifying-glass"></i> Parse & Preview</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div><div id="mbe-preview"></div>');
+
+function openSiteModal(eid) {
+  var s = eid ? sites().find(function(x) { return x.id === eid; }) : null;
+  openModal('<h3 class="font-bold text-lg mb-4">' + (s ? 'Edit' : 'Add') + ' Site</h3><div class="grid gap-3"><div><label>Name</label><input id="ms-n" value="' + escHtml(s ? s.name : '') + '"></div><div><label>Address</label><input id="ms-a" value="' + escHtml(s ? s.address : '') + '"></div><div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="ms-la" type="number" step="0.00001" value="' + (s ? s.lat : '') + '"></div><div><label>Longitude</label><input id="ms-ln" type="number" step="0.00001" value="' + (s ? s.lng : '') + '"></div></div><div><label>Radius: <span id="ms-rv" class="mono">' + (s ? s.radius : 100) + '</span>m</label><input id="ms-r" type="range" min="5" max="500" value="' + (s ? s.radius : 100) + '" oninput="document.getElementById(\'ms-rv\').textContent=this.value" style="padding:0;background:transparent;border:none"></div><button class="btn btn-secondary btn-sm" onclick="getGps()"><i class="fas fa-crosshairs"></i> Use My Location</button><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\'' + (eid || '') + '\')">' + (s ? 'Update' : 'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
-function parseBulkEmps(){
-  var raw=document.getElementById('mbe-data').value.trim();if(!raw){toast('Paste data first','error');return;}
-  var defSite=document.getElementById('mbe-site').value,lines=raw.split('\n').map(function(l){return l.trim();}).filter(function(l){return l;});
-  if(!lines.length){toast('No data','error');return;}
-  var si=0;if(lines[0].toLowerCase().match(/first|name|employee|id/))si=1;
-  var existingIds=emps().map(function(e){return e.employeeId;}),siteMap={};
-  sites().forEach(function(s){siteMap[s.name.toLowerCase().trim()]=s.id;});
-  var parsed=[],errs=[];
-  for(var i=si;i<lines.length;i++){
-    var c=lines[i].split(',').map(function(v){return v.trim().replace(/^["']|["']$/g,'');});
-    if(c.length<3){errs.push({row:i+1,msg:'Need at least 3 columns'});continue;}
-    var fn=c[0]||'',ln=c[1]||'',eid=(c[2]||'').toUpperCase(),pin=c[3]||'',sn=c[4]||'';
-    var sid=defSite;if(sn){var m=siteMap[sn.toLowerCase().trim()];if(m)sid=m;else errs.push({row:i+1,msg:'Site "'+sn+'" not found'});}
-    var re=[];
-    if(!fn)re.push('No first name');if(!ln)re.push('No last name');
-    if(!eid)re.push('No ID');else if(existingIds.indexOf(eid)!==-1)re.push('Duplicate ID');
-    if(!/^\d{4}$/.test(pin))re.push('PIN not 4 digits');
-    parsed.push({row:i+1,fn:fn,ln:ln,eid:eid,pin:pin,sid:sid,sn:sn||siteName(sid),re:re,skip:existingIds.indexOf(eid)!==-1});
+
+function getGps() {
+  if (!navigator.geolocation) { toast('Not supported', 'error'); return; }
+  toast('Getting location...', 'info');
+  navigator.geolocation.getCurrentPosition(function(p) {
+    document.getElementById('ms-la').value = p.coords.latitude.toFixed(5);
+    document.getElementById('ms-ln').value = p.coords.longitude.toFixed(5);
+    toast('Done', 'success');
+  }, function(e) { toast('GPS: ' + e.message, 'error'); }, { enableHighAccuracy: true });
+}
+
+function saveSite(eid) {
+  var n = document.getElementById('ms-n').value.trim(), a = document.getElementById('ms-a').value.trim();
+  var la = parseFloat(document.getElementById('ms-la').value), ln = parseFloat(document.getElementById('ms-ln').value), r = parseInt(document.getElementById('ms-r').value);
+  if (!n) { toast('Name required', 'error'); return; }
+  if (isNaN(la) || isNaN(ln)) { toast('Coords required', 'error'); return; }
+  var obj = { name: n, address: a, lat: la, lng: ln, radius: r };
+  if (eid) fbUpd('sites/' + eid, obj);
+  else { var id = db.ref('sites').push().key; obj.id = id; fbSet('sites/' + id, obj); }
+  closeModal(); nav('sites'); toast(eid ? 'Updated' : 'Added', 'success');
+}
+
+function delSite(id) {
+  if (emps().some(function(e) { return e.siteId === id; })) { toast('Employees assigned to this site', 'error'); return; }
+  toBin('sites', id, sites().find(function(x) { return x.id === id; })); nav('sites'); toast('Moved to bin', 'info');
+}
+
+/* ===== Employees ===== */
+function renderEmployees() {
+  var es = emps(), q = (S.searchTerms.employees || '').toLowerCase();
+  var filtered = es.filter(function(e) {
+    if (!q) return true;
+    return (e.firstName + ' ' + e.lastName + ' ' + e.employeeId).toLowerCase().indexOf(q) !== -1;
+  });
+  var h = '<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Employees</h2><p class="text-sm" style="color:var(--muted)">' + es.length + ' total, ' + es.filter(function(e) { return e.active; }).length + ' active</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkEmpModal()"><i class="fas fa-file-import"></i> Bulk Import</button><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
+  h += '<div class="search-box mb-4"><i class="fas fa-search"></i><input id="emp-search" placeholder="Search employees..." value="' + escHtml(S.searchTerms.employees || '') + '" oninput="S.searchTerms.employees=this.value;document.getElementById(\'admin-content\').innerHTML=renderEmployees();document.getElementById(\'emp-search\').focus();"></div>';
+  if (filtered.length) {
+    h += '<div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+    filtered.forEach(function(e) {
+      var activeRec = recs().find(function(r) { return r.employeeId === e.id && r.status === 'clocked_in'; });
+      h += '<tr><td><div class="font-medium">' + escHtml(e.firstName + ' ' + e.lastName) + '</div></td><td class="mono text-xs">' + escHtml(e.employeeId) + '</td><td class="text-sm" style="color:var(--muted)">' + escHtml(siteName(e.siteId)) + '</td><td class="mono text-xs">' + escHtml(e.pin) + '</td><td>' + (e.active ? (activeRec ? '<span class="badge badge-green">Clocked In</span>' : '<span class="badge badge-green">Active</span>') : '<span class="badge badge-red">Inactive</span>') + '</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-sm btn-icon" onclick="openEmpModal(\'' + e.id + '\')"><i class="fas fa-pen text-xs"></i></button><button class="btn btn-danger btn-sm btn-icon" onclick="delEmp(\'' + e.id + '\')"><i class="fas fa-trash text-xs"></i></button></div></td></tr>';
+    });
+    h += '</tbody></table></div>';
+  } else {
+    h += '<div class="empty-state card"><i class="fas fa-users block"></i><p>' + (q ? 'No matches' : 'No employees yet') + '</p></div>';
   }
-  S.pendingImport=parsed.filter(function(p){return !p.skip&&!p.re.length;});
-  var vc=parsed.filter(function(p){return !p.skip&&!p.re.length;}).length;
-  var sk=parsed.filter(function(p){return p.skip;}).length,ec=parsed.filter(function(p){return p.re.length&&!p.skip;}).length;
-  var html='<div class="mt-4 p-3 rounded-lg" style="background:var(--bg2);border:1px solid var(--border)"><div class="flex gap-3 mb-3 flex-wrap"><span class="badge badge-green"><i class="fas fa-check mr-1"></i>'+vc+' valid</span>'+(sk?'<span class="badge badge-amber"><i class="fas fa-forward mr-1"></i>'+sk+' skipped</span>':'')+(ec?'<span class="badge badge-red"><i class="fas fa-exclamation-triangle mr-1"></i>'+ec+' errors</span>':'')+'</div>';
-  if(parsed.length){html+='<div class="import-preview"><table><thead><tr><th>#</th><th>Name</th><th>ID</th><th>PIN</th><th>Site</th><th>Status</th></tr></thead><tbody>';parsed.forEach(function(p){var cls=p.skip||p.re.length?'err-row':'ok-row';var st=p.skip?'<span class="badge badge-amber">Skip</span>':p.re.length?'<span class="badge badge-red">'+p.re.join(', ')+'</span>':'<span class="badge badge-green">OK</span>';html+='<tr class="'+cls+'"><td class="mono text-xs">'+p.row+'</td><td class="text-sm">'+escHtml(p.fn+' '+p.ln)+'</td><td class="mono text-xs">'+escHtml(p.eid)+'</td><td class="mono text-xs">'+(p.pin?'****':'—')+'</td><td class="text-xs" style="color:var(--muted)">'+escHtml(p.sn)+'</td><td class="text-xs">'+st+'</td></tr>';});html+='</tbody></table></div>';}
-  html+='</div>';
-  if(vc>0)html+='<div class="flex gap-3 mt-3"><button class="btn btn-primary flex-1 justify-center" onclick="confirmBulkImport()"><i class="fas fa-file-import"></i> Import '+vc+' Employee'+(vc>1?'s':'')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>';
-  document.getElementById('mbe-preview').innerHTML=html;
-}
-function confirmBulkImport(){if(!S.pendingImport.length){toast('None to import','error');return;}var c=0;S.pendingImport.forEach(function(p){var id=db.ref('employees').push().key;fbSet('employees/'+id,{id:id,firstName:p.fn,lastName:p.ln,employeeId:p.eid,pin:p.pin,siteId:p.sid,active:true});c++;});closeModal();nav('employees');toast(c+' imported','success');}
-/* Single employee */
-function openEmpModal(eid){
-  var e=eid?emps().find(function(x){return x.id===eid;}):null,ss=sites();if(!ss.length){toast('Add a site first','error');return;}
-  var so=ss.map(function(s){return '<option value="'+s.id+'" '+(e&&e.siteId===s.id?'selected':'')+'>'+escHtml(s.name)+'</option>';}).join('');
-  openModal('<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-3"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="me-fn" value="'+escHtml(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="me-ln" value="'+escHtml(e?e.lastName:'')+'"></div></div><div><label>Employee ID</label><input id="me-eid" value="'+escHtml(e?e.employeeId:'')+'" '+(e?'readonly style="opacity:.5"':'')+' placeholder="EMP004"></div><div><label>PIN (4 digits)</label><input id="me-pin" type="password" maxlength="4" inputmode="numeric" value="'+(e?e.pin:'')+'"></div><div><label>Site</label><select id="me-si">'+so+'</select></div><div class="flex items-center gap-2"><input id="me-act" type="checkbox" '+((!e||e.active)?'checked':'')+' class="w-4 h-4 accent-amber-500"><label for="me-act" style="margin:0;cursor:pointer">Active</label></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\''+(eid||'')+'\')">'+(e?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-}
-function saveEmp(eid){var fn=document.getElementById('me-fn').value.trim(),ln=document.getElementById('me-ln').value.trim(),eid2=document.getElementById('me-eid').value.trim().toUpperCase(),pin=document.getElementById('me-pin').value,si=document.getElementById('me-si').value,act=document.getElementById('me-act').checked;if(!fn||!ln){toast('Name required','error');return;}if(!eid2){toast('ID required','error');return;}if(!/^\d{4}$/.test(pin)){toast('PIN must be 4 digits','error');return;}if(!eid&&emps().some(function(e){return e.employeeId===eid2;})){toast('ID exists','error');return;}var obj={firstName:fn,lastName:ln,employeeId:eid2,pin:pin,siteId:si,active:act};if(eid)fbUpd('employees/'+eid,obj);else{var id=db.ref('employees').push().key;obj.id=id;fbSet('employees/'+id,obj);}closeModal();nav('employees');toast(eid?'Updated':'Added','success');}
-function delEmp(id){var e=empById(id);if(recs().some(function(r){return r.employeeId===id;})){toast('Has records — deactivate instead','error');return;}toBin('employees',id,e);nav('employees');toast('Moved to bin','info');}
-
-/* ===== SHIFTS ===== */
-function renderShifts(){
-  var sh=shifts(),q=(S.searchTerms.shifts||'').toLowerCase();
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Shifts</h2><p class="text-sm" style="color:var(--muted)">'+sh.length+'</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
-  h+='<div class="search-box mb-4"><i class="fas fa-search"></i><input placeholder="Search..." value="'+escHtml(q)+'" oninput="S.searchTerms.shifts=this.value;document.getElementById(\'shifts-container\').innerHTML=shiftGroups(this.value.toLowerCase())"></div><div id="shifts-container">'+shiftGroups(q)+'</div></div>';return h;
-}
-function shiftGroups(q){
-  var sh=shifts();if(q)sh=sh.filter(function(s){return(empFullName(s.employeeId)+siteName(s.siteId)+s.date).toLowerCase().indexOf(q)!==-1;});
-  var byDate={};sh.forEach(function(s){if(!byDate[s.date])byDate[s.date]=[];byDate[s.date].push(s);});
-  var dates=Object.keys(byDate).sort().reverse();if(!dates.length)return '<div class="empty-state card"><i class="fas fa-calendar-days block"></i><p>No shifts found</p></div>';
-  return dates.map(function(d){var items=byDate[d];var g='<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">'+(d===today()?'<span style="color:var(--accent)">Today</span> — ':'')+new Date(d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</h3>'+dayBadge(dayType(d))+'<span class="badge badge-amber">'+items.length+'</span></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Break</th><th>Status</th><th style="width:80px"></th></tr></thead><tbody>';items.forEach(function(s){var rec=recs().find(function(r){return r.shiftId===s.id;});g+='<tr><td class="font-medium text-sm">'+escHtml(empFullName(s.employeeId))+'</td><td class="text-xs" style="color:var(--muted)">'+escHtml(siteName(s.siteId))+'</td><td class="mono text-xs">'+s.startTime+'–'+s.endTime+'</td><td class="text-xs">'+(s.breakMinutes||0)+'m</td><td>'+statusBadge(rec?rec.status:'pending')+'</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-icon btn-sm" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen" style="font-size:.7rem"></i></button><button class="btn btn-danger btn-icon btn-sm" onclick="delShift(\''+s.id+'\')"><i class="fas fa-trash" style="font-size:.7rem"></i></button></div></td></tr>';});g+='</tbody></table></div></div>';return g;}).join('');
-}
-function openShiftModal(eid){
-  var s=eid?shifts().find(function(x){return x.id===eid;}):null,aes=emps().filter(function(e){return e.active;});if(!aes.length){toast('Add employees first','error');return;}
-  var eo=aes.map(function(e){return '<option value="'+e.id+'" '+(s&&s.employeeId===e.id?'selected':'')+'>'+escHtml(e.firstName+' '+e.lastName)+' ('+e.employeeId+')</option>';}).join('');
-  var so=sites().map(function(si){return '<option value="'+si.id+'" '+(s&&s.siteId===si.id?'selected':'')+'>'+escHtml(si.name)+'</option>';}).join('');
-  var autoS=s?s.siteId:(aes.length===1?aes[0].siteId:'');
-  openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Shift</h3><div class="grid gap-3"><div><label>Employee</label><select id="msh-e" onchange="autoFillSite(this.value)">'+eo+'</select></div><div><label>Site</label><select id="msh-s">'+so+'</select></div><div><label>Date</label><input id="msh-d" type="date" value="'+(s?s.date:today())+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="msh-st" type="time" value="'+(s?s.startTime:'08:00')+'"></div><div><label>End</label><input id="msh-et" type="time" value="'+(s?s.endTime:'17:00')+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Target Hrs</label><input id="msh-th" type="number" step="0.5" value="'+(s&&s.targetHours?s.targetHours:'')+'" placeholder="Auto"></div><div><label>Break (min)</label><input id="msh-bm" type="number" value="'+(s?s.breakMinutes!=null?s.breakMinutes:sett().defaultBreak||30:sett().defaultBreak||30)+'"></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+(eid||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-  if(autoS){var sel=document.getElementById('msh-s');if(sel)sel.value=autoS;}
-}
-function autoFillSite(eid){var e=empById(eid);if(e){var sel=document.getElementById('msh-s');if(sel)sel.value=e.siteId;}}
-function saveShift(eid){var eid2=document.getElementById('msh-e').value,sid=document.getElementById('msh-s').value,dt=document.getElementById('msh-d').value,st=document.getElementById('msh-st').value,et=document.getElementById('msh-et').value,th=document.getElementById('msh-th').value,bm=parseInt(document.getElementById('msh-bm').value)||0;if(!dt||!st||!et){toast('Date and times required','error');return;}var obj={employeeId:eid2,siteId:sid,date:dt,startTime:st,endTime:et,breakMinutes:bm};if(th)obj.targetHours=parseFloat(th);if(!th){var sh=parseInt(st.split(':')[0])+parseInt(st.split(':')[1])/60,eh=parseInt(et.split(':')[0])+parseInt(et.split(':')[1])/60;if(eh<=sh)eh+=24;obj.targetHours=Math.round((eh-sh-bm/60)*10)/10;}if(eid)fbUpd('shifts/'+eid,obj);else{var id=db.ref('shifts').push().key;obj.id=id;fbSet('shifts/'+id,obj);}closeModal();nav('shifts');toast(eid?'Updated':'Added','success');}
-function delShift(id){toBin('shifts',id,shifts().find(function(x){return x.id===id;}));nav('shifts');toast('Moved to bin','info');}
-function openBulkShiftModal(){
-  var aes=emps().filter(function(e){return e.active;});if(!aes.length){toast('No active employees','error');return;}
-  var eo=aes.map(function(e){return '<option value="'+e.id+'">'+escHtml(e.firstName+' '+e.lastName)+' ('+e.employeeId+')</option>';}).join('');
-  var so=sites().map(function(s){return '<option value="'+s.id+'">'+escHtml(s.name)+'</option>';}).join('');
-  openModal('<h3 class="font-bold text-lg mb-4">Bulk Add Shifts</h3><div class="grid gap-3"><div><label>Employees (Ctrl+click)</label><select id="mbs-e" multiple style="height:100px">'+eo+'</select></div><div><label>Site</label><select id="mbs-s">'+so+'</select></div><div class="grid grid-cols-3 gap-3"><div><label>Start Date</label><input id="mbs-ds" type="date" value="'+today()+'"></div><div><label>End Date</label><input id="mbs-de" type="date" value="'+today()+'"></div><div><label>Days</label><select id="mbs-days" multiple style="height:38px;font-size:.75rem"><option value="1" selected>Mon</option><option value="2" selected>Tue</option><option value="3" selected>Wed</option><option value="4" selected>Thu</option><option value="5" selected>Fri</option><option value="6">Sat</option><option value="0">Sun</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="mbs-st" type="time" value="08:00"></div><div><label>End Time</label><input id="mbs-et" type="time" value="17:00"></div></div><div><label>Break (min)</label><input id="mbs-bm" type="number" value="'+(sett().defaultBreak||30)+'"></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveBulkShifts()"><i class="fas fa-layer-group"></i> Create</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-}
-function saveBulkShifts(){
-  var eSel=document.getElementById('mbs-e'),sId=document.getElementById('mbs-s').value,ds=document.getElementById('mbs-ds').value,de=document.getElementById('mbs-de').value,daySel=document.getElementById('mbs-days'),st=document.getElementById('mbs-st').value,et=document.getElementById('mbs-et').value,bm=parseInt(document.getElementById('mbs-bm').value)||0;
-  var eIds=[];for(var i=0;i<eSel.options.length;i++)if(eSel.options[i].selected)eIds.push(eSel.options[i].value);
-  var days=[];for(var j=0;j<daySel.options.length;j++)if(daySel.options[j].selected)days.push(parseInt(daySel.options[j].value));
-  if(!eIds.length||!days.length||!ds||!de||!st||!et){toast('Fill all fields','error');return;}
-  var sh=parseInt(st.split(':')[0])+parseInt(st.split(':')[1])/60,eh=parseInt(et.split(':')[0])+parseInt(et.split(':')[1])/60;if(eh<=sh)eh+=24;var th=Math.round((eh-sh-bm/60)*10)/10;
-  var start=new Date(ds+'T12:00:00'),end=new Date(de+'T12:00:00'),count=0;
-  for(var d=new Date(start);d<=end;d.setDate(d.getDate()+1)){if(days.indexOf(d.getDay())===-1)continue;var ds2=fmtDate(d);eIds.forEach(function(eid){var id=db.ref('shifts').push().key;fbSet('shifts/'+id,{id:id,employeeId:eid,siteId:sId,date:ds2,startTime:st,endTime:et,breakMinutes:bm,targetHours:th});count++;});}
-  closeModal();nav('shifts');toast(count+' shifts created','success');
+  return h + '</div>';
 }
 
-/* ===== RECORDS ===== */
-function renderRecords(){
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Clock Records</h2><p class="text-sm" style="color:var(--muted)">'+recs().length+'</p></div></div>';
-  h+='<div class="filter-row"><div class="search-box fg" style="min-width:200px"><i class="fas fa-search"></i><input placeholder="Search..." value="'+escHtml(S.searchTerms.records||'')+'" oninput="S.searchTerms.records=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"></div><div class="fg"><label>Date</label><input type="date" value="'+S.recFilterDate+'" onchange="S.recFilterDate=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"></div><div class="fg"><label>Status</label><select onchange="S.recFilterStatus=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"><option value="">All</option><option value="completed" '+(S.recFilterStatus==='completed'?'selected':'')+'>Completed</option><option value="clocked_in" '+(S.recFilterStatus==='clocked_in'?'selected':'')+'>Active</option></select></div><div class="fg"><label>Site</label><select onchange="S.recFilterSite=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"><option value="">All</option>'+sites().map(function(s){return '<option value="'+s.id+'" '+(S.recFilterSite===s.id?'selected':'')+'>'+escHtml(s.name)+'</option>';}).join('')+'</select></div></div>';
-  h+='<div class="card overflow-x-auto" style="padding:0;max-height:60vh;overflow-y:auto"><table><thead><tr><th>Employee</th><th>Site</th><th>In</th><th>Out</th><th>Total</th><th>Breakdown</th><th>Type</th></tr></thead><tbody id="rec-tbody">'+recRows()+'</tbody></table></div></div>';return h;
-}
-function recRows(){
-  var rc=recs().slice().sort(function(a,b){return new Date(b.clockIn||0)-new Date(a.clockIn||0);});
-  var q=(S.searchTerms.records||'').toLowerCase();
-  if(q)rc=rc.filter(function(r){return(empFullName(r.employeeId)+siteName(r.siteId)+(r.clockIn||'')).toLowerCase().indexOf(q)!==-1;});
-  if(S.recFilterDate)rc=rc.filter(function(r){return(r.clockIn||'').slice(0,10)===S.recFilterDate;});
-  if(S.recFilterStatus)rc=rc.filter(function(r){return r.status===S.recFilterStatus;});
-  if(S.recFilterSite)rc=rc.filter(function(r){return r.siteId===S.recFilterSite;});
-  if(!rc.length)return '<tr><td colspan="7" class="text-center py-8" style="color:var(--muted)">None found</td></tr>';
-  return rc.map(function(r){return '<tr><td class="font-medium text-sm">'+escHtml(empFullName(r.employeeId))+'</td><td class="text-xs" style="color:var(--muted)">'+escHtml(siteName(r.siteId))+'</td><td class="mono text-xs">'+(r.clockIn?r.clockIn.replace('T',' '):'—')+'</td><td class="mono text-xs">'+(r.clockOut?r.clockOut.replace('T',' '):'—')+'</td><td class="mono text-xs font-semibold">'+(r.status==='completed'?fmtH(r.totalHours):'—')+'</td><td class="text-xs">'+(r.status==='completed'?hrsBreakdown(r):'—')+'</td><td>'+dayBadge(r.dayType||dayType((r.clockIn||'').slice(0,10)))+'</td></tr>';}).join('');
+function openEmpModal(eid) {
+  var e = eid ? empById(eid) : null;
+  var ss = sites();
+  var opts = '<option value="">-- Select --</option>';
+  ss.forEach(function(s) { opts += '<option value="' + s.id + '"' + (e && e.siteId === s.id ? ' selected' : '') + '>' + escHtml(s.name) + '</option>'; });
+  openModal('<h3 class="font-bold text-lg mb-4">' + (e ? 'Edit' : 'Add') + ' Employee</h3><div class="grid gap-3"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="me-fn" value="' + escHtml(e ? e.firstName : '') + '"></div><div><label>Last Name</label><input id="me-ln" value="' + escHtml(e ? e.lastName : '') + '"></div></div><div><label>Employee ID</label><input id="me-eid" value="' + escHtml(e ? e.employeeId : '') + '" style="text-transform:uppercase" placeholder="EMP004"></div><div><label>PIN (4 digits)</label><input id="me-pin" type="password" maxlength="4" value="' + escHtml(e ? e.pin : '') + '" inputmode="numeric"></div><div><label>Site</label><select id="me-site">' + opts + '</select></div><div class="flex items-center gap-2"><input type="checkbox" id="me-active"' + (!e || e.active ? ' checked' : '') + ' style="width:auto"><label for="me-active" style="margin:0">Active</label></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\'' + (eid || '') + '\')">' + (e ? 'Update' : 'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 
-/* ===== EXPORT ===== */
-function renderExport(){
-  var so='<option value="">All Sites</option>'+sites().map(function(s){return '<option value="'+s.id+'">'+escHtml(s.name)+'</option>';}).join('');
-  var eo='<option value="">All</option>'+emps().map(function(e){return '<option value="'+e.id+'">'+escHtml(e.firstName+' '+e.lastName)+' ('+e.employeeId+')</option>';}).join('');
-  var h='<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-1">Export Data</h2><p class="text-sm mb-5" style="color:var(--muted)">Generate reports from clock records</p>';
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-filter mr-2" style="color:var(--accent)"></i>Filters</h3><div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><div><label>From</label><input id="exp-from" type="date" value="'+weekStart(today())+'"></div><div><label>To</label><input id="exp-to" type="date" value="'+today()+'"></div><div><label>Employee</label><select id="exp-emp">'+eo+'</select></div><div><label>Site</label><select id="exp-site">'+so+'</select></div></div></div>';
-  h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">';
-  h+='<div class="card"><h3 class="text-sm font-semibold mb-2"><i class="fas fa-file-csv mr-2" style="color:var(--success)"></i>CSV Export</h3><p class="text-xs mb-3" style="color:var(--muted)">For Excel, Google Sheets.</p><div class="format-hint mb-3">Employee,ID,Date,In,Out,Total,Reg,UnauthOT,Double,Type</div><div class="flex gap-2"><button class="btn btn-success btn-sm" onclick="doCSV()"><i class="fas fa-download"></i> Download CSV</button><button class="btn btn-secondary btn-sm" onclick="previewExp(\'csv\')"><i class="fas fa-eye"></i> Preview</button></div></div>';
-  h+='<div class="card" style="border-color:rgba(56,189,248,.2)"><h3 class="text-sm font-semibold mb-2"><i class="fas fa-file-lines mr-2" style="color:var(--info)"></i>Jarrison .DAT Export</h3><p class="text-xs mb-3" style="color:var(--muted)">Pipe-delimited for Jarrison import.</p><div class="format-hint mb-3">EMPNO|DATE|INTIME|OUTTIME|REGHRS|UNAUTHOT|DTHRS|TOTALHRS|DAYTYPE</div><div class="flex gap-2"><button class="btn btn-primary btn-sm" onclick="doJarrison()"><i class="fas fa-download"></i> Download .DAT</button><button class="btn btn-secondary btn-sm" onclick="previewExp(\'jar\')"><i class="fas fa-eye"></i> Preview</button></div></div></div>';
-  h+='<div class="jarrison-info mb-4"><h4><i class="fas fa-circle-info mr-1"></i> Jarrison Format</h4><p><code>DATE</code>=YYYYMMDD · <code>INTIME/OUTTIME</code>=HHMM · <code>DAYTYPE</code>=WEEKDAY/SATURDAY/SUNDAY/HOLIDAY · Hours=decimal · Only completed records · No header row</p></div>';
-  h+='<div class="card" id="export-preview"><div class="empty-state"><i class="fas fa-table block"></i><p>Set filters and click Preview</p></div></div></div>';return h;
-}
-function getFiltered(){var from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value,eid=document.getElementById('exp-emp').value,sid=document.getElementById('exp-site').value;var rc=recs().filter(function(r){return r.status==='completed';}).sort(function(a,b){return new Date(a.clockIn)-new Date(b.clockIn);});if(from)rc=rc.filter(function(r){return(r.clockIn||'').slice(0,10)>=from;});if(to)rc=rc.filter(function(r){return(r.clockIn||'').slice(0,10)<=to;});if(eid)rc=rc.filter(function(r){return r.employeeId===eid;});if(sid)rc=rc.filter(function(r){return r.siteId===sid;});return rc;}
-function previewExp(mode){
-  var rc=getFiltered(),el=document.getElementById('export-preview');if(!rc.length){el.innerHTML='<div class="empty-state"><i class="fas fa-table block"></i><p>No records match</p></div>';return;}
-  if(mode==='jar'){var h='<h3 class="text-sm font-semibold mb-3"><i class="fas fa-file-lines mr-2" style="color:var(--info)"></i>Jarrison Preview <span class="badge badge-blue">'+rc.length+'</span></h3><div style="max-height:40vh;overflow:auto"><table><thead><tr><th>EMPNO</th><th>DATE</th><th>IN</th><th>OUT</th><th>REG</th><th>UNAUTH</th><th>DT</th><th>TOTAL</th><th>TYPE</th></tr></thead><tbody>';rc.forEach(function(r){var e=empById(r.employeeId);h+='<tr><td class="mono text-xs">'+(e?e.employeeId:'?')+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(0,10).replace(/-/g,'')+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(11,16).replace(':','')+'</td><td class="mono text-xs">'+(r.clockOut||'').slice(11,16).replace(':','')+'</td><td class="mono text-xs" style="color:var(--success)">'+fmtH(r.regularHours)+'</td><td class="mono text-xs" style="color:var(--danger)">'+fmtH(getUOT(r))+'</td><td class="mono text-xs" style="color:var(--purple)">'+fmtH(r.doubleTimeHours)+'</td><td class="mono text-xs font-semibold">'+fmtH(r.totalHours)+'</td><td class="text-xs">'+(r.dayType||'')+'</td></tr>';});h+='</tbody></table></div>';el.innerHTML=h;}
-  else{var h2='<h3 class="text-sm font-semibold mb-3"><i class="fas fa-file-csv mr-2" style="color:var(--success)"></i>CSV Preview <span class="badge badge-blue">'+rc.length+'</span></h3><div style="max-height:40vh;overflow:auto"><table><thead><tr><th>Employee</th><th>ID</th><th>Date</th><th>In</th><th>Out</th><th>Total</th><th>Reg</th><th>Unauth OT</th><th>Double</th><th>Type</th></tr></thead><tbody>';rc.forEach(function(r){var e=empById(r.employeeId);h2+='<tr><td class="text-sm">'+escHtml(e?e.firstName+' '+e.lastName:'?')+'</td><td class="mono text-xs">'+(e?e.employeeId:'')+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(0,10)+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(11,16)+'</td><td class="mono text-xs">'+(r.clockOut||'').slice(11,16)+'</td><td class="mono text-xs font-semibold">'+fmtH(r.totalHours)+'</td><td class="mono text-xs" style="color:var(--success)">'+fmtH(r.regularHours)+'</td><td class="mono text-xs" style="color:var(--danger)">'+fmtH(getUOT(r))+'</td><td class="mono text-xs" style="color:var(--purple)">'+fmtH(r.doubleTimeHours)+'</td><td class="text-xs">'+(r.dayType||'')+'</td></tr>';});h2+='</tbody></table></div>';el.innerHTML=h2;}
-}
-function doCSV(){var rc=getFiltered();if(!rc.length){toast('No records','error');return;}var csv='Employee,Employee ID,Date,Clock In,Clock Out,Total Hours,Regular Hours,Unauthorised OT,Double Time,Day Type\n';rc.forEach(function(r){var e=empById(r.employeeId);csv+='"'+(e?e.firstName+' '+e.lastName:'Unknown')+'","'+(e?e.employeeId:'')+'","'+(r.clockIn||'').slice(0,10)+'","'+(r.clockIn||'').slice(11,16)+'","'+(r.clockOut||'').slice(11,16)+'","'+fmtH(r.totalHours)+'","'+fmtH(r.regularHours)+'","'+fmtH(getUOT(r))+'","'+fmtH(r.doubleTimeHours)+'","'+(r.dayType||'')+'"\n';});downloadFile(csv,'sitepro-'+today()+'.csv','text/csv');toast('CSV downloaded ('+rc.length+')','success');}
-function doJarrison(){var rc=getFiltered();if(!rc.length){toast('No records','error');return;}var lines=[];rc.forEach(function(r){var e=empById(r.employeeId);lines.push((e?e.employeeId:'')+'|'+(r.clockIn||'').slice(0,10).replace(/-/g,'')+'|'+(r.clockIn||'').slice(11,16).replace(':','')+'|'+(r.clockOut||'').slice(11,16).replace(':','')+'|'+fmtH(r.regularHours)+'|'+fmtH(getUOT(r))+'|'+fmtH(r.doubleTimeHours)+'|'+fmtH(r.totalHours)+'|'+(r.dayType||''));});downloadFile(lines.join('\n')+'\n','sitepro-jarrison-'+today()+'.dat','application/octet-stream');toast('.DAT downloaded ('+rc.length+')','success');}
-
-/* ===== RECYCLE BIN ===== */
-function renderRecycleBin(){
-  var bin=D.recycleBin,types=[{k:'sites',l:'Sites',i:'fa-location-dot',c:'var(--info)'},{k:'employees',l:'Employees',i:'fa-users',c:'var(--accent)'},{k:'shifts',l:'Shifts',i:'fa-calendar-days',c:'var(--success)'},{k:'records',l:'Records',i:'fa-clock-rotate-left',c:'var(--warning)'}];
-  var total=0;types.forEach(function(t){if(bin[t.k])total+=Object.keys(bin[t.k]).length;});
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-5 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Recycle Bin</h2><p class="text-sm" style="color:var(--muted)">'+total+' item'+(total!==1?'s':'')+' · auto-delete after 30 days</p></div>'+(total>0?'<button class="btn btn-danger btn-sm" onclick="emptyBin()"><i class="fas fa-trash"></i> Empty</button>':'')+'</div>';var any=false;
-  types.forEach(function(t){var items=bin[t.k]?Object.entries(bin[t.k]):[];if(!items.length)return;any=true;h+='<div class="mb-5"><h3 class="text-sm font-semibold mb-2 flex items-center gap-2"><i class="fas '+t.i+'" style="color:'+t.c+'"></i> '+t.l+' <span class="badge badge-amber">'+items.length+'</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Item</th><th>Deleted</th><th>Expires</th><th style="width:160px">Actions</th></tr></thead><tbody>';items.sort(function(a,b){return new Date(b[1].at)-new Date(a[1].at);}).forEach(function(en){var bid=en[0],it=en[1],d=it.data,nm='?';if(t.k==='sites')nm=d.name||'?';else if(t.k==='employees')nm=(d.firstName||'')+' '+(d.lastName||'')+' ('+(d.employeeId||'?')+')';else if(t.k==='shifts')nm=empFullName(d.employeeId)+' — '+d.date;else nm=empFullName(d.employeeId)+' — '+(d.clockIn||'').slice(0,10);var dl=Math.max(0,Math.ceil((new Date(it.at).getTime()+BIN_TTL-Date.now())/86400000)),ec=dl<=3?'var(--danger)':dl<=7?'var(--warning)':'var(--muted)';h+='<tr><td class="font-medium text-sm">'+escHtml(nm)+'</td><td class="text-xs" style="color:var(--muted)">'+timeAgo(it.at)+'</td><td class="text-xs" style="color:'+ec+'">'+dl+'d</td><td><div class="flex gap-2"><button class="btn btn-success btn-sm" onclick="fromBin(\''+t.k+'\',\''+bid+'\')"><i class="fas fa-rotate-left"></i></button><button class="btn btn-danger btn-sm" onclick="permDelBin(\''+t.k+'\',\''+bid+'\')"><i class="fas fa-trash"></i></button></div></td></tr>';});h+='</tbody></table></div></div>';});
-  if(!any)h+='<div class="empty-state card"><i class="fas fa-recycle block"></i><p>Empty</p></div>';return h+'</div>';
+function saveEmp(eid) {
+  var fn = document.getElementById('me-fn').value.trim(), ln = document.getElementById('me-ln').value.trim();
+  var eId = document.getElementById('me-eid').value.trim().toUpperCase(), pin = document.getElementById('me-pin').value;
+  var siteId = document.getElementById('me-site').value, active = document.getElementById('me-active').checked;
+  if (!fn || !ln) { toast('Name required', 'error'); return; }
+  if (!eId) { toast('Employee ID required', 'error'); return; }
+  if (pin.length < 1) { toast('PIN required', 'error'); return; }
+  if (!eid && emps().some(function(e) { return e.employeeId === eId; })) { toast('ID already exists', 'error'); return; }
+  var obj = { firstName: fn, lastName: ln, employeeId: eId, pin: pin, siteId: siteId, active: active };
+  if (eid) { fbUpd('employees/' + eid, obj); }
+  else { var id = db.ref('employees').push().key; obj.id = id; fbSet('employees/' + id, obj); }
+  closeModal(); nav('employees'); toast(eid ? 'Updated' : 'Added', 'success');
 }
 
-/* ===== SETTINGS ===== */
-function renderSettings(){
-  var s=sett(),hl=hols();
-  var h='<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-1">Settings</h2><p class="text-sm mb-5" style="color:var(--muted)">Hours rules and system config</p>';
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-clock mr-2" style="color:var(--accent)"></i>Daily Hour Targets</h3><div class="grid gap-3 sm:grid-cols-4"><div><label>Weekday Target (Mon–Fri)</label><input id="set-wd" type="number" step="0.5" value="'+(s.weekdayDailyTarget||8)+'"></div><div><label>Saturday Target</label><input id="set-sat" type="number" step="0.5" value="'+(s.saturdayDailyTarget||5)+'"></div><div><label>Weekly Target (progress bar)</label><input id="set-wk" type="number" step="1" value="'+(s.weeklyTarget||45)+'"></div><div><label>Default Break (min)</label><input id="set-brk" type="number" value="'+(s.defaultBreak||30)+'"></div></div><p class="text-xs mt-3" style="color:var(--muted)">Mon–Fri: first <strong>'+getDailyTarget('Weekday')+'h</strong> = Regular, over = <strong style="color:var(--danger)">Unauthorised OT</strong>. Saturday: first <strong>'+getDailyTarget('Saturday')+'h</strong> = Regular, over = Unauth OT. Sunday/Holiday: ALL = <strong style="color:var(--purple)">Double Time</strong>. Weekly target is for progress display only (5×8 + 1×5 = '+getWeeklyTarget()+'h).</p><button class="btn btn-primary mt-3" onclick="saveSett()"><i class="fas fa-save"></i> Save</button></div>';
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-shield-halved mr-2" style="color:var(--danger)"></i>Admin Credentials</h3><div class="grid gap-3 sm:grid-cols-2"><div><label>Username</label><input id="set-user" value="'+escHtml(D.admin.username||'')+'"></div><div><label>New Password</label><input id="set-pass" type="password" placeholder="Blank = keep current"></div></div><button class="btn btn-secondary mt-3" onclick="saveCreds()"><i class="fas fa-save"></i> Update</button></div>';
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-1"><i class="fas fa-calendar-xmark mr-2" style="color:var(--purple)"></i>Public Holidays <span class="badge badge-purple">'+hl.length+'</span></h3><p class="text-xs mb-3" style="color:var(--muted)">These dates = Double Time</p><div class="flex gap-2 mb-3"><input id="set-hol" type="date" class="sm:max-w-xs"><button class="btn btn-secondary btn-sm" onclick="addHol()"><i class="fas fa-plus"></i> Add</button></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">';hl.sort().forEach(function(d){h+='<div class="flex items-center justify-between p-2 rounded-lg" style="background:var(--bg2);border:1px solid var(--border)"><span class="text-xs">'+new Date(d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</span><button class="btn btn-danger btn-icon" style="width:22px;height:22px;min-width:22px" onclick="rmHol(\''+d+'\')"><i class="fas fa-times" style="font-size:.55rem"></i></button></div>';});h+='</div></div>';
-  h+='<div class="card" style="border-color:rgba(248,113,113,.2)"><h3 class="text-sm font-semibold mb-3" style="color:var(--danger)"><i class="fas fa-triangle-exclamation mr-2"></i>Danger Zone</h3><div class="flex gap-3 flex-wrap"><button class="btn btn-danger btn-sm" onclick="clearRecs()"><i class="fas fa-eraser"></i> Clear All Records</button><button class="btn btn-danger btn-sm" onclick="resetAll()"><i class="fas fa-bomb"></i> Reset Everything</button></div></div></div>';return h;
-}
-function saveSett(){fbUpd('settings',{weekdayDailyTarget:parseFloat(document.getElementById('set-wd').value)||8,saturdayDailyTarget:parseFloat(document.getElementById('set-sat').value)||5,weeklyTarget:parseInt(document.getElementById('set-wk').value)||45,defaultBreak:parseInt(document.getElementById('set-brk').value)||30});toast('Saved','success');nav('settings');}
-function saveCreds(){var u=document.getElementById('set-user').value.trim(),p=document.getElementById('set-pass').value;if(!u){toast('Username required','error');return;}var o={username:u};if(p)o.password=p;fbUpd('admin',o);D.admin.username=u;if(p)D.admin.password=p;toast('Updated','success');document.getElementById('set-pass').value='';}
-function addHol(){var d=document.getElementById('set-hol').value;if(!d){toast('Pick a date','error');return;}var h=hols();if(h.indexOf(d)!==-1){toast('Exists','error');return;}h.push(d);h.sort();fbUpd('settings',{holidays:h});nav('settings');toast('Added','success');}
-function rmHol(d){fbUpd('settings',{holidays:hols().filter(function(x){return x!==d;})});nav('settings');}
-function clearRecs(){openModal('<h3 class="font-bold text-lg mb-3">Clear All Records?</h3><p class="text-sm mb-4" style="color:var(--muted)">Permanent.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'records\',[]);closeModal();toast(\'Cleared\',\'success\')"><i class="fas fa-eraser"></i> Clear</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
-function resetAll(){openModal('<h3 class="font-bold text-lg mb-3" style="color:var(--danger)">Reset Everything?</h3><p class="text-sm mb-4" style="color:var(--muted)">Cannot undo.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="doReset()"><i class="fas fa-bomb"></i> Reset</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
-function doReset(){['sites','employees','shifts','records','settings','admin','recycleBin'].forEach(function(p){fbRm(p);});setTimeout(function(){seedData();closeModal();toast('Reset','success');nav('dashboard');},500);}
-
-/* ===== EMPLOYEE CLOCK PAGE ===== */
-function renderClockPage(){
-  var e=S.emp,site=sites().find(function(s){return s.id===e.siteId;});
-  var isCI=S.clockState==='clocked_in',fc=isCI?'co':'ci',ic=isCI?'fa-arrow-right-from-bracket':'fa-fingerprint',lb=isCI?'CLOCK OUT':'CLOCK IN',sub=isCI?'Tap to end shift':'Tap to start';
-  var wt=empWeekTotal(e.id,today()),wtLive=wt,wc=getWeeklyTarget();
-  if(isCI&&S.activeRec)wtLive+=(Date.now()-new Date(S.activeRec.clockIn).getTime())/3600000;
-  var wp=Math.min(100,Math.round((wtLive/wc)*100));
-  /* Week tier totals */
-  var ws=weekStart(today()),we=weekEnd(ws);
-  var wRecs=recs().filter(function(r){return r.employeeId===e.id&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=we;});
-  var wR=0,wU=0,wD=0;wRecs.forEach(function(r){wR+=(r.regularHours||0);wU+=getUOT(r);wD+=(r.doubleTimeHours||0);});
-  var h='<div class="fade-in"><div class="emp-hero mb-5"><div class="emp-avatar">'+e.firstName.charAt(0)+e.lastName.charAt(0)+'</div><div class="text-lg font-bold">'+escHtml(e.firstName+' '+e.lastName)+'</div><div class="text-xs" style="color:var(--muted)">'+escHtml(e.employeeId)+' · '+escHtml(site?site.name:'Unknown')+'</div><div class="mono text-3xl font-bold mt-3" id="emp-live-clock">'+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div><div class="text-xs" style="color:var(--muted)">'+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>';
-  h+='<div class="flex justify-center mb-5"><div class="clock-face '+fc+'" onclick="handleClock()"><div class="clock-ring"></div><div class="cf-icon"><i class="fas '+ic+'"></i></div><div class="cf-label">'+lb+'</div><div class="cf-sub">'+sub+'</div></div></div>';
-  h+='<div class="text-center mb-5"><div id="gps-status" class="text-xs flex items-center justify-center gap-1.5" style="color:var(--muted)"><span class="conn-dot loading"></span> Checking location...</div></div>';
-  if(isCI)h+='<div class="text-center mb-5"><div class="text-xs" style="color:var(--muted)">Current shift</div><div class="mono text-2xl font-bold mt-1" style="color:var(--danger)" id="live-elapsed">0h 0m</div><div class="text-xs mt-1" style="color:var(--muted)">Since '+fmtTime(new Date(S.activeRec.clockIn))+'</div></div>';
-  h+='<div class="card mb-4"><div class="flex items-center justify-between mb-2"><h3 class="text-sm font-semibold"><i class="fas fa-chart-simple mr-2" style="color:var(--accent)"></i>This Week</h3><span class="mono text-sm font-bold" style="color:var(--accent)">'+fmtH(wtLive)+'h</span></div><div class="progress-track mb-2"><div class="progress-fill" style="width:'+wp+'%;background:linear-gradient(90deg,var(--success),var(--accent))"></div></div><div class="flex justify-between text-xs" style="color:var(--muted)"><span>0h</span><span>Target: '+wc+'h ('+wp+'%)</span></div><div class="tier-legend mt-3"><span><span class="td" style="background:var(--success)"></span>Regular: '+fmtH(wR)+'h</span><span><span class="td" style="background:var(--danger)"></span>Unauth OT: '+fmtH(wU)+'h</span><span><span class="td" style="background:var(--purple)"></span>Double: '+fmtH(wD)+'h</span></div></div>';
-  var recent=recs().filter(function(r){return r.employeeId===e.id;}).sort(function(a,b){return new Date(b.clockIn||0)-new Date(a.clockIn||0);}).slice(0,5);
-  if(recent.length){h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-history mr-2" style="color:var(--info)"></i>Recent</h3>';recent.forEach(function(r){h+='<div class="flex items-center justify-between py-1.5 border-b" style="border-color:var(--border)"><div><div class="text-xs font-medium">'+(r.clockIn||'').slice(0,10)+' '+dayBadge(r.dayType||dayType((r.clockIn||'').slice(0,10)))+'</div><div class="text-xs" style="color:var(--muted)">'+(r.clockIn||'').slice(11,16)+(r.clockOut?' – '+(r.clockOut||'').slice(11,16):'')+'</div></div><div class="text-right"><div class="mono text-xs font-semibold">'+(r.status==='completed'?fmtH(r.totalHours)+'h':'<span style="color:var(--success)">Active</span>')+'</div></div></div>';});h+='</div>';}
-  return h+'</div>';
-}
-function initClockPage(){
-  clearInterval(S.clockInt);clearInterval(S.timerInt);
-  (function tick(){var el=document.getElementById('emp-live-clock');if(el)el.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});else{clearInterval(S.clockInt);return;}S.clockInt=setInterval(tick,1000);})();
-  if(S.clockState==='clocked_in'&&S.activeRec){(function te(){var el=document.getElementById('live-elapsed');if(!el){clearInterval(S.timerInt);return;}var ms=Date.now()-new Date(S.activeRec.clockIn).getTime(),m=Math.floor(ms/60000);el.textContent=Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';S.timerInt=setInterval(te,1000);})();}
-  checkGps();
-}
-function checkGps(){if(!navigator.geolocation){setGps('unsupported','GPS not supported');return;}setGps('checking','Checking location...');navigator.geolocation.getCurrentPosition(function(p){S.gpsLat=p.coords.latitude;S.gpsLng=p.coords.longitude;var site=sites().find(function(s){return s.id===S.emp.siteId;});if(site){S.gpsDist=haversine(p.coords.latitude,p.coords.longitude,site.lat,site.lng);setGps(S.gpsDist<=site.radius?'ok':'warn',S.gpsDist<=site.radius?'At '+site.name+' ('+Math.round(S.gpsDist)+'m)':'Outside '+site.name+' ('+Math.round(S.gpsDist)+'m from '+site.radius+'m)');}else setGps('ok','Location acquired');},function(e){setGps('error','GPS: '+e.message);},{enableHighAccuracy:true,timeout:10000});}
-function setGps(st,msg){var el=document.getElementById('gps-status');if(!el)return;var dc=st==='ok'?'conn-dot on':st==='warn'?'conn-dot loading':st==='error'?'conn-dot off':'conn-dot loading',cl=st==='ok'?'var(--success)':st==='warn'?'var(--warning)':st==='error'?'var(--danger)':'var(--muted)';el.innerHTML='<span class="'+dc+'"></span> <span style="color:'+cl+'">'+msg+'</span>';}
-function handleClock(){if(S.clockState==='idle')doCI();else doCO();}
-function doCI(){var site=sites().find(function(s){return s.id===S.emp.siteId;});if(site&&S.gpsDist!=null&&S.gpsDist>site.radius){openModal('<h3 class="font-bold text-lg mb-3">Outside GPS Zone</h3><p class="text-sm mb-4" style="color:var(--muted)"><strong style="color:var(--danger)">'+Math.round(S.gpsDist)+'m</strong> from '+escHtml(site.name)+' (radius: '+site.radius+'m). Clock in anyway?</p><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="closeModal();confirmCI()">Clock In Anyway</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');return;}confirmCI();}
-function confirmCI(){var now=new Date().toISOString(),id=db.ref('records').push().key,ts=shifts().find(function(s){return s.employeeId===S.emp.id&&s.date===today();});fbSet('records/'+id,{id:id,employeeId:S.emp.id,siteId:S.emp.siteId,shiftId:ts?ts.id:null,clockIn:now,status:'clocked_in',dayType:dayType(today()),gpsLat:S.gpsLat,gpsLng:S.gpsLng,gpsDistance:S.gpsDist});S.clockState='clocked_in';S.activeRec={id:id,clockIn:now};navEmp('clock');toast('Clocked in','success');}
-function doCO(){if(!S.activeRec)return;var now=new Date().toISOString(),ci=S.activeRec.clockIn,dt=dayType(today()),bm=0;var sh=S.activeRec.shiftId?shifts().find(function(s){return s.id===S.activeRec.shiftId;}):null;if(sh)bm=sh.breakMinutes||0;var hrs=calcHours(ci,now,bm,dt);fbUpd('records/'+S.activeRec.id,{clockOut:now,status:'completed',totalHours:hrs.totalHours,regularHours:hrs.regularHours,unauthOT:hrs.unauthOT,doubleTimeHours:hrs.doubleTimeHours,breakMinutes:bm,dayType:dt});S.clockState='idle';S.activeRec=null;navEmp('clock');toast('Clocked out — '+fmtH(hrs.totalHours)+'h','success');}
-
-/* ===== EMPLOYEE HISTORY ===== */
-function renderEmpHistory(){
-  var e=S.emp,now=new Date(),y=now.getFullYear(),m=now.getMonth(),mh=empMonthHours(e.id,y,m);
-  var h='<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-5">My History <span class="text-sm font-normal" style="color:var(--muted)">'+now.toLocaleDateString('en-GB',{month:'long',year:'numeric'})+'</span></h2>';
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-chart-bar mr-2" style="color:var(--accent)"></i>Monthly Summary</h3><div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3"><div><div class="text-xs" style="color:var(--muted)">Total</div><div class="mono text-lg font-bold">'+fmtH(mh.total)+'</div></div><div><div class="text-xs" style="color:var(--muted)">Target</div><div class="mono text-lg font-bold" style="color:var(--muted)">'+mh.target+'h</div></div><div><div class="text-xs" style="color:var(--muted)">Over</div><div class="mono text-lg font-bold" style="color:'+(mh.overTarget>0?'var(--danger)':'var(--muted)')+'">'+fmtH(mh.overTarget)+'h</div></div><div><div class="text-xs" style="color:var(--muted)">Records</div><div class="mono text-lg font-bold">'+mh.count+'</div></div></div><div class="tier-legend mb-2"><span><span class="td" style="background:var(--success)"></span>Regular: '+fmtH(mh.regular)+'h</span><span><span class="td" style="background:var(--danger)"></span>Unauth OT: '+fmtH(mh.unauthOT)+'h</span><span><span class="td" style="background:var(--purple)"></span>Double: '+fmtH(mh.doubleTime)+'h</span></div>';var pct=Math.min(100,Math.round((mh.total/Math.max(1,mh.target))*100));h+='<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--success),'+(pct>=100?'var(--danger)':'var(--accent)')+')"></div></div><div class="text-xs mt-1" style="color:var(--muted)">'+pct+'% of target</div></div>';
-  var ms=y+'-'+String(m+1).padStart(2,'0'),myRecs=recs().filter(function(r){return r.employeeId===e.id&&r.clockIn&&r.clockIn.slice(0,7)===ms;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});
-  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-list mr-2" style="color:var(--info)"></i>Records</h3>';
-  if(myRecs.length){h+='<div class="overflow-x-auto"><table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Total</th><th>Breakdown</th><th>Type</th></tr></thead><tbody>';myRecs.forEach(function(r){h+='<tr><td class="text-sm">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+r.clockIn.slice(11,16)+'</td><td class="mono text-xs">'+(r.clockOut?r.clockOut.slice(11,16):'—')+'</td><td class="mono text-xs font-semibold">'+(r.status==='completed'?fmtH(r.totalHours):'—')+'</td><td class="text-xs">'+(r.status==='completed'?hrsBreakdown(r):'—')+'</td><td>'+dayBadge(r.dayType||dayType(r.clockIn.slice(0,10)))+'</td></tr>';});h+='</tbody></table></div>';}else h+='<div class="empty-state"><i class="fas fa-calendar-xmark block"></i><p>No records this month</p></div>';
-  return h+'</div></div>';
+function delEmp(id) {
+  var e = empById(id);
+  var activeRec = recs().find(function(r) { return r.employeeId === id && r.status === 'clocked_in'; });
+  if (activeRec) { toast('Employee is clocked in', 'error'); return; }
+  openModal('<h3 class="font-bold text-lg mb-3">Delete ' + escHtml(e.firstName + ' ' + e.lastName) + '?</h3><p class="text-sm mb-4" style="color:var(--muted)">Moved to recycle bin (30 days).</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="toBin(\'employees\',\'' + id + '\',empById(\'' + id + '\'));closeModal();nav(\'employees\');toast(\'Deleted\',\'info\')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
 }
 
-/* ===== INIT ===== */
+function openBulkEmpModal() {
+  var ss = sites();
+  var opts = '<option value="">-- Select --</option>';
+  ss.forEach(function(s) { opts += '<option value="' + s.id + '">' + escHtml(s.name) + '</option>'; });
+  openModal('<h3 class="font-bold text-lg mb-4">Bulk Import Employees</h3><div class="grid gap-3"><div><label>Assign to Site</label><select id="bi-site">' + opts + '</select></div><div><label>Paste CSV data (one per line)</label><textarea id="bi-data" placeholder="FirstName,LastName,EmployeeID,PIN"></textarea></div><div class="format-hint"><b>Format:</b> FirstName,LastName,EmployeeID,PIN\n<b>Example:</b> John,Smith,EMP004,1111\nJane,Doe,EMP005,2222</div><div id="bi-preview"></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="previewBulkImport()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+}
+
+function previewBulkImport() {
+  var siteId = document.getElementById('bi-site').value;
+  if (!siteId) { toast('Select a site', 'error'); return; }
+  var raw = document.getElementById('bi-data').value.trim();
+  if (!raw) { toast('No data', 'error'); return; }
+  var lines = raw.split('\n').filter(function(l) { return l.trim(); });
+  S.pendingImport = [];
+  var rows = '';
+  lines.forEach(function(line, i) {
+    var parts = line.split(',').map(function(p) { return p.trim(); });
+    var fn = parts[0] || '', ln = parts[1] || '', eid = (parts[2] || '').toUpperCase(), pin = parts[3] || '';
+    var err = '';
+    if (!fn || !ln) err = 'Missing name';
+    else if (!eid) err = 'Missing ID';
+    else if (!pin) err = 'Missing PIN';
+    else if (emps().some(function(e) { return e.employeeId === eid; })) err = 'ID exists';
+    S.pendingImport.push({ fn: fn, ln: ln, eid: eid, pin: pin, err: err });
+    rows += '<tr class="' + (err ? 'err-row' : 'ok-row') + '"><td class="mono text-xs">' + (i + 1) + '</td><td>' + escHtml(fn + ' ' + ln) + '</td><td class="mono">' + escHtml(eid) + '</td><td class="mono">' + escHtml(pin) + '</td><td>' + (err ? '<span style="color:var(--danger)">' + err + '</span>' : '<span style="color:var(--success)">OK</span>') + '</td></tr>';
+  });
+  var valid = S.pendingImport.filter(function(x) { return !x.err; }).length;
+  document.getElementById('bi-preview').innerHTML = '<div class="import-preview"><table><thead><tr><th>#</th><th>Name</th><th>ID</th><th>PIN</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table></div><p class="text-xs mt-2" style="color:var(--muted)">' + valid + ' valid, ' + (S.pendingImport.length - valid) + ' errors</p><button class="btn btn-success mt-2" onclick="execBulkImport(\'' + siteId + '\')"><i class="fas fa-check"></i> Import ' + valid + ' Employees</button>';
+}
+
+function execBulkImport(siteId) {
+  var count = 0;
+  S.pendingImport.filter(function(x) { return !x.err; }).forEach(function(item) {
+    var id = db.ref('employees').push().key;
+    fbSet('employees/' + id, { id: id, firstName: item.fn, lastName: item.ln, employeeId: item.eid, pin: item.pin, siteId: siteId, active: true });
+    count++;
+  });
+  closeModal(); nav('employees'); toast('Imported ' + count + ' employees', 'success');
+}
+
+/* ===== Shifts ===== */
+function renderShifts() {
+  var td = today(), sh = shifts().filter(function(s) { return s.date === td; });
+  var h = '<div class="fade-in"><div class="flex items-center justify-between mb-5 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Shifts</h2><p class="text-sm" style="color:var(--muted)">' + sh.length + ' for ' + td + '</p></div><div class="flex gap-2 items-end"><div><label style="font-size:.7rem;color:var(--muted)">Date</label><input type="date" id="shift-date" value="' + td + '" onchange="nav(\'shifts\')" style="width:160px"></div><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shift</button></div></div>';
+  h += '<div class="mb-3">' + dayBadge(dayType(td)) + '</div>';
+  if (sh.length) {
+    h += '<div style="overflow-x:auto"><table><thead><tr><th>Employee</th><th>Site</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+    sh.forEach(function(s) {
+      var rec = recs().find(function(r) { return r.shiftId === s.id; });
+      h += '<tr><td class="font-medium">' + escHtml(empFullName(s.employeeId)) + '</td><td class="text-sm" style="color:var(--muted)">' + escHtml(siteName(s.siteId)) + '</td><td class="mono">' + s.startTime + '</td><td class="mono">' + s.endTime + '</td><td>' + statusBadge(rec ? rec.status : 'pending') + '</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-sm btn-icon" onclick="openShiftModal(\'' + s.id + '\')"><i class="fas fa-pen text-xs"></i></button><button class="btn btn-danger btn-sm btn-icon" onclick="delShift(\'' + s.id + '\')"><i class="fas fa-trash text-xs"></i></button></div></td></tr>';
+    });
+    h += '</tbody></table></div>';
+  } else {
+    h += '<div class="empty-state card"><i class="fas fa-calendar-days block"></i><p>No shifts for this date</p></div>';
+  }
+  return h + '</div>';
+}
+
+function openShiftModal(sid) {
+  var s = sid ? shifts().find(function(x) { return x.id === sid; }) : null;
+  var ss = sites(), es = emps().filter(function(e) { return e.active; });
+  var dVal = s ? s.date : (document.getElementById('shift-date') ? document.getElementById('shift-date').value : today());
+  var sOpts = '<option value="">-- Select --</option>';
+  ss.forEach(function(site) { sOpts += '<option value="' + site.id + '"' + (s && s.siteId === site.id ? ' selected' : '') + '>' + escHtml(site.name) + '</option>'; });
+  var eOpts = '<option value="">-- Select --</option>';
+  es.forEach(function(e) { eOpts += '<option value="' + e.id + '"' + (s && s.employeeId === e.id ? ' selected' : '') + '>' + escHtml(e.firstName + ' ' + e.lastName + ' (' + e.employeeId + ')') + '</option>'; });
+  openModal('<h3 class="font-bold text-lg mb-4">' + (s ? 'Edit' : 'Add') + ' Shift</h3><div class="grid gap-3"><div><label>Employee</label><select id="msh-emp">' + eOpts + '</select></div><div><label>Site</label><select id="msh-site">' + sOpts + '</select></div><div><label>Date</label><input type="date" id="msh-date" value="' + dVal + '"></div><div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input type="time" id="msh-start" value="' + (s ? s.startTime : '08:00') + '"></div><div><label>End Time</label><input type="time" id="msh-end" value="' + (s ? s.endTime : '17:00') + '"></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\'' + (sid || '') + '\')">' + (s ? 'Update' : 'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+}
+
+function saveShift(sid) {
+  var empId = document.getElementById('msh-emp').value, siteId = document.getElementById('msh-site').value;
+  var date = document.getElementById('msh-date').value, start = document.getElementById('msh-start').value, end = document.getElementById('msh-end').value;
+  if (!empId || !siteId || !date || !start || !end) { toast('All fields required', 'error'); return; }
+  var obj = { employeeId: empId, siteId: siteId, date: date, startTime: start, endTime: end };
+  if (sid) fbUpd('shifts/' + sid, obj);
+  else { var id = db.ref('shifts').push().key; obj.id = id; fbSet('shifts/' + id, obj); }
+  closeModal(); nav('shifts'); toast(sid ? 'Updated' : 'Added', 'success');
+}
+
+function delShift(id) {
+  var s = shifts().find(function(x) { return x.id === id; });
+  var rec = recs().find(function(r) { return r.shiftId === id && r.status === 'clocked_in'; });
+  if (rec) { toast('Active clock record exists', 'error'); return; }
+  toBin('shifts', id, s); nav('shifts'); toast('Moved to bin', 'info');
+}
+
+/* ===== Clock Records ===== */
+function renderRecords() {
+  var rc = recs(), td = S.recFilterDate || today(), st = S.recFilterStatus, si = S.recFilterSite;
+  var filtered = rc.filter(function(r) {
+    if (td && r.clockIn && r.clockIn.slice(0, 10) !== td) return false;
+    if (st && r.status !== st) return false;
+    if (si && r.siteId !== si) return false;
+    return true;
+  }).sort(function(a, b) { return new Date(b.clockIn || 0) - new Date(a.clockIn || 0); });
+  var ss = sites();
+  var sOpts = '<option value="">All Sites</option>';
+  ss.forEach(function(s) { sOpts += '<option value="' + s.id + '"' + (si === s.id ? ' selected' : '') + '>' + escHtml(s.name) + '</option>'; });
+  var h = '<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-4">Clock Records</h2>';
+  h += '<div class="filter-row"><div class="fg"><label>Date</label><input type="date" value="' + td + '" onchange="S.recFilterDate=this.value;nav(\'records\')"></div><div class="fg"><label>Status</label><select onchange="S.recFilterStatus=this.value;nav(\'records\')"><option value="">All</option><option value="clocked_in"' + (st === 'clocked_in' ? ' selected' : '') + '>Clocked In</option><option value="completed"' + (st === 'completed' ? ' selected' : '') + '>Completed</option></select></div><div class="fg"><label>Site</label><select onchange="S.recFilterSite=this.value;nav(\'records\')">' + sOpts + '</select></div></div>';
+  if (filtered.length) {
+    h += '<div style="overflow-x:auto"><table><thead><tr><th>Employee</th><th>Site</th><th>Clock In</th><th>Clock Out</th><th>NT / OT / DT</th><th>Total</th><th>Status</th></tr></thead><tbody>';
+    filtered.forEach(function(r) {
+      var dt = r.clockIn ? dayType(r.clockIn.slice(0, 10)) : '';
+      h += '<tr><td><div class="font-medium">' + escHtml(empFullName(r.employeeId)) + '</div><div class="text-xs" style="color:var(--muted)">' + dayBadge(dt) + '</div></td><td class="text-sm" style="color:var(--muted)">' + escHtml(siteName(r.siteId)) + '</td><td class="mono text-xs">' + (r.clockIn ? fmtTime(r.clockIn) + ' ' + r.clockIn.slice(0, 10) : '—') + '</td><td class="mono text-xs">' + (r.clockOut ? fmtTime(r.clockOut) : '—') + '</td><td class="mono text-xs">' + hrsBreakdown(r) + '</td><td class="mono text-sm font-semibold">' + fmtDec(r.totalHours || 0) + '</td><td>' + statusBadge(r.status) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  } else {
+    h += '<div class="empty-state card"><i class="fas fa-clock-rotate-left block"></i><p>No records found</p></div>';
+  }
+  return h + '</div>';
+}
+
+/* ===== Export ===== */
+function renderExport() {
+  var now = new Date(), y = now.getFullYear(), m = now.getMonth();
+  var h = '<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-4">Export Timesheet</h2>';
+  h += '<div class="card mb-4"><div class="grid gap-3" style="max-width:400px"><div class="grid grid-cols-2 gap-3"><div><label>Year</label><select id="exp-y">';
+  for (var i = y - 1; i <= y + 1; i++) h += '<option value="' + i + '"' + (i === y ? ' selected' : '') + '>' + i + '</option>';
+  h += '</select></div><div><label>Month</label><select id="exp-m">';
+  var mn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  mn.forEach(function(n, idx) { h += '<option value="' + idx + '"' + (idx === m ? ' selected' : '') + '>' + n + '</option>'; });
+  h += '</select></div></div><button class="btn btn-primary" onclick="generateExport()"><i class="fas fa-download"></i> Generate CSV</button></div></div>';
+  h += '<div class="jarrison-info mb-4"><h4><i class="fas fa-info-circle mr-1"></i> Format Info</h4><p>CSV uses decimal hours: <code>8.00</code> = 8h, <code>1.50</code> = 1h30m, <code>0.25</code> = 15m. Columns: Employee, ID, Site, Date, Day Type, Clock In, Clock Out, Break (min), Normal Time, Over Time, Double Time, Total Hours.</p></div>';
+  h += '<div id="export-result"></div></div>';
+  return h;
+}
+
+function generateExport() {
+  var y = parseInt(document.getElementById('exp-y').value), m = parseInt(document.getElementById('exp-m').value);
+  var prefix = y + '-' + String(m + 1).padStart(2, '0');
+  var es = emps().filter(function(e) { return e.active; });
+  var rows = [['Employee', 'ID', 'Site', 'Date', 'Day Type', 'Clock In', 'Clock Out', 'Break (min)', 'Normal Time', 'Over Time', 'Double Time', 'Total Hours']];
+  var grandTotal = 0;
+  es.forEach(function(e) {
+    var ers = recs().filter(function(r) { return r.employeeId === e.id && r.status === 'completed' && r.clockIn && r.clockIn.slice(0, 7) === prefix; });
+    ers.sort(function(a, b) { return a.clockIn.localeCompare(b.clockIn); });
+    ers.forEach(function(r) {
+      var ds = r.clockIn.slice(0, 10), dt = dayType(ds);
+      rows.push([e.firstName + ' ' + e.lastName, e.employeeId, siteName(r.siteId), ds, dt, r.clockIn ? fmtTime(r.clockIn) : '', r.clockOut ? fmtTime(r.clockOut) : '', r.breakMinutes || 0, fmtDec(r.regularHours || 0), fmtDec(getUOT(r)), fmtDec(r.doubleTimeHours || 0), fmtDec(r.totalHours || 0)]);
+      grandTotal += (r.totalHours || 0);
+    });
+    if (!ers.length) rows.push([e.firstName + ' ' + e.lastName, e.employeeId, siteName(e.siteId), '', '', '', '', '', '0.00', '0.00', '0.00', '0.00']);
+  });
+  var csv = rows.map(function(r) { return r.map(function(c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+  var fname = 'timesheet_' + prefix + '.csv';
+  document.getElementById('export-result').innerHTML = '<div class="card"><div class="flex items-center justify-between"><div><div class="font-semibold">Generated Successfully</div><div class="text-sm" style="color:var(--muted)">' + (rows.length - 1) + ' rows · ' + fmtDec(grandTotal) + ' total hours</div></div><button class="btn btn-primary" onclick="downloadFile(document.getElementById(\'exp-csv\').textContent,\'' + fname + '\',\'text/csv\')"><i class="fas fa-download"></i> Download</button></div><textarea id="exp-csv" style="display:none">' + escHtml(csv) + '</textarea></div>';
+}
+
+/* ===== Recycle Bin ===== */
+function renderRecycleBin() {
+  var bin = D.recycleBin, h = '<div class="fade-in"><div class="flex items-center justify-between mb-5"><div><h2 class="text-xl font-bold tracking-tight">Recycle Bin</h2><p class="text-sm" style="color:var(--muted)">Items auto-deleted after 30 days</p></div>';
+  var total = 0;
+  ['sites', 'employees', 'shifts', 'records'].forEach(function(t) { if (bin[t]) total += Object.keys(bin[t]).length; });
+  if (total) h += '<button class="btn btn-danger btn-sm" onclick="emptyBin()"><i class="fas fa-trash"></i> Empty All</button>';
+  h += '</div>';
+  var hasAny = false;
+  ['sites', 'employees', 'shifts', 'records'].forEach(function(type) {
+    var items = bin[type] || {};
+    var keys = Object.keys(items);
+    if (!keys.length) return;
+    hasAny = true;
+    var icon = type === 'sites' ? 'fa-location-dot' : type === 'employees' ? 'fa-users' : type === 'shifts' ? 'fa-calendar-days' : 'fa-clock-rotate-left';
+    h += '<div class="card mb-3"><h3 class="text-sm font-semibold mb-3"><i class="fas ' + icon + ' mr-2" style="color:var(--accent)"></i>' + type.charAt(0).toUpperCase() + type.slice(1) + ' <span class="badge badge-amber ml-1">' + keys.length + '</span></h3>';
+    keys.forEach(function(bid) {
+      var it = items[bid], d = it.data;
+      var label = '';
+      if (type === 'sites') label = d.name || 'Site';
+      else if (type === 'employees') label = (d.firstName || '') + ' ' + (d.lastName || '');
+      else if (type === 'shifts') label = empFullName(d.employeeId) + ' - ' + (d.date || '');
+      else label = empFullName(d.employeeId) + ' - ' + (d.clockIn ? d.clockIn.slice(0, 10) : '');
+      var ago = it.at ? timeAgo(it.at) : '';
+      h += '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">' + escHtml(label) + '</div><div class="text-xs" style="color:var(--muted)">Deleted ' + ago + '</div></div><div class="flex gap-1"><button class="btn btn-success btn-sm" onclick="fromBin(\'' + type + '\',\'' + bid + '\')"><i class="fas fa-rotate-left"></i></button><button class="btn btn-danger btn-sm" onclick="permDelBin(\'' + type + '\',\'' + bid + '\')"><i class="fas fa-trash"></i></button></div></div>';
+    });
+    h += '</div>';
+  });
+  if (!hasAny) h += '<div class="empty-state card"><i class="fas fa-recycle block"></i><p>Bin is empty</p></div>';
+  return h + '</div>';
+}
+
+/* ===== Settings ===== */
+function renderSettings() {
+  var s = sett();
+  var h = '<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-5">Settings</h2>';
+  h += '<div class="grid gap-4" style="max-width:600px">';
+  h += '<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-bullseye mr-2" style="color:var(--accent)"></i>Hour Targets</h3><div class="grid gap-3"><div class="grid grid-cols-2 gap-3"><div><label>Weekday Daily Target (hrs)</label><input type="number" id="set-wd" value="' + (s.weekdayDailyTarget || 8) + '" min="0" max="24" step="0.5"></div><div><label>Saturday Daily Target (hrs)</label><input type="number" id="set-sat" value="' + (s.saturdayDailyTarget || 5) + '" min="0" max="24" step="0.5"></div></div><div><label>Weekly Target (hrs)</label><input type="number" id="set-wk" value="' + (s.weeklyTarget || 45) + '" min="0" max="168" step="0.5"></div><div><label>Default Break (minutes)</label><input type="number" id="set-bm" value="' + (s.defaultBreak || 30) + '" min="0" max="480" step="5"></div><button class="btn btn-primary" onclick="saveTargets()"><i class="fas fa-check"></i> Save Targets</button></div></div>';
+  h += '<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-umbrella-beach mr-2" style="color:var(--purple)"></i>Holidays <span class="badge badge-purple ml-1">' + hols().length + '</span></h3><div class="flex gap-2 mb-3"><input type="date" id="set-hol" class="flex-1"><button class="btn btn-secondary btn-sm" onclick="addHol()"><i class="fas fa-plus"></i> Add</button></div><div class="flex flex-wrap gap-1" id="hol-list">';
+  hols().forEach(function(d) { h += '<span class="badge badge-purple" style="cursor:pointer;padding:.25rem .6rem" onclick="rmHol(\'' + d + '\')">' + d + ' <i class="fas fa-xmark ml-1" style="font-size:.6rem"></i></span>'; });
+  h += '</div></div>';
+  h += '<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-shield-halved mr-2" style="color:var(--danger)"></i>Admin Credentials</h3><div class="grid gap-3"><div><label>Username</label><input id="set-au" value="' + escHtml(D.admin.username || '') + '"></div><div><label>New Password</label><input id="set-ap" type="password" placeholder="Leave blank to keep current"></div><button class="btn btn-primary" onclick="saveAdminCreds()"><i class="fas fa-check"></i> Update</button></div></div>';
+  h += '</div></div>';
+  return h;
+}
+
+function saveTargets() {
+  var obj = {
+    weekdayDailyTarget: parseFloat(document.getElementById('set-wd').value) || 8,
+    saturdayDailyTarget: parseFloat(document.getElementById('set-sat').value) || 5,
+    weeklyTarget: parseFloat(document.getElementById('set-wk').value) || 45,
+    defaultBreak: parseInt(document.getElementById('set-bm').value) || 30,
+    holidays: hols()
+  };
+  fbSet('settings', obj); D.settings = obj; toast('Targets saved', 'success');
+}
+
+function addHol() {
+  var d = document.getElementById('set-hol').value;
+  if (!d) return;
+  var hs = hols();
+  if (hs.indexOf(d) !== -1) { toast('Already exists', 'error'); return; }
+  hs.push(d); hs.sort();
+  var s = sett(); s.holidays = hs;
+  fbSet('settings', s); D.settings = s; nav('settings'); toast('Holiday added', 'success');
+}
+
+function rmHol(d) {
+  var hs = hols().filter(function(h) { return h !== d; });
+  var s = sett(); s.holidays = hs;
+  fbSet('settings', s); D.settings = s; nav('settings'); toast('Removed', 'info');
+}
+
+function saveAdminCreds() {
+  var u = document.getElementById('set-au').value.trim(), p = document.getElementById('set-ap').value;
+  if (!u) { toast('Username required', 'error'); return; }
+  var obj = { username: u, password: p || D.admin.password };
+  fbSet('admin', obj); D.admin = obj; toast('Credentials updated', 'success');
+}
+
+/* ===== Employee Clock Page ===== */
+function renderClockPage() {
+  var emp = S.emp, site = emp ? sites().find(function(s) { return s.id === emp.siteId; }) : null;
+  var cls = S.clockState === 'clocked_in' ? 'ci' : S.clockState === 'idle' ? 'idle' : 'co';
+  var icon = S.clockState === 'clocked_in' ? 'fa-fingerprint' : S.clockState === 'idle' ? 'fa-fingerprint' : 'fa-fingerprint';
+  var label = S.clockState === 'clocked_in' ? 'CLOCK OUT' : 'CLOCK IN';
+  var sub = S.clockState === 'clocked_in' ? 'Tap to end shift' : 'Tap to start shift';
+  var elapsed = '00:00:00';
+  if (S.clockState === 'clocked_in' && S.activeRec) {
+    var ms = Date.now() - new Date(S.activeRec.clockIn).getTime();
+    elapsed = fmtClock(ms / 3600000);
+  }
+  var h = '<div class="fade-in"><div class="emp-hero mb-6"><div class="emp-avatar">' + (emp ? emp.firstName.charAt(0) + emp.lastName.charAt(0) : '?') + '</div><div class="font-bold text-lg">' + (emp ? escHtml(emp.firstName + ' ' + emp.lastName) : '') + '</div><div class="text-sm" style="color:var(--muted)">' + (emp ? escHtml(emp.employeeId) : '') + '</div><div class="text-xs mt-1" style="color:var(--muted)"><i class="fas fa-location-dot mr-1" style="color:var(--accent)"></i>' + (site ? escHtml(site.name) : 'No site assigned') + '</div></div>';
+  h += '<div class="flex flex-col items-center mb-6"><div class="clock-face ' + cls + '" id="clock-btn" onclick="toggleClock()"><div class="clock-ring"></div><div class="cf-icon"><i class="fas ' + icon + '" style="color:' + (S.clockState === 'clocked_in' ? 'var(--success)' : 'var(--accent)') + '"></i></div><div class="cf-label">' + label + '</div><div class="cf-sub">' + sub + '</div></div>';
+  h += '<div class="mono text-3xl font-bold mt-4" id="elapsed-timer">' + elapsed + '</div>';
+  if (S.gpsDist != null) {
+    var inRange = S.gpsDist <= (site ? site.radius : 999);
+    h += '<div class="flex items-center gap-2 mt-2 text-sm"><span class="conn-dot ' + (inRange ? 'on' : 'off') + '"></span><span style="color:' + (inRange ? 'var(--success)' : 'var(--danger)') + '">' + Math.round(S.gpsDist) + 'm from site' + (inRange ? ' (in range)' : ' (out of range)') + '</span></div>';
+  } else {
+    h += '<div class="text-xs mt-2" style="color:var(--muted)">GPS: acquiring...</div>';
+  }
+  h += '</div>';
+  if (S.clockState === 'clocked_in' && S.activeRec) {
+    var ws = weekStart(today()), wt = empWeekTotal(emp.id, today()), wTarget = getWeeklyTarget();
+    var pct = Math.min(100, (wt / wTarget) * 100);
+    h += '<div class="card"><h4 class="text-sm font-semibold mb-2">This Week</h4><div class="flex items-center justify-between text-sm mb-1"><span style="color:var(--muted)">Progress</span><span class="mono">' + fmtDec(wt) + ' / ' + wTarget + 'h</span></div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;background:' + (pct >= 100 ? 'var(--success)' : 'var(--accent)') + '"></div></div></div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+function initClockPage() {
+  clearInterval(S.timerInt); clearInterval(S.clockInt);
+  getEmpGps();
+  (function tickTimer() {
+    var el = document.getElementById('elapsed-timer');
+    if (!el) { clearInterval(S.timerInt); return; }
+    if (S.clockState === 'clocked_in' && S.activeRec) {
+      var ms = Date.now() - new Date(S.activeRec.clockIn).getTime();
+      el.textContent = fmtClock(ms / 3600000);
+    }
+    S.timerInt = setInterval(tickTimer, 1000);
+  })();
+  S.clockInt = setInterval(getEmpGps, 30000);
+}
+
+function getEmpGps() {
+  if (!navigator.geolocation || !S.emp) return;
+  var site = sites().find(function(s) { return s.id === S.emp.siteId; });
+  if (!site) { S.gpsDist = null; return; }
+  navigator.geolocation.getCurrentPosition(function(p) {
+    S.gpsLat = p.coords.latitude; S.gpsLng = p.coords.longitude;
+    S.gpsDist = haversine(site.lat, site.lng, S.gpsLat, S.gpsLng);
+    var dotEl = document.querySelector('#emp-content .conn-dot');
+    if (dotEl) {
+      var inRange = S.gpsDist <= site.radius;
+      dotEl.className = 'conn-dot ' + (inRange ? 'on' : 'off');
+    }
+  }, function() { S.gpsDist = null; }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+function toggleClock() {
+  if (S.clockState === 'idle' || S.clockState === 'completed') {
+    // Clock IN
+    var site = sites().find(function(s) { return s.id === S.emp.siteId; });
+    if (!site) { toast('No site assigned', 'error'); return; }
+    if (S.gpsDist != null && S.gpsDist > site.radius) {
+      openModal('<h3 class="font-bold text-lg mb-3">Outside Geofence</h3><p class="text-sm mb-2" style="color:var(--muted)">You are <strong>' + Math.round(S.gpsDist) + 'm</strong> from site (radius: ' + site.radius + 'm).</p><p class="text-sm mb-4" style="color:var(--muted)">Clock in anyway?</p><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="doClockIn(true)"><i class="fas fa-check"></i> Yes, Clock In</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
+      return;
+    }
+    doClockIn(false);
+  } else if (S.clockState === 'clocked_in') {
+    doClockOut();
+  }
+}
+
+function doClockIn(force) {
+  closeModal();
+  var now = new Date(), id = db.ref('records').push().key;
+  var rec = {
+    id: id, employeeId: S.emp.id, siteId: S.emp.siteId,
+    clockIn: now.toISOString(), clockOut: null,
+    status: 'clocked_in', breakMinutes: 0,
+    regularHours: 0, unauthOT: 0, doubleTimeHours: 0, totalHours: 0,
+    gpsLat: S.gpsLat, gpsLng: S.gpsLng, gpsDist: S.gpsDist,
+    forceGeo: !!force
+  };
+  fbSet('records/' + id, rec);
+  S.clockState = 'clocked_in'; S.activeRec = rec;
+  navEmp('clock'); toast('Clocked in', 'success');
+}
+
+function doClockOut() {
+  if (!S.activeRec) return;
+  var now = new Date(), rec = S.activeRec;
+  var ds = rec.clockIn.slice(0, 10), dt = dayType(ds), bm = sett().defaultBreak || 30;
+  var hrs = calcHours(rec.clockIn, now.toISOString(), bm, dt);
+  var updates = {
+    clockOut: now.toISOString(), status: 'completed', breakMinutes: bm,
+    regularHours: hrs.regularHours, unauthOT: hrs.unauthOT,
+    doubleTimeHours: hrs.doubleTimeHours, totalHours: hrs.totalHours
+  };
+  fbUpd('records/' + rec.id, updates);
+  S.clockState = 'completed'; S.activeRec = null;
+  navEmp('clock');
+  toast('Clocked out — ' + fmtDec(hrs.totalHours) + 'h total', 'success');
+}
+
+/* ===== Employee History ===== */
+function renderEmpHistory() {
+  var emp = S.emp, rc = recs().filter(function(r) { return r.employeeId === emp.id; });
+  rc.sort(function(a, b) { return new Date(b.clockIn || 0) - new Date(a.clockIn || 0); });
+  var h = '<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-4">My History</h2>';
+  if (rc.length) {
+    h += '<div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Day</th><th>In</th><th>Out</th><th>NT / OT / DT</th><th>Total</th><th>Status</th></tr></thead><tbody>';
+    rc.forEach(function(r) {
+      var ds = r.clockIn ? r.clockIn.slice(0, 10) : '';
+      var dt = ds ? dayType(ds) : '';
+      h += '<tr><td class="mono text-xs">' + ds + '</td><td>' + dayBadge(dt) + '</td><td class="mono text-xs">' + (r.clockIn ? fmtTime(r.clockIn) : '—') + '</td><td class="mono text-xs">' + (r.clockOut ? fmtTime(r.clockOut) : '—') + '</td><td class="mono text-xs">' + hrsBreakdown(r) + '</td><td class="mono text-sm font-semibold">' + fmtDec(r.totalHours || 0) + '</td><td>' + statusBadge(r.status) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  } else {
+    h += '<div class="empty-state card"><i class="fas fa-history block"></i><p>No records yet</p></div>';
+  }
+  return h + '</div>';
+}
+
+/* ===== Keyboard shortcuts for login ===== */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    if (!document.getElementById('login-screen').classList.contains('hidden')) {
+      var adminVisible = !document.getElementById('login-admin').classList.contains('hidden');
+      if (adminVisible) adminLogin();
+      else employeeLogin();
+    }
+  }
+});
+
+/* ===== BOOTSTRAP — THIS WAS MISSING ===== */
 initFirebase(FB_CONFIG);
-document.getElementById('admin-pass').addEventListener('keydown',function(e){if(e.key==='Enter')adminLogin();});
-document.getElementById('emp-pin').addEventListener('keydown',function(e){if(e.key==='Enter')employeeLogin();});
-var _rt;window.addEventListener('resize',function(){clearTimeout(_rt);_rt=setTimeout(function(){if(S.page==='dashboard')initDashCharts();},250);});
 </script>
 </body>
 </html>
