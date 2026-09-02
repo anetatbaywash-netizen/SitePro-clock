@@ -10,12 +10,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root{--bg:#090b13;--bg2:#0f1219;--card:#151923;--card2:#1c2130;--border:#252d42;--fg:#e4e6ec;--muted:#6a7199;--accent:#e8a838;--accent2:#d4922a;--accent-glow:rgba(232,168,56,.12);--success:#34d399;--danger:#f87171;--info:#38bdf8;--warning:#fbbf24;--purple:#c084fc}
+:root{--bg:#090b13;--bg2:#0f1219;--card:#151923;--card2:#1c2130;--border:#252d42;--fg:#e4e6ec;--muted:#6a7199;--accent:#e8a838;--accent2:#d4922a;--success:#34d399;--danger:#f87171;--info:#38bdf8;--warning:#fbbf24;--purple:#c084fc}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 50%,rgba(232,168,56,.05) 0%,transparent 55%),radial-gradient(ellipse at 85% 15%,rgba(56,189,248,.03) 0%,transparent 50%),radial-gradient(ellipse at 50% 90%,rgba(168,85,247,.025) 0%,transparent 50%);pointer-events:none;z-index:0}
 body>*{position:relative;z-index:1}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 .mono{font-family:'JetBrains Mono',monospace}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;transition:all .25s ease}
 .card:hover{border-color:color-mix(in srgb,var(--accent) 25%,var(--border));box-shadow:0 4px 24px rgba(0,0,0,.2)}
@@ -24,7 +24,7 @@ body>*{position:relative;z-index:1}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0c0e16;box-shadow:0 2px 12px rgba(232,168,56,.25)}.btn-primary:hover{box-shadow:0 4px 20px rgba(232,168,56,.35);transform:translateY(-1px)}
 .btn-secondary{background:var(--card2);color:var(--fg);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
-.btn-danger{background:rgba(248,113,113,.1);color:var(--danger);border:1px solid rgba(248,113,113,.2)}.btn-danger:hover{background:rgba(248,113,113,.2);border-color:rgba(248,113,113,.4)}
+.btn-danger{background:rgba(248,113,113,.1);color:var(--danger);border:1px solid rgba(248,113,113,.2)}.btn-danger:hover{background:rgba(248,113,113,.2)}
 .btn-success{background:rgba(52,211,153,.12);color:var(--success);border:1px solid rgba(52,211,153,.25)}.btn-success:hover{background:rgba(52,211,153,.2)}
 .btn-sm{padding:.35rem .7rem;font-size:.78rem;border-radius:7px}
 .btn-icon{width:34px;height:34px;padding:0;justify-content:center;border-radius:8px}
@@ -40,7 +40,7 @@ label{font-size:.78rem;color:var(--muted);font-weight:500;display:block;margin-b
 .sidebar-link.active::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);width:2px;height:60%;background:var(--accent);border-radius:1px}
 .main-content{margin-left:250px;min-height:100vh;padding:1.5rem 2rem}
 .toast-container{position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;pointer-events:none}
-.toast{padding:.75rem 1.1rem;border-radius:10px;font-size:.83rem;display:flex;align-items:center;gap:.55rem;animation:toastIn .35s cubic-bezier(.4,0,.2,1);min-width:260px;box-shadow:0 8px 32px rgba(0,0,0,.5);pointer-events:auto;backdrop-filter:blur(8px)}
+.toast{padding:.75rem 1.1rem;border-radius:10px;font-size:.83rem;display:flex;align-items:center;gap:.55rem;animation:toastIn .35s ease;min-width:260px;box-shadow:0 8px 32px rgba(0,0,0,.5);pointer-events:auto;backdrop-filter:blur(8px)}
 .toast-success{background:rgba(6,95,70,.9);border:1px solid rgba(52,211,153,.3);color:#a7f3d0}
 .toast-error{background:rgba(127,29,29,.9);border:1px solid rgba(248,113,113,.3);color:#fecaca}
 .toast-info{background:rgba(12,74,110,.9);border:1px solid rgba(56,189,248,.3);color:#bae6fd}
@@ -62,7 +62,7 @@ table{width:100%;border-collapse:collapse}
 th{text-align:left;padding:.55rem .75rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600;position:sticky;top:0;background:var(--card);z-index:2}
 td{padding:.55rem .75rem;font-size:.83rem;border-bottom:1px solid color-mix(in srgb,var(--border) 40%,transparent)}
 tr:hover td{background:rgba(232,168,56,.025)}
-.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.12rem .5rem;border-radius:20px;font-size:.68rem;font-weight:600;letter-spacing:.01em}
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.12rem .5rem;border-radius:20px;font-size:.68rem;font-weight:600}
 .badge-green{background:rgba(52,211,153,.12);color:var(--success)}
 .badge-red{background:rgba(248,113,113,.12);color:var(--danger)}
 .badge-amber{background:rgba(232,168,56,.12);color:var(--accent)}
@@ -76,93 +76,62 @@ tr:hover td{background:rgba(232,168,56,.025)}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab-btn:hover{color:var(--fg)}
 .progress-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.progress-fill{height:100%;border-radius:3px;transition:width .6s ease}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.15rem;position:relative;overflow:hidden;transition:all .25s}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 2px 2px 0}
 .sc-amber::before{background:var(--accent)}.sc-green::before{background:var(--success)}.sc-blue::before{background:var(--info)}.sc-red::before{background:var(--danger)}.sc-purple::before{background:var(--purple)}
 .search-box{position:relative}.search-box input{padding-left:2.2rem}.search-box i{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem;pointer-events:none}
-.clock-face{position:relative;width:260px;height:260px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);user-select:none}
+.clock-face{position:relative;width:260px;height:260px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s ease;user-select:none}
 .clock-face.ci{background:radial-gradient(circle at 38% 32%,rgba(52,211,153,.1),var(--card) 65%);border:2.5px solid var(--success);animation:breathe 3s ease-in-out infinite}
-.clock-face.ci:hover{transform:scale(1.05);border-color:#6ee7b7}
-.clock-face.ci:active{transform:scale(.96)}
+.clock-face.ci:hover{transform:scale(1.05)}.clock-face.ci:active{transform:scale(.96)}
 .clock-face.co{background:radial-gradient(circle at 38% 32%,rgba(248,113,113,.1),var(--card) 65%);border:2.5px solid var(--danger);animation:breatheOut 2.5s ease-in-out infinite}
-.clock-face.co:hover{transform:scale(1.05);border-color:#fca5a5}
-.clock-face.co:active{transform:scale(.96)}
+.clock-face.co:hover{transform:scale(1.05)}.clock-face.co:active{transform:scale(.96)}
 .clock-face.idle{background:radial-gradient(circle at 38% 32%,rgba(232,168,56,.06),var(--card) 65%);border:2.5px solid var(--border)}
 .clock-face.idle:hover{border-color:var(--accent)}
 .clock-ring{position:absolute;inset:-16px;border-radius:50%;border:1px dashed color-mix(in srgb,var(--border) 60%,transparent);animation:spinSlow 40s linear infinite;pointer-events:none}
 .clock-face::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px solid;opacity:0;animation:pulseRing 2.5s ease-out infinite;pointer-events:none}
 .clock-face.ci::after{border-color:var(--success)}.clock-face.co::after{border-color:var(--danger)}
 .cf-icon{font-size:2.2rem;margin-bottom:.2rem}.cf-label{font-size:.95rem;font-weight:700;letter-spacing:.04em}.cf-sub{font-size:.68rem;color:var(--muted);margin-top:.1rem}
-.big-time{font-family:'JetBrains Mono',monospace;font-size:3.2rem;font-weight:700;letter-spacing:-.02em;line-height:1;background:linear-gradient(135deg,var(--fg),color-mix(in srgb,var(--fg) 70%,var(--accent)));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .emp-hero{background:linear-gradient(180deg,rgba(232,168,56,.04) 0%,transparent 60%);border-radius:18px;padding:2rem 1.5rem 1.5rem;text-align:center;position:relative;overflow:hidden}
 .emp-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(232,168,56,.07),transparent 70%);pointer-events:none}
 .emp-avatar{width:60px;height:60px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;margin-bottom:.6rem;border:2px solid var(--accent);color:var(--accent);background:var(--card)}
 .chart-canvas{width:100%;border-radius:10px}
 .filter-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:end;margin-bottom:1rem}
-.filter-row .filter-group{display:flex;flex-direction:column;gap:.2rem;min-width:140px;flex:1}
-.filter-row .filter-group label{font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.filter-row .fg{display:flex;flex-direction:column;gap:.2rem;min-width:140px;flex:1}
+.filter-row .fg label{font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
 .empty-state{text-align:center;padding:3rem 1rem;color:var(--muted)}
 .empty-state i{font-size:2.5rem;margin-bottom:.75rem;opacity:.3}
-.empty-state p{font-size:.9rem}
-.section-title{font-size:1.15rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
-.section-title i{color:var(--accent);font-size:.9rem}
 .tier-legend{display:flex;gap:1rem;flex-wrap:wrap}
 .tier-legend span{display:flex;align-items:center;gap:.35rem;font-size:.72rem;color:var(--muted)}
 .tier-legend .td{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 .format-hint{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.6;white-space:pre;overflow-x:auto}
 .format-hint b{color:var(--accent);font-weight:600}
 .import-preview{max-height:250px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-top:.75rem}
-.import-preview table{margin:0}
-.import-preview th{background:var(--bg2);font-size:.65rem;padding:.4rem .6rem}
-.import-preview td{font-size:.78rem;padding:.4rem .6rem}
-.err-row td{background:rgba(248,113,113,.06)!important}
-.ok-row td{background:rgba(52,211,153,.04)!important}
+.import-preview table{margin:0}.import-preview th{background:var(--bg2);font-size:.65rem;padding:.4rem .6rem}.import-preview td{font-size:.78rem;padding:.4rem .6rem}
+.err-row td{background:rgba(248,113,113,.06)!important}.ok-row td{background:rgba(52,211,153,.04)!important}
 .jarrison-info{background:linear-gradient(135deg,rgba(56,189,248,.06),rgba(168,85,247,.04));border:1px solid rgba(56,189,248,.15);border-radius:10px;padding:1rem 1.15rem}
 .jarrison-info h4{font-size:.85rem;font-weight:600;color:var(--info);margin-bottom:.4rem}
 .jarrison-info p{font-size:.78rem;color:var(--muted);line-height:1.5}
 .jarrison-info code{background:var(--bg2);padding:.1rem .35rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--fg)}
-@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:1rem}.clock-face{width:210px;height:210px}.big-time{font-size:2.3rem}.filter-row{flex-direction:column}.filter-row .filter-group{min-width:100%}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:1rem}.clock-face{width:210px;height:210px}.filter-row{flex-direction:column}.filter-row .fg{min-width:100%}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 <div id="toast-container" class="toast-container"></div>
-<div id="loading-screen" class="min-h-screen flex items-center justify-center">
-  <div class="text-center"><div class="inline-block w-10 h-10 rounded-full animate-spin mb-3" style="border:3px solid var(--accent);border-top-color:transparent"></div><p class="text-sm" style="color:var(--muted)">Syncing with server...</p></div>
-</div>
+<div id="loading-screen" class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="inline-block w-10 h-10 rounded-full animate-spin mb-3" style="border:3px solid var(--accent);border-top-color:transparent"></div><p class="text-sm" style="color:var(--muted)">Syncing...</p></div></div>
 <div id="login-screen" class="hidden min-h-screen flex items-center justify-center p-4">
   <div class="card-glass w-full max-w-md fade-in-scale" style="border-color:color-mix(in srgb,var(--accent) 15%,var(--border))">
-    <div class="text-center mb-6">
-      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a);box-shadow:0 4px 20px rgba(232,168,56,.3)"><i class="fas fa-clock text-xl" style="color:#0c0e16"></i></div>
-      <h1 class="text-2xl font-bold tracking-tight">SitePro Clock In</h1>
-      <p class="text-sm mt-1 flex items-center justify-center gap-2" style="color:var(--muted)">Workforce Time Tracking <span class="conn-dot loading" id="login-conn-dot"></span></p>
-    </div>
-    <div class="flex mb-5 border-b" style="border-color:var(--border)">
-      <button class="tab-btn flex-1" onclick="switchLoginTab('admin')"><i class="fas fa-shield-halved mr-1"></i> Admin</button>
-      <button class="tab-btn active flex-1" onclick="switchLoginTab('employee')"><i class="fas fa-user mr-1"></i> Employee</button>
-    </div>
-    <div id="login-admin" class="hidden">
-      <div class="mb-3"><label>Username</label><input id="admin-user" type="text" placeholder="admin" autocomplete="off"></div>
-      <div class="mb-5"><label>Password</label><input id="admin-pass" type="password" placeholder="Enter password"></div>
-      <button class="btn btn-primary w-full justify-center" onclick="adminLogin()"><i class="fas fa-right-to-bracket"></i> Sign In</button>
-    </div>
-    <div id="login-employee">
-      <div class="mb-3"><label>Employee ID</label><input id="emp-id" type="text" placeholder="e.g. EMP001" autocomplete="off" style="text-transform:uppercase"></div>
-      <div class="mb-5"><label>PIN</label><input id="emp-pin" type="password" placeholder="4-digit PIN" maxlength="4" inputmode="numeric"></div>
-      <button class="btn btn-primary w-full justify-center" onclick="employeeLogin()"><i class="fas fa-right-to-bracket"></i> Clock In Portal</button>
-    </div>
+    <div class="text-center mb-6"><div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a);box-shadow:0 4px 20px rgba(232,168,56,.3)"><i class="fas fa-clock text-xl" style="color:#0c0e16"></i></div><h1 class="text-2xl font-bold tracking-tight">SitePro Clock In</h1><p class="text-sm mt-1 flex items-center justify-center gap-2" style="color:var(--muted)">Workforce Time Tracking <span class="conn-dot loading" id="login-conn-dot"></span></p></div>
+    <div class="flex mb-5 border-b" style="border-color:var(--border)"><button class="tab-btn flex-1" onclick="switchLoginTab('admin')"><i class="fas fa-shield-halved mr-1"></i> Admin</button><button class="tab-btn active flex-1" onclick="switchLoginTab('employee')"><i class="fas fa-user mr-1"></i> Employee</button></div>
+    <div id="login-admin" class="hidden"><div class="mb-3"><label>Username</label><input id="admin-user" type="text" placeholder="admin" autocomplete="off"></div><div class="mb-5"><label>Password</label><input id="admin-pass" type="password" placeholder="Enter password"></div><button class="btn btn-primary w-full justify-center" onclick="adminLogin()"><i class="fas fa-right-to-bracket"></i> Sign In</button></div>
+    <div id="login-employee"><div class="mb-3"><label>Employee ID</label><input id="emp-id" type="text" placeholder="e.g. EMP001" autocomplete="off" style="text-transform:uppercase"></div><div class="mb-5"><label>PIN</label><input id="emp-pin" type="password" placeholder="4-digit PIN" maxlength="4" inputmode="numeric"></div><button class="btn btn-primary w-full justify-center" onclick="employeeLogin()"><i class="fas fa-right-to-bracket"></i> Clock In Portal</button></div>
   </div>
 </div>
 <div id="admin-layout" class="hidden">
   <aside class="sidebar" id="sidebar">
-    <div class="p-4 border-b" style="border-color:var(--border)">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-sm" style="color:#0c0e16"></i></div>
-        <div class="min-w-0"><div class="font-bold text-sm truncate">SitePro</div><div class="text-xs flex items-center gap-1.5" style="color:var(--muted)"><span class="conn-dot on" id="admin-conn-dot"></span><span id="admin-conn-label">Synced</span></div></div>
-      </div>
-    </div>
+    <div class="p-4 border-b" style="border-color:var(--border)"><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-sm" style="color:#0c0e16"></i></div><div class="min-w-0"><div class="font-bold text-sm truncate">SitePro</div><div class="text-xs flex items-center gap-1.5" style="color:var(--muted)"><span class="conn-dot on" id="admin-conn-dot"></span><span id="admin-conn-label">Synced</span></div></div></div></div>
     <nav class="py-2 flex-1 overflow-y-auto" id="admin-nav">
       <div class="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.4;font-size:.65rem">Overview</div>
       <a class="sidebar-link active" data-page="dashboard"><i class="fas fa-gauge-high w-5 text-center"></i> Dashboard</a>
@@ -193,40 +162,54 @@ tr:hover td{background:rgba(232,168,56,.025)}
         <a class="sidebar-link active" data-epage="clock" style="padding:.65rem .4rem;justify-content:center;flex-direction:column;gap:1px;font-size:.7rem"><i class="fas fa-fingerprint text-base"></i><span class="hidden sm:inline mt-0.5">Clock</span></a>
         <a class="sidebar-link" data-epage="history" style="padding:.65rem .4rem;justify-content:center;flex-direction:column;gap:1px;font-size:.7rem"><i class="fas fa-history text-base"></i><span class="hidden sm:inline mt-0.5">History</span></a>
       </nav>
-      <main class="flex-1 p-4 sm:p-6 overflow-y-auto" id="emp-content"></main>
+      <main class="flex-1 p-4 sm:p-6 overflow-y:auto" id="emp-content"></main>
     </div>
   </div>
 </div>
 <div id="modal-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()"><div class="modal-box" id="modal-box"></div></div>
 
 <script>
-/* ===== FIREBASE CONFIG ===== */
 var FB_CONFIG={apiKey:"AIzaSyAkHU3eWCWTUt3Ks0Vxq3PkgcATtin0Zaw",authDomain:"baywashclock.firebaseapp.com",databaseURL:"https://baywashclock-default-rtdb.firebaseio.com",projectId:"baywashclock",storageBucket:"baywashclock.firebasestorage.app",messagingSenderId:"207388184141",appId:"1:207388184141:web:718d4348bc91672a369604"};
-
-/* ===== STATE ===== */
 var db=null,fbConnected=false,loadCount=0,ready=false;
 var D={sites:[],employees:[],shifts:[],records:[],settings:{},admin:{},recycleBin:{}};
-var S={loggedIn:false,role:null,page:'dashboard',empPage:'clock',emp:null,clockState:'idle',activeRec:null,gpsStatus:'pending',gpsDist:null,gpsLat:null,gpsLng:null,timerInt:null,clockInt:null,dashInt:null,searchTerms:{},recFilterDate:'',recFilterStatus:'',recFilterSite:'',pendingImport:[]};
+var S={loggedIn:false,role:null,page:'dashboard',empPage:'clock',emp:null,clockState:'idle',activeRec:null,gpsDist:null,gpsLat:null,gpsLng:null,timerInt:null,clockInt:null,dashInt:null,searchTerms:{},recFilterDate:'',recFilterStatus:'',recFilterSite:'',pendingImport:[]};
 
-/* ===== FIREBASE INIT ===== */
+/* ===== FIREBASE — admin & recycleBin are objects, rest are arrays ===== */
 function initFirebase(cfg){
   firebase.initializeApp(cfg);db=firebase.database();
   db.ref('.info/connected').on('value',function(s){fbConnected=s.val()===true;updateDots();});
-  var paths=['sites','employees','shifts','records','settings','admin','recycleBin'];
-  paths.forEach(function(p){db.ref(p).on('value',function(s){D[p]=s.val()?(p==='recycleBin'?s.val():Object.values(s.val())):(p==='recycleBin'?{}:[]);loadCount++;checkReady();});});
+  var OBJ_PATHS={'recycleBin':1,'admin':1};
+  ['sites','employees','shifts','records','settings','admin','recycleBin'].forEach(function(p){
+    db.ref(p).on('value',function(s){
+      if(OBJ_PATHS[p])D[p]=s.val()||{};
+      else D[p]=s.val()?Object.values(s.val()):[];
+      loadCount++;checkReady();
+    });
+  });
 }
-function checkReady(){if(loadCount>=7&&!ready){ready=true;document.getElementById('loading-screen').classList.add('hidden');if(!D.admin||!D.admin.username)seedData();cleanBin();showScreen('login-screen');}}
-function updateDots(){var c=fbConnected?'conn-dot on':'conn-dot off',l=fbConnected?'Synced':'Offline';document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot').forEach(function(d){d.className=c;});var el=document.getElementById('admin-conn-label');if(el)el.textContent=l;}
-function fbSet(p,d){if(!db)return;db.ref(p).set(d).catch(function(e){toast('Sync error','error');});}
-function fbUpd(p,d){if(!db)return;db.ref(p).update(d).catch(function(e){toast('Sync error','error');});}
-function fbRm(p){if(!db)return;db.ref(p).remove().catch(function(e){toast('Sync error','error');});}
+function checkReady(){
+  if(loadCount>=7&&!ready){
+    ready=true;
+    document.getElementById('loading-screen').classList.add('hidden');
+    if(!D.admin||!D.admin.username)seedData();
+    cleanBin();
+    showScreen('login-screen');
+  }
+}
+function updateDots(){
+  var c=fbConnected?'conn-dot on':'conn-dot off',l=fbConnected?'Synced':'Offline';
+  document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot').forEach(function(d){d.className=c;});
+  var el=document.getElementById('admin-conn-label');if(el)el.textContent=l;
+}
+function fbSet(p,d){if(!db)return;db.ref(p).set(d).catch(function(){toast('Sync error','error');});}
+function fbUpd(p,d){if(!db)return;db.ref(p).update(d).catch(function(){toast('Sync error','error');});}
+function fbRm(p){if(!db)return;db.ref(p).remove().catch(function(){toast('Sync error','error');});}
 
-/* ===== DATA HELPERS ===== */
+/* ===== HELPERS ===== */
 function sites(){return D.sites||[];}function emps(){return D.employees||[];}function shifts(){return D.shifts||[];}function recs(){return D.records||[];}function sett(){return D.settings||{};}function hols(){return sett().holidays||[];}
 function siteName(id){var s=sites().find(function(x){return x.id===id;});return s?s.name:'Unknown';}
 function empById(id){return emps().find(function(x){return x.id===id;});}
 function empFullName(id){var e=empById(id);return e?e.firstName+' '+e.lastName:'Unknown';}
-function empIdByCode(code){return emps().find(function(e){return e.employeeId===code;});}
 function fmtDate(d){var dt=d instanceof Date?d:new Date(d);return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
 function fmtTime(d){var dt=d instanceof Date?d:new Date(d);return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');}
 function today(){return fmtDate(new Date());}
@@ -234,40 +217,70 @@ function haversine(a1,o1,a2,o2){var R=6371000,t=function(n){return n*Math.PI/180
 function fmtH(h){return(Math.round((h||0)*10)/10).toFixed(1);}
 function timeAgo(ts){var s=Math.floor((Date.now()-new Date(ts).getTime())/1000);if(s<60)return 'Just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function downloadFile(content,filename,mime){var b=new Blob([content],{type:mime}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
 
-/* ===== HOURS CALCULATION ===== */
-function isSun(ds){return new Date(ds+'T12:00:00').getDay()===0;}
+/* ===== HOURS SYSTEM =====
+   Mon-Fri: 8h regular, over 8h = Unauthorised OT
+   Saturday: 5h regular, over 5h = Unauthorised OT
+   Sunday/Holiday: ALL Double Time
+   Weekly target = 45h (5×8 + 1×5) for progress display */
 function isHol(ds){return hols().indexOf(ds)!==-1;}
-function dayType(ds){if(isSun(ds))return 'Sunday';if(isHol(ds))return 'Holiday';return 'Weekday';}
+function dayType(ds){
+  var d=new Date(ds+'T12:00:00'),day=d.getDay();
+  if(day===0)return 'Sunday';
+  if(isHol(ds))return 'Holiday';
+  if(day===6)return 'Saturday';
+  return 'Weekday';
+}
+function dayBadge(dt){
+  var cls=dt==='Sunday'?'badge-purple':dt==='Holiday'?'badge-red':dt==='Saturday'?'badge-amber':'badge-blue';
+  return '<span class="badge '+cls+'">'+dt+'</span>';
+}
+function getDailyTarget(dt){
+  var s=sett();
+  if(dt==='Weekday')return s.weekdayDailyTarget||8;
+  if(dt==='Saturday')return s.saturdayDailyTarget||5;
+  return 0;
+}
+function getWeeklyTarget(){return sett().weeklyTarget||45;}
 function weekStart(ds){var d=new Date(ds+'T12:00:00'),day=d.getDay();d.setDate(d.getDate()-(day===0?6:day-1));return fmtDate(d);}
 function weekEnd(ws){var d=new Date(ws+'T12:00:00');d.setDate(d.getDate()+5);return fmtDate(d);}
-function tierCfg(){var s=sett();return{target:s.weeklyTarget||45,otAfter:s.overtimeAfter!=null?s.overtimeAfter:(s.weeklyTarget||45)};}
-function empWeekWorked(eid,curDate){var ws=weekStart(curDate),we=weekEnd(ws);return recs().filter(function(r){return r.employeeId===eid&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=we&&r.dayType!=='Sunday'&&r.dayType!=='Holiday';}).reduce(function(s,r){return s+(r.totalHours||0);},0);}
-function calcHours(ci,co,bm,ww,dt,tc){
+
+/* Core calculation — daily-based, not cumulative */
+function calcHours(ci,co,bm,dt){
   var ms=new Date(co)-new Date(ci),min=Math.max(0,ms/60000-bm),th=Math.round(min/6)/10;
-  if(dt==='Sunday'||dt==='Holiday')return{regularHours:0,overtimeHours:0,doubleTimeHours:th,totalHours:th};
-  var st=ww,en=ww+th,reg=0,ot=0;
-  if(st<tc.otAfter)reg+=Math.min(en,tc.otAfter)-st;
-  if(en>tc.otAfter)ot+=en-Math.max(st,tc.otAfter);
-  return{regularHours:reg,overtimeHours:ot,doubleTimeHours:0,totalHours:th};
+  if(dt==='Sunday'||dt==='Holiday')return{regularHours:0,unauthOT:0,doubleTimeHours:th,totalHours:th};
+  var tgt=getDailyTarget(dt),reg=Math.min(th,tgt),uot=Math.max(0,th-tgt);
+  return{regularHours:reg,unauthOT:uot,doubleTimeHours:0,totalHours:th};
+}
+
+/* Backward-compat getter: old records used overtimeHours, new use unauthOT */
+function getUOT(r){return(r.unauthOT!=null?r.unauthOT:(r.overtimeHours||0));}
+
+function empWeekTotal(eid,curDate){
+  var ws=weekStart(curDate),we=weekEnd(ws);
+  return recs().filter(function(r){return r.employeeId===eid&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=we;}).reduce(function(s,r){return s+(r.totalHours||0);},0);
 }
 function mondaysInMonth(y,m){var c=0,d=new Date(y,m,1),dw=d.getDay(),toM=dw===0?1:(dw===1?0:8-dw);d.setDate(d.getDate()+toM);while(d.getMonth()===m&&d.getFullYear()===y){c++;d.setDate(d.getDate()+7);}return c;}
 function empMonthHours(eid,y,m){
-  var tc=tierCfg(),mi=mondaysInMonth(y,m),mt=tc.target*mi,ms=y+'-'+String(m+1).padStart(2,'0');
+  var ms=y+'-'+String(m+1).padStart(2,'0');
   var rs=recs().filter(function(r){return r.employeeId===eid&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,7)===ms;});
-  var t={regular:0,overtime:0,doubleTime:0,total:0,count:rs.length};
-  rs.forEach(function(r){t.regular+=(r.regularHours||0);t.overtime+=(r.overtimeHours||0);t.doubleTime+=(r.doubleTimeHours||0);t.total+=(r.totalHours||0);});
-  t.target=mt;t.mondays=mi;t.overTarget=Math.max(0,t.total-mt);t.effective=t.regular+t.overtime*1.5+t.doubleTime*2;return t;
+  var t={regular:0,unauthOT:0,doubleTime:0,total:0,count:rs.length};
+  rs.forEach(function(r){t.regular+=(r.regularHours||0);t.unauthOT+=getUOT(r);t.doubleTime+=(r.doubleTimeHours||0);t.total+=(r.totalHours||0);});
+  t.target=getWeeklyTarget()*mondaysInMonth(y,m);t.overTarget=Math.max(0,t.total-t.target);
+  return t;
 }
 
-/* ===== SEED DATA ===== */
+/* ===== SEED ===== */
 function seedData(){
-  fbSet('admin',{username:'admin',password:'admin123'});
-  fbSet('settings',{weeklyTarget:45,overtimeAfter:45,defaultBreak:30,holidays:[
+  var adminObj={username:'admin',password:'admin123'};
+  fbSet('admin',adminObj);D.admin=adminObj;
+  var settObj={weekdayDailyTarget:8,saturdayDailyTarget:5,weeklyTarget:45,defaultBreak:30,holidays:[
     '2025-01-01','2025-03-21','2025-04-18','2025-04-21','2025-05-01','2025-05-04','2025-05-25','2025-05-29','2025-08-26','2025-12-10','2025-12-25','2025-12-26',
     '2026-01-01','2026-03-21','2026-04-03','2026-04-06','2026-05-01','2026-05-04','2026-05-14','2026-05-25','2026-08-26','2026-12-10','2026-12-25','2026-12-26',
     '2027-01-01','2027-03-21','2027-03-26','2027-03-29','2027-05-01','2027-05-04','2027-05-06','2027-05-25','2027-08-26','2027-12-10','2027-12-25','2027-12-26'
-  ]});
+  ]};
+  fbSet('settings',settObj);D.settings=settObj;
   fbSet('recycleBin',{});
   var s1=db.ref('sites').push().key,s2=db.ref('sites').push().key;
   fbSet('sites/'+s1,{id:s1,name:'Baywash Chemicals Windhoek',address:'Windhoek, Namibia',lat:-22.5609,lng:17.0658,radius:100});
@@ -282,31 +295,64 @@ function seedData(){
 var BIN_TTL=30*24*60*60*1000;
 function toBin(type,id,data){var bid=db.ref('recycleBin/'+type).push().key;fbSet('recycleBin/'+type+'/'+bid,{oid:id,data:data,at:new Date().toISOString()});fbRm(type+'/'+id);}
 function fromBin(type,bid){var it=(D.recycleBin[type]||{})[bid];if(!it)return;fbSet(type+'/'+(it.oid||it.data.id),it.data);fbRm('recycleBin/'+type+'/'+bid);toast('Restored','success');nav('recyclebin');}
-function permDelBin(type,bid){openModal('<h3 class="font-bold text-lg mb-3">Permanently Delete?</h3><p class="text-sm mb-4" style="color:var(--muted)">This action cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRm(\'recycleBin/'+type+'/'+bid+'\');closeModal();nav(\'recyclebin\');toast(\'Deleted permanently\',\'success\')"><i class="fas fa-trash"></i> Delete Forever</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
+function permDelBin(type,bid){openModal('<h3 class="font-bold text-lg mb-3">Permanently Delete?</h3><p class="text-sm mb-4" style="color:var(--muted)">Cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRm(\'recycleBin/'+type+'/'+bid+'\');closeModal();nav(\'recyclebin\');toast(\'Deleted\',\'success\')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
 function cleanBin(){var bin=D.recycleBin,now=Date.now();['sites','employees','shifts','records'].forEach(function(t){if(!bin[t])return;Object.keys(bin[t]).forEach(function(bid){var it=bin[t][bid];if(it.at&&(now-new Date(it.at).getTime())>BIN_TTL)fbRm('recycleBin/'+t+'/'+bid);});});}
-function emptyBin(){openModal('<h3 class="font-bold text-lg mb-3">Empty Recycle Bin?</h3><p class="text-sm mb-4" style="color:var(--muted)">All items will be permanently deleted.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'recycleBin\',{});closeModal();nav(\'recyclebin\');toast(\'Bin emptied\',\'success\')"><i class="fas fa-trash"></i> Empty</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
+function emptyBin(){openModal('<h3 class="font-bold text-lg mb-3">Empty Recycle Bin?</h3><p class="text-sm mb-4" style="color:var(--muted)">All items permanently deleted.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'recycleBin\',{});closeModal();nav(\'recyclebin\');toast(\'Bin emptied\',\'success\')"><i class="fas fa-trash"></i> Empty</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
 
-/* ===== UI HELPERS ===== */
+/* ===== UI ===== */
 function toast(msg,type){type=type||'info';var c=document.getElementById('toast-container'),t=document.createElement('div');t.className='toast toast-'+type;var ic={success:'fa-circle-check',error:'fa-circle-xmark',info:'fa-circle-info'};t.innerHTML='<i class="fas '+(ic[type]||ic.info)+'"></i><span>'+msg+'</span>';c.appendChild(t);setTimeout(function(){t.style.animation='toastOut .3s ease forwards';setTimeout(function(){t.remove();},300);},3200);}
 function openModal(html){document.getElementById('modal-box').innerHTML=html;var o=document.getElementById('modal-overlay');o.classList.remove('hidden');requestAnimationFrame(function(){o.classList.add('show');});}
 function closeModal(){var o=document.getElementById('modal-overlay');o.classList.remove('show');setTimeout(function(){o.classList.add('hidden');},200);}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
 function showScreen(id){['loading-screen','login-screen','admin-layout','employee-layout'].forEach(function(s){document.getElementById(s).classList.toggle('hidden',s!==id);});}
 function switchLoginTab(tab){document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',(tab==='admin'&&i===0)||(tab==='employee'&&i===1));});document.getElementById('login-admin').classList.toggle('hidden',tab!=='admin');document.getElementById('login-employee').classList.toggle('hidden',tab!=='employee');}
-function dayBadge(dt){var cls=dt==='Sunday'?'badge-purple':dt==='Holiday'?'badge-red':'badge-blue';return '<span class="badge '+cls+'">'+dt+'</span>';}
-function statusBadge(st){if(st==='clocked_in')return '<span class="badge badge-green"><i class="fas fa-circle" style="font-size:.4rem"></i> Active</span>';if(st==='completed')return '<span class="badge badge-blue">Completed</span>';return '<span class="badge badge-amber">Pending</span>';}
+function statusBadge(st){if(st==='clocked_in')return '<span class="badge badge-green"><i class="fas fa-circle" style="font-size:.4rem"></i> Active</span>';if(st==='completed')return '<span class="badge badge-blue">Done</span>';return '<span class="badge badge-amber">Pending</span>';}
+function hrsBreakdown(r){
+  var parts=[];
+  if(r.regularHours>0)parts.push('<span style="color:var(--success)">'+fmtH(r.regularHours)+'</span>');
+  var uot=getUOT(r);if(uot>0)parts.push('<span style="color:var(--danger)">'+fmtH(uot)+'</span>');
+  if(r.doubleTimeHours>0)parts.push('<span style="color:var(--purple)">'+fmtH(r.doubleTimeHours)+'</span>');
+  return parts.join(', ')||'—';
+}
 
 /* ===== AUTH ===== */
-function adminLogin(){var u=document.getElementById('admin-user').value.trim(),p=document.getElementById('admin-pass').value;if(u===D.admin.username&&p===D.admin.password){S.loggedIn=true;S.role='admin';S.page='dashboard';showAdmin();toast('Welcome back, Admin','success');}else toast('Invalid credentials','error');}
-function employeeLogin(){var eid=document.getElementById('emp-id').value.trim().toUpperCase(),pin=document.getElementById('emp-pin').value;var emp=emps().find(function(e){return e.employeeId===eid&&e.pin===pin&&e.active;});if(!emp){toast('Invalid ID or PIN','error');return;}S.loggedIn=true;S.role='employee';S.emp=emp;S.empPage='clock';var ar=recs().filter(function(r){return r.employeeId===emp.id&&r.status==='clocked_in';});S.clockState=ar.length?'clocked_in':'idle';S.activeRec=ar.length?ar[0]:null;showEmployee();toast('Welcome, '+emp.firstName,'success');}
-function logout(){clearInterval(S.timerInt);clearInterval(S.clockInt);clearInterval(S.dashInt);S={loggedIn:false,role:null,page:'dashboard',empPage:'clock',emp:null,clockState:'idle',activeRec:null,gpsStatus:'pending',gpsDist:null,gpsLat:null,gpsLng:null,timerInt:null,clockInt:null,dashInt:null,searchTerms:{},recFilterDate:'',recFilterStatus:'',recFilterSite:'',pendingImport:[]};document.getElementById('admin-layout').classList.add('hidden');document.getElementById('employee-layout').classList.add('hidden');showScreen('login-screen');['admin-user','admin-pass','emp-id','emp-pin'].forEach(function(id){document.getElementById(id).value='';});}
+function adminLogin(){
+  var u=document.getElementById('admin-user').value.trim(),p=document.getElementById('admin-pass').value;
+  if(u===D.admin.username&&p===D.admin.password){S.loggedIn=true;S.role='admin';S.page='dashboard';showAdmin();toast('Welcome back, Admin','success');}
+  else toast('Invalid credentials','error');
+}
+function employeeLogin(){
+  var eid=document.getElementById('emp-id').value.trim().toUpperCase(),pin=document.getElementById('emp-pin').value;
+  var emp=emps().find(function(e){return e.employeeId===eid&&e.pin===pin&&e.active;});
+  if(!emp){toast('Invalid ID or PIN','error');return;}
+  S.loggedIn=true;S.role='employee';S.emp=emp;S.empPage='clock';
+  var ar=recs().filter(function(r){return r.employeeId===emp.id&&r.status==='clocked_in';});
+  S.clockState=ar.length?'clocked_in':'idle';S.activeRec=ar.length?ar[0]:null;
+  showEmployee();toast('Welcome, '+emp.firstName,'success');
+}
+function logout(){
+  clearInterval(S.timerInt);clearInterval(S.clockInt);clearInterval(S.dashInt);
+  S={loggedIn:false,role:null,page:'dashboard',empPage:'clock',emp:null,clockState:'idle',activeRec:null,gpsDist:null,gpsLat:null,gpsLng:null,timerInt:null,clockInt:null,dashInt:null,searchTerms:{},recFilterDate:'',recFilterStatus:'',recFilterSite:'',pendingImport:[]};
+  document.getElementById('admin-layout').classList.add('hidden');document.getElementById('employee-layout').classList.add('hidden');
+  showScreen('login-screen');['admin-user','admin-pass','emp-id','emp-pin'].forEach(function(id){document.getElementById(id).value='';});
+}
 function showAdmin(){showScreen('admin-layout');nav(S.page);}
 function showEmployee(){showScreen('employee-layout');document.getElementById('emp-header-name').textContent=S.emp.firstName+' '+S.emp.lastName;navEmp(S.empPage);}
 
-/* ===== NAVIGATION ===== */
-var pageRenderers={dashboard:renderDashboard,sites:renderSites,employees:renderEmployees,shifts:renderShifts,records:renderRecords,export:renderExport,recyclebin:renderRecycleBin,settings:renderSettings};
-function nav(page){S.page=page;S.searchTerms[page]='';document.querySelectorAll('#admin-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.page===page);});var el=document.getElementById('admin-content');if(pageRenderers[page])el.innerHTML=pageRenderers[page]();if(page==='dashboard')initDashCharts();document.getElementById('sidebar').classList.remove('open');}
-function navEmp(page){S.empPage=page;document.querySelectorAll('#emp-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.epage===page);});var el=document.getElementById('emp-content');if(page==='clock'){el.innerHTML=renderClockPage();initClockPage();}else el.innerHTML=renderEmpHistory();}
+/* ===== NAV ===== */
+var PR={dashboard:renderDashboard,sites:renderSites,employees:renderEmployees,shifts:renderShifts,records:renderRecords,export:renderExport,recyclebin:renderRecycleBin,settings:renderSettings};
+function nav(page){
+  S.page=page;S.searchTerms[page]='';
+  document.querySelectorAll('#admin-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.page===page);});
+  var el=document.getElementById('admin-content');if(PR[page])el.innerHTML=PR[page]();
+  if(page==='dashboard')initDashCharts();
+  document.getElementById('sidebar').classList.remove('open');
+}
+function navEmp(page){
+  S.empPage=page;document.querySelectorAll('#emp-nav .sidebar-link').forEach(function(l){l.classList.toggle('active',l.dataset.epage===page);});
+  var el=document.getElementById('emp-content');
+  if(page==='clock'){el.innerHTML=renderClockPage();initClockPage();}else el.innerHTML=renderEmpHistory();
+}
 document.getElementById('admin-nav').addEventListener('click',function(e){var l=e.target.closest('.sidebar-link');if(l&&l.dataset.page)nav(l.dataset.page);});
 document.getElementById('emp-nav').addEventListener('click',function(e){var l=e.target.closest('.sidebar-link');if(l&&l.dataset.epage)navEmp(l.dataset.epage);});
 
@@ -314,250 +360,186 @@ document.getElementById('emp-nav').addEventListener('click',function(e){var l=e.
 function renderDashboard(){
   var es=emps(),ss=sites(),sh=shifts(),rc=recs(),td=today(),tsh=sh.filter(function(s){return s.date===td;}),ci=rc.filter(function(r){return r.status==='clocked_in';});
   var bin=D.recycleBin,bc=0;['sites','employees','shifts','records'].forEach(function(t){if(bin[t])bc+=Object.keys(bin[t]).length;});
-  var now=new Date();
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Dashboard</h2><p class="text-sm" style="color:var(--muted)">'+now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-clock">'+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div></div>';
+  var now=new Date(),h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Dashboard</h2><p class="text-sm" style="color:var(--muted)">'+now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-clock">'+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div></div>';
   h+='<div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">';
   h+='<div class="stat-card sc-amber"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">'+es.filter(function(e){return e.active;}).length+'<span class="text-sm font-normal" style="color:var(--muted)"> / '+es.length+'</span></div></div>';
   h+='<div class="stat-card sc-blue"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">'+ss.length+'</div></div>';
   h+='<div class="stat-card sc-green"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SHIFTS TODAY</div><div class="text-2xl font-bold">'+tsh.length+'</div></div>';
   h+='<div class="stat-card '+(ci.length?'sc-green':'sc-amber')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:'+(ci.length?'var(--success)':'var(--fg)')+'">'+ci.length+'</div></div>';
   h+='<div class="stat-card '+(bc?'sc-red':'sc-amber')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-recycle mr-1"></i>BIN</div><div class="text-2xl font-bold" style="color:'+(bc?'var(--danger)':'var(--fg)')+'">'+bc+'</div></div></div>';
+  /* Tier reference */
+  h+='<div class="card mb-6" style="padding:.75rem 1.15rem"><div class="flex items-center gap-4 flex-wrap text-xs"><span style="color:var(--muted)">Daily Targets:</span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--success);margin-right:4px;vertical-align:middle"></span><strong>Weekday</strong> '+getDailyTarget('Weekday')+'h</span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--success);margin-right:4px;vertical-align:middle"></span><strong>Saturday</strong> '+getDailyTarget('Saturday')+'h</span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--danger);margin-right:4px;vertical-align:middle"></span><strong>Over = Unauth OT</strong></span><span><span class="td" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--purple);margin-right:4px;vertical-align:middle"></span><strong>Sun/Hol = Double Time</strong></span><span style="color:var(--muted)">· Weekly target: '+getWeeklyTarget()+'h</span></div></div>';
   h+='<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">';
-  h+='<div class="card lg:col-span-2"><div class="flex items-center justify-between mb-3"><h3 class="text-sm font-semibold"><i class="fas fa-chart-bar mr-2" style="color:var(--accent)"></i>Weekly Hours by Employee</h3><span class="text-xs" style="color:var(--muted)">Mon-Fri current week</span></div><canvas id="chart-weekly" class="chart-canvas" height="180"></canvas></div>';
-  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-chart-pie mr-2" style="color:var(--info)"></i>Hours Breakdown</h3><canvas id="chart-donut" class="chart-canvas" height="180"></canvas><div class="tier-legend mt-3"><span><span class="td" style="background:var(--success)"></span>Regular</span><span><span class="td" style="background:var(--warning)"></span>Overtime</span><span><span class="td" style="background:var(--danger)"></span>Double</span></div></div></div>';
+  h+='<div class="card lg:col-span-2"><div class="flex items-center justify-between mb-3"><h3 class="text-sm font-semibold"><i class="fas fa-chart-bar mr-2" style="color:var(--accent)"></i>Weekly Hours</h3><span class="text-xs" style="color:var(--muted)">Current week</span></div><canvas id="chart-weekly" class="chart-canvas" height="180"></canvas></div>';
+  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-chart-pie mr-2" style="color:var(--info)"></i>Hours Breakdown</h3><canvas id="chart-donut" class="chart-canvas" height="180"></canvas><div class="tier-legend mt-3"><span><span class="td" style="background:var(--success)"></span>Regular</span><span><span class="td" style="background:var(--danger)"></span>Unauth OT</span><span><span class="td" style="background:var(--purple)"></span>Double</span></div></div></div>';
   h+='<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">';
-  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now <span class="badge badge-green ml-1">'+ci.length+'</span></h3>';
-  if(ci.length){ci.forEach(function(r){var emp=empById(r.employeeId),st=new Date(r.clockIn),el=Math.floor((Date.now()-st.getTime())/60000);h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div class="min-w-0"><div class="text-sm font-medium truncate">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</div><div class="text-xs truncate" style="color:var(--muted)">'+siteName(r.siteId)+' · Since '+fmtTime(st)+'</div></div><div class="text-right flex-shrink-0 ml-2"><div class="mono text-sm font-semibold" style="color:var(--success)">'+fmtH(el/60)+'h</div></div></div>';});}
-  else h+='<p class="text-sm" style="color:var(--muted)">Nobody clocked in right now.</p>';
-  h+='</div>';
-  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today\'s Shifts <span class="badge badge-blue ml-1">'+tsh.length+'</span></h3><div class="mb-2">'+dayBadge(dayType(td))+'</div>';
-  if(tsh.length){tsh.slice(0,8).forEach(function(s){var rec=rc.find(function(r){return r.shiftId===s.id;});h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div class="min-w-0"><div class="text-sm font-medium truncate">'+escHtml(empFullName(s.employeeId))+'</div><div class="text-xs truncate" style="color:var(--muted)">'+escHtml(siteName(s.siteId))+' · '+s.startTime+'–'+s.endTime+'</div></div><div class="flex-shrink-0 ml-2">'+statusBadge(rec?rec.status:'pending')+'</div></div>';});}
-  else h+='<p class="text-sm" style="color:var(--muted)">No shifts scheduled today.</p>';
+  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In <span class="badge badge-green ml-1">'+ci.length+'</span></h3>';
+  if(ci.length)ci.forEach(function(r){var emp=empById(r.employeeId),st=new Date(r.clockIn),el=Math.floor((Date.now()-st.getTime())/60000);h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div class="min-w-0"><div class="text-sm font-medium truncate">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</div><div class="text-xs truncate" style="color:var(--muted)">'+siteName(r.siteId)+' · Since '+fmtTime(st)+'</div></div><div class="text-right flex-shrink-0 ml-2"><div class="mono text-sm font-semibold" style="color:var(--success)">'+fmtH(el/60)+'h</div></div></div>';});
+  else h+='<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>';
+  h+='</div><div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today <span class="badge badge-blue ml-1">'+tsh.length+'</span></h3><div class="mb-2">'+dayBadge(dayType(td))+'</div>';
+  if(tsh.length)tsh.slice(0,8).forEach(function(s){var rec=rc.find(function(r){return r.shiftId===s.id;});h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div class="min-w-0"><div class="text-sm font-medium truncate">'+escHtml(empFullName(s.employeeId))+'</div><div class="text-xs truncate" style="color:var(--muted)">'+escHtml(siteName(s.siteId))+' · '+s.startTime+'–'+s.endTime+'</div></div><div class="flex-shrink-0 ml-2">'+statusBadge(rec?rec.status:'pending')+'</div></div>';});
+  else h+='<p class="text-sm" style="color:var(--muted)">No shifts today.</p>';
   h+='</div></div></div>';return h;
 }
 function initDashCharts(){
   clearInterval(S.dashInt);
   (function tick(){var el=document.getElementById('dash-clock');if(el)el.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});else{clearInterval(S.dashInt);return;}S.dashInt=setInterval(tick,1000);})();
-  var ws=weekStart(today()),we=weekEnd(ws),tc=tierCfg(),activeEmps=emps().filter(function(e){return e.active;});
+  var ws=weekStart(today()),tc=getWeeklyTarget(),activeEmps=emps().filter(function(e){return e.active;});
   var chartData=activeEmps.map(function(e){
-    var ers=recs().filter(function(r){return r.employeeId===e.id&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=we;});
-    var reg=0,ot=0,dt=0;ers.forEach(function(r){reg+=(r.regularHours||0);ot+=(r.overtimeHours||0);dt+=(r.doubleTimeHours||0);});
-    return{label:e.firstName+' '+e.lastName.charAt(0)+'.',reg:reg,ot:ot,dt:dt,total:reg+ot+dt};
+    var ers=recs().filter(function(r){return r.employeeId===e.id&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=weekEnd(ws);});
+    var reg=0,uot=0,dt=0;ers.forEach(function(r){reg+=(r.regularHours||0);uot+=getUOT(r);dt+=(r.doubleTimeHours||0);});
+    return{label:e.firstName+' '+e.lastName.charAt(0)+'.',reg:reg,uot:uot,dt:dt,total:reg+uot+dt};
   });
   drawBarChart(document.getElementById('chart-weekly'),chartData,tc);
-  var totalReg=0,totalOt=0,totalDt=0;chartData.forEach(function(d){totalReg+=d.reg;totalOt+=d.ot;totalDt+=d.dt;});
-  drawDonut(document.getElementById('chart-donut'),[{v:totalReg,c:'#34d399'},{v:totalOt,c:'#fbbf24'},{v:totalDt,c:'#f87171'}]);
+  var tR=0,tU=0,tD=0;chartData.forEach(function(d){tR+=d.reg;tU+=d.uot;tD+=d.dt;});
+  drawDonut(document.getElementById('chart-donut'),[{v:tR,c:'#34d399'},{v:tU,c:'#f87171'},{v:tD,c:'#c084fc'}]);
 }
-function drawBarChart(canvas,data,tc){
+function drawBarChart(canvas,data,maxVal){
   if(!canvas)return;var ctx=canvas.getContext('2d'),dpr=window.devicePixelRatio||1,rect=canvas.getBoundingClientRect();
   canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;ctx.scale(dpr,dpr);
-  var W=rect.width,H=rect.height,pad={t:10,r:10,b:30,l:10},maxVal=Math.max(tc.otAfter*1.2,1);
-  var cw=W-pad.l-pad.r,ch=H-pad.t-pad.b,n=data.length;
+  var W=rect.width,H=rect.height,pad={t:10,r:10,b:30,l:10},ch=H-pad.t-pad.b,n=data.length;maxVal=Math.max(maxVal*1.2,1);
   if(!n){ctx.fillStyle='#6a7199';ctx.font='13px Space Grotesk';ctx.textAlign='center';ctx.fillText('No data',W/2,H/2);return;}
-  var gap=Math.max(4,Math.min(12,cw/n*0.3)),bw=Math.max(8,(cw-gap*(n+1))/n);
-  var ty=pad.t+ch*(1-tc.otAfter/maxVal);ctx.strokeStyle='rgba(232,168,56,.3)';ctx.setLineDash([4,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,ty);ctx.lineTo(W-pad.r,ty);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='rgba(232,168,56,.5)';ctx.font='10px JetBrains Mono';ctx.textAlign='left';ctx.fillText(fmtH(tc.otAfter)+'h',pad.l+2,ty-4);
+  var cw=W-pad.l-pad.r,gap=Math.max(4,Math.min(12,cw/n*.3)),bw=Math.max(8,(cw-gap*(n+1))/n);
+  var ty=pad.t+ch*(1-maxVal/maxVal);ctx.strokeStyle='rgba(232,168,56,.3)';ctx.setLineDash([4,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,ty);ctx.lineTo(W-pad.r,ty);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(232,168,56,.5)';ctx.font='10px JetBrains Mono';ctx.textAlign='left';ctx.fillText(maxVal+'h',pad.l+2,ty-4);
   data.forEach(function(d,i){
-    var x=pad.l+gap+(bw+gap)*i,rh=Math.max(0,(d.reg/maxVal)*ch),ry=pad.t+ch-rh;
-    ctx.fillStyle='#34d399';roundRect(ctx,x,ry,bw*.6,rh,3);
-    var oh=Math.max(0,(d.ot/maxVal)*ch),oy=ry-oh;ctx.fillStyle='#fbbf24';roundRect(ctx,x+bw*.6,oy,bw*.4,oh,3);
-    if(d.dt>0){ctx.fillStyle='#f87171';ctx.beginPath();ctx.arc(x+bw/2,oy-6,3,0,Math.PI*2);ctx.fill();}
+    var x=pad.l+gap+(bw+gap)*i;
+    var rh=Math.max(0,(d.reg/maxVal)*ch),ry=pad.t+ch-rh;ctx.fillStyle='#34d399';rRect(ctx,x,ry,bw*.55,rh,3);
+    var uh=Math.max(0,(d.uot/maxVal)*ch),uy=ry-uh;ctx.fillStyle='#f87171';rRect(ctx,x+bw*.55,uy,bw*.45,uh,3);
+    if(d.dt>0){ctx.fillStyle='#c084fc';ctx.beginPath();ctx.arc(x+bw/2,uy-6,3,0,Math.PI*2);ctx.fill();}
     ctx.fillStyle='#6a7199';ctx.font='10px Space Grotesk';ctx.textAlign='center';
-    var lbl=d.label.length>8?d.label.slice(0,7)+'..':d.label;ctx.fillText(lbl,x+bw/2,H-pad.b+14);
-    if(d.total>0){ctx.fillStyle='#e4e6ec';ctx.font='600 10px JetBrains Mono';ctx.fillText(fmtH(d.total),x+bw/2,ry-10);}
+    ctx.fillText(d.label.length>8?d.label.slice(0,7)+'..':d.label,x+bw/2,H-pad.b+14);
+    if(d.total>0){ctx.fillStyle='#e4e6ec';ctx.font='600 10px JetBrains Mono';ctx.fillText(fmtH(d.total),x+bw/2,Math.min(ry-10,ty-12));}
   });
 }
-function drawDonut(canvas,segments){
+function drawDonut(canvas,segs){
   if(!canvas)return;var ctx=canvas.getContext('2d'),dpr=window.devicePixelRatio||1,rect=canvas.getBoundingClientRect();
   canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;ctx.scale(dpr,dpr);
   var W=rect.width,H=rect.height,cx=W/2,cy=H/2-5,r=Math.min(W,H)/2-20,ir=r*.6;
-  var total=segments.reduce(function(s,seg){return s+seg.v;},0);
+  var total=segs.reduce(function(s,x){return s+x.v;},0);
   if(total===0){ctx.strokeStyle='#252d42';ctx.lineWidth=r-ir;ctx.beginPath();ctx.arc(cx,cy,(r+ir)/2,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#6a7199';ctx.font='13px Space Grotesk';ctx.textAlign='center';ctx.fillText('No data',cx,cy+4);return;}
-  var angle=-Math.PI/2;
-  segments.forEach(function(seg){if(seg.v<=0)return;var sweep=(seg.v/total)*Math.PI*2;ctx.beginPath();ctx.arc(cx,cy,r,angle,angle+sweep);ctx.arc(cx,cy,ir,angle+sweep,angle,true);ctx.closePath();ctx.fillStyle=seg.c;ctx.fill();angle+=sweep;});
+  var angle=-Math.PI/2;segs.forEach(function(seg){if(seg.v<=0)return;var sw=(seg.v/total)*Math.PI*2;ctx.beginPath();ctx.arc(cx,cy,r,angle,angle+sw);ctx.arc(cx,cy,ir,angle+sw,angle,true);ctx.closePath();ctx.fillStyle=seg.c;ctx.fill();angle+=sw;});
   ctx.fillStyle='#e4e6ec';ctx.font='700 18px JetBrains Mono';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(fmtH(total),cx,cy-4);
   ctx.fillStyle='#6a7199';ctx.font='11px Space Grotesk';ctx.fillText('total hrs',cx,cy+14);ctx.textBaseline='alphabetic';
 }
-function roundRect(ctx,x,y,w,h,r){if(h<=0)return;r=Math.min(r,Math.abs(w)/2,Math.abs(h)/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
+function rRect(ctx,x,y,w,h,r){if(h<=0)return;r=Math.min(r,Math.abs(w)/2,Math.abs(h)/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
 
 /* ===== SITES ===== */
 function renderSites(){
   var ss=sites(),h='<div class="fade-in"><div class="flex items-center justify-between mb-5"><div><h2 class="text-xl font-bold tracking-tight">Sites</h2><p class="text-sm" style="color:var(--muted)">'+ss.length+' location'+(ss.length!==1?'s':'')+'</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-3">';
   if(ss.length)ss.forEach(function(s){h+='<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1 min-w-0"><div class="font-semibold truncate">'+escHtml(s.name)+'</div><div class="text-sm truncate" style="color:var(--muted)">'+escHtml(s.address)+'</div><div class="flex items-center gap-3 mt-1.5 text-xs flex-wrap" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>'+s.lat.toFixed(4)+', '+s.lng.toFixed(4)+'</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>'+s.radius+'m</span><a href="https://www.google.com/maps?q='+s.lat+','+s.lng+'" target="_blank" rel="noopener" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2 flex-shrink-0"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="delSite(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>';});
-  else h+='<div class="empty-state card"><i class="fas fa-location-dot block"></i><p>No sites added yet</p></div>';
+  else h+='<div class="empty-state card"><i class="fas fa-location-dot block"></i><p>No sites yet</p></div>';
   return h+'</div></div>';
 }
 function openSiteModal(eid){
   var s=eid?sites().find(function(x){return x.id===eid;}):null;
-  openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Site</h3><div class="grid gap-3"><div><label>Site Name</label><input id="ms-n" value="'+escHtml(s?s.name:'')+'"></div><div><label>Address</label><input id="ms-a" value="'+escHtml(s?s.address:'')+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="ms-la" type="number" step="0.00001" value="'+(s?s.lat:'')+'"></div><div><label>Longitude</label><input id="ms-ln" type="number" step="0.00001" value="'+(s?s.lng:'')+'"></div></div><div><label>GPS Radius: <span id="ms-rv" class="mono">'+(s?s.radius:100)+'</span>m</label><input id="ms-r" type="range" min="5" max="500" value="'+(s?s.radius:100)+'" oninput="document.getElementById(\'ms-rv\').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m</span><span>500m</span></div></div><button class="btn btn-secondary btn-sm" onclick="getGps()"><i class="fas fa-crosshairs"></i> Use My Location</button><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\''+(eid||'')+'\')">'+(s?'Update':'Add Site')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+  openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Site</h3><div class="grid gap-3"><div><label>Site Name</label><input id="ms-n" value="'+escHtml(s?s.name:'')+'"></div><div><label>Address</label><input id="ms-a" value="'+escHtml(s?s.address:'')+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="ms-la" type="number" step="0.00001" value="'+(s?s.lat:'')+'"></div><div><label>Longitude</label><input id="ms-ln" type="number" step="0.00001" value="'+(s?s.lng:'')+'"></div></div><div><label>GPS Radius: <span id="ms-rv" class="mono">'+(s?s.radius:100)+'</span>m</label><input id="ms-r" type="range" min="5" max="500" value="'+(s?s.radius:100)+'" oninput="document.getElementById(\'ms-rv\').textContent=this.value" style="padding:0;background:transparent;border:none"><div class="flex justify-between text-xs" style="color:var(--muted)"><span>5m</span><span>500m</span></div></div><button class="btn btn-secondary btn-sm" onclick="getGps()"><i class="fas fa-crosshairs"></i> Use My Location</button><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\''+(eid||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
-function getGps(){if(!navigator.geolocation){toast('Geolocation not supported','error');return;}toast('Getting location...','info');navigator.geolocation.getCurrentPosition(function(p){document.getElementById('ms-la').value=p.coords.latitude.toFixed(5);document.getElementById('ms-ln').value=p.coords.longitude.toFixed(5);toast('Location captured','success');},function(e){toast('GPS error: '+e.message,'error');},{enableHighAccuracy:true});}
-function saveSite(eid){var n=document.getElementById('ms-n').value.trim(),a=document.getElementById('ms-a').value.trim(),la=parseFloat(document.getElementById('ms-la').value),ln=parseFloat(document.getElementById('ms-ln').value),r=parseInt(document.getElementById('ms-r').value);if(!n){toast('Name required','error');return;}if(isNaN(la)||isNaN(ln)){toast('Valid coordinates required','error');return;}var obj={name:n,address:a,lat:la,lng:ln,radius:r};if(eid)fbUpd('sites/'+eid,obj);else{var id=db.ref('sites').push().key;obj.id=id;fbSet('sites/'+id,obj);}closeModal();nav('sites');toast(eid?'Site updated':'Site added','success');}
-function delSite(id){var s=sites().find(function(x){return x.id===id;});if(emps().some(function(e){return e.siteId===id;})){toast('Cannot delete: employees assigned','error');return;}toBin('sites',id,s);nav('sites');toast('Moved to recycle bin','info');}
+function getGps(){if(!navigator.geolocation){toast('Not supported','error');return;}toast('Getting location...','info');navigator.geolocation.getCurrentPosition(function(p){document.getElementById('ms-la').value=p.coords.latitude.toFixed(5);document.getElementById('ms-ln').value=p.coords.longitude.toFixed(5);toast('Done','success');},function(e){toast('GPS error: '+e.message,'error');},{enableHighAccuracy:true});}
+function saveSite(eid){var n=document.getElementById('ms-n').value.trim(),a=document.getElementById('ms-a').value.trim(),la=parseFloat(document.getElementById('ms-la').value),ln=parseFloat(document.getElementById('ms-ln').value),r=parseInt(document.getElementById('ms-r').value);if(!n){toast('Name required','error');return;}if(isNaN(la)||isNaN(ln)){toast('Coordinates required','error');return;}var obj={name:n,address:a,lat:la,lng:ln,radius:r};if(eid)fbUpd('sites/'+eid,obj);else{var id=db.ref('sites').push().key;obj.id=id;fbSet('sites/'+id,obj);}closeModal();nav('sites');toast(eid?'Updated':'Added','success');}
+function delSite(id){var s=sites().find(function(x){return x.id===id;});if(emps().some(function(e){return e.siteId===id;})){toast('Employees assigned to this site','error');return;}toBin('sites',id,s);nav('sites');toast('Moved to bin','info');}
 
 /* ===== EMPLOYEES ===== */
 function renderEmployees(){
   var es=emps(),q=(S.searchTerms.employees||'').toLowerCase();
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Employees</h2><p class="text-sm" style="color:var(--muted)">'+es.length+' total, '+es.filter(function(e){return e.active;}).length+' active</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkEmpModal()"><i class="fas fa-file-import"></i> Bulk Import</button><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add Employee</button></div></div>';
-  h+='<div class="search-box mb-4"><i class="fas fa-search"></i><input placeholder="Search by name or ID..." value="'+escHtml(q)+'" oninput="S.searchTerms.employees=this.value;document.getElementById(\'emp-tbody\').innerHTML=empRows(this.value.toLowerCase())"></div>';
-  h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>PIN</th><th>Status</th><th style="width:100px">Actions</th></tr></thead><tbody id="emp-tbody">'+empRows(q)+'</tbody></table></div></div>';return h;
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Employees</h2><p class="text-sm" style="color:var(--muted)">'+es.length+' total, '+es.filter(function(e){return e.active;}).length+' active</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkEmpModal()"><i class="fas fa-file-import"></i> Bulk Import</button><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
+  h+='<div class="search-box mb-4"><i class="fas fa-search"></i><input placeholder="Search name or ID..." value="'+escHtml(q)+'" oninput="S.searchTerms.employees=this.value;document.getElementById(\'emp-tbody\').innerHTML=empRows(this.value.toLowerCase())"></div>';
+  h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>Status</th><th style="width:100px">Actions</th></tr></thead><tbody id="emp-tbody">'+empRows(q)+'</tbody></table></div></div>';return h;
 }
 function empRows(q){
-  var es=emps(),filtered=q?es.filter(function(e){return(e.firstName+' '+e.lastName+' '+e.employeeId).toLowerCase().indexOf(q)!==-1;}):es;
-  if(!filtered.length)return '<tr><td colspan="6" class="text-center py-8" style="color:var(--muted)">No employees found</td></tr>';
-  return filtered.map(function(e){return '<tr><td class="font-medium">'+escHtml(e.firstName+' '+e.lastName)+'</td><td class="mono text-xs">'+escHtml(e.employeeId)+'</td><td><span class="badge badge-blue">'+escHtml(siteName(e.siteId))+'</span></td><td class="mono text-xs" style="color:var(--muted)">****</td><td>'+(e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>')+'</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-icon btn-sm" onclick="openEmpModal(\''+e.id+'\')"><i class="fas fa-pen" style="font-size:.7rem"></i></button><button class="btn btn-danger btn-icon btn-sm" onclick="delEmp(\''+e.id+'\')"><i class="fas fa-trash" style="font-size:.7rem"></i></button></div></td></tr>';}).join('');
+  var es=emps(),f=q?es.filter(function(e){return(e.firstName+' '+e.lastName+' '+e.employeeId).toLowerCase().indexOf(q)!==-1;}):es;
+  if(!f.length)return '<tr><td colspan="5" class="text-center py-8" style="color:var(--muted)">None found</td></tr>';
+  return f.map(function(e){return '<tr><td class="font-medium">'+escHtml(e.firstName+' '+e.lastName)+'</td><td class="mono text-xs">'+escHtml(e.employeeId)+'</td><td><span class="badge badge-blue">'+escHtml(siteName(e.siteId))+'</span></td><td>'+(e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>')+'</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-icon btn-sm" onclick="openEmpModal(\''+e.id+'\')"><i class="fas fa-pen" style="font-size:.7rem"></i></button><button class="btn btn-danger btn-icon btn-sm" onclick="delEmp(\''+e.id+'\')"><i class="fas fa-trash" style="font-size:.7rem"></i></button></div></td></tr>';}).join('');
 }
-
-/* ===== BULK EMPLOYEE IMPORT ===== */
+/* Bulk import */
 function openBulkEmpModal(){
-  var ss=sites();
-  if(!ss.length){toast('Add a site first','error');return;}
+  var ss=sites();if(!ss.length){toast('Add a site first','error');return;}
   var so=ss.map(function(s){return '<option value="'+s.id+'">'+escHtml(s.name)+'</option>';}).join('');
-  openModal('<h3 class="font-bold text-lg mb-1">Bulk Import Employees</h3><p class="text-sm mb-3" style="color:var(--muted)">Paste CSV data below. Each row creates one employee.</p>'+
-    '<div class="format-hint mb-3"><b>Required format (CSV, comma-separated):</b>\nFirstName,LastName,EmployeeID,PIN,SiteName\nJohn,Smith,EMP010,1234,Baywash Chemicals Windhoek\nJane,Doe,EMP011,5678,Baywash Chemicals Swakopmund\n\n<b>Notes:</b>\n- PIN must be exactly 4 digits\n- SiteName must match an existing site exactly\n- Duplicate EmployeeIDs will be skipped\n- Header row is auto-detected and skipped</div>'+
-    '<div class="mb-3"><label>Default Site (used if SiteName column is blank or missing)</label><select id="mbe-site">'+so+'</select></div>'+
-    '<div class="mb-3"><label>Paste CSV Data</label><textarea id="mbe-data" rows="8" placeholder="FirstName,LastName,EmployeeID,PIN,SiteName\nJohn,Smith,EMP010,1234,\nJane,Doe,EMP011,5678,"></textarea></div>'+
-    '<div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="parseBulkEmps()"><i class="fas fa-magnifying-glass"></i> Parse & Preview</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>'+
-    '<div id="mbe-preview"></div>');
+  openModal('<h3 class="font-bold text-lg mb-1">Bulk Import Employees</h3><p class="text-sm mb-3" style="color:var(--muted)">Paste CSV data. Each row = one employee.</p><div class="format-hint mb-3"><b>Format:</b>\nFirstName,LastName,EmployeeID,PIN,SiteName\nJohn,Smith,EMP010,1234,Baywash Chemicals Windhoek\nJane,Doe,EMP011,5678,\n\n<b>PIN</b> = 4 digits · <b>SiteName</b> = exact match or leave blank for default\nHeader row auto-skipped · Duplicates skipped</div><div class="mb-3"><label>Default Site</label><select id="mbe-site">'+so+'</select></div><div class="mb-3"><label>Paste CSV</label><textarea id="mbe-data" rows="7" placeholder="FirstName,LastName,EmployeeID,PIN,SiteName"></textarea></div><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="parseBulkEmps()"><i class="fas fa-magnifying-glass"></i> Parse & Preview</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div><div id="mbe-preview"></div>');
 }
 function parseBulkEmps(){
-  var raw=document.getElementById('mbe-data').value.trim();
-  if(!raw){toast('Paste CSV data first','error');return;}
-  var defaultSite=document.getElementById('mbe-site').value;
-  var lines=raw.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
-  if(!lines.length){toast('No data found','error');return;}
-  /* Detect header */
-  var startIdx=0,firstLine=lines[0].toLowerCase();
-  if(firstLine.indexOf('first')!==-1||firstLine.indexOf('name')!==-1||firstLine.indexOf('employee')!==-1||firstLine.indexOf('id')!==-1)startIdx=1;
-  var existing=emps(),existingIds=existing.map(function(e){return e.employeeId;});
-  var siteMap={};sites().forEach(function(s){siteMap[s.name.toLowerCase().trim()]=s.id;});
-  var parsed=[],errors=[];
-  for(var i=startIdx;i<lines.length;i++){
-    var cols=lines[i].split(',').map(function(c){return c.trim().replace(/^["']|["']$/g,'');});
-    if(cols.length<3){errors.push({row:i+1,msg:'Not enough columns ('+cols.length+' found, need at least 3)',data:lines[i]});continue;}
-    var fn=cols[0]||'',ln=cols[1]||'',eid=(cols[2]||'').toUpperCase(),pin=cols[3]||'',siteNameRaw=cols[4]||'';
-    var siteId=defaultSite;
-    if(siteNameRaw){var mapped=siteMap[siteNameRaw.toLowerCase().trim()];if(mapped)siteId=mapped;else errors.push({row:i+1,msg:'Site "'+siteNameRaw+'" not found — using default',data:lines[i]});}
-    var rowErrs=[];
-    if(!fn)rowErrs.push('Missing first name');
-    if(!ln)rowErrs.push('Missing last name');
-    if(!eid)rowErrs.push('Missing employee ID');
-    else if(existingIds.indexOf(eid)!==-1)rowErrs.push('ID '+eid+' already exists (will skip)');
-    if(!/^\d{4}$/.test(pin))rowErrs.push('PIN must be 4 digits (got "'+pin+'")');
-    parsed.push({row:i+1,firstName:fn,lastName:ln,employeeId:eid,pin:pin,siteId:siteId,siteName:siteNameRaw||siteName(siteId),errors:rowErrs,skip:existingIds.indexOf(eid)!==-1});
+  var raw=document.getElementById('mbe-data').value.trim();if(!raw){toast('Paste data first','error');return;}
+  var defSite=document.getElementById('mbe-site').value,lines=raw.split('\n').map(function(l){return l.trim();}).filter(function(l){return l;});
+  if(!lines.length){toast('No data','error');return;}
+  var si=0;if(lines[0].toLowerCase().match(/first|name|employee|id/))si=1;
+  var existingIds=emps().map(function(e){return e.employeeId;}),siteMap={};
+  sites().forEach(function(s){siteMap[s.name.toLowerCase().trim()]=s.id;});
+  var parsed=[],errs=[];
+  for(var i=si;i<lines.length;i++){
+    var c=lines[i].split(',').map(function(v){return v.trim().replace(/^["']|["']$/g,'');});
+    if(c.length<3){errs.push({row:i+1,msg:'Need at least 3 columns'});continue;}
+    var fn=c[0]||'',ln=c[1]||'',eid=(c[2]||'').toUpperCase(),pin=c[3]||'',sn=c[4]||'';
+    var sid=defSite;if(sn){var m=siteMap[sn.toLowerCase().trim()];if(m)sid=m;else errs.push({row:i+1,msg:'Site "'+sn+'" not found'});}
+    var re=[];
+    if(!fn)re.push('No first name');if(!ln)re.push('No last name');
+    if(!eid)re.push('No ID');else if(existingIds.indexOf(eid)!==-1)re.push('Duplicate ID');
+    if(!/^\d{4}$/.test(pin))re.push('PIN not 4 digits');
+    parsed.push({row:i+1,fn:fn,ln:ln,eid:eid,pin:pin,sid:sid,sn:sn||siteName(sid),re:re,skip:existingIds.indexOf(eid)!==-1});
   }
-  S.pendingImport=parsed.filter(function(p){return !p.skip&&p.errors.length===0;});
-  var validCount=parsed.filter(function(p){return !p.skip&&p.errors.length===0;}).length;
-  var skipCount=parsed.filter(function(p){return p.skip;}).length;
-  var errCount=parsed.filter(function(p){return p.errors.length>0&&!p.skip;}).length;
-  var html='<div class="mt-4 p-3 rounded-lg" style="background:var(--bg2);border:1px solid var(--border)">';
-  html+='<div class="flex items-center gap-3 mb-3 flex-wrap"><span class="badge badge-green"><i class="fas fa-check mr-1"></i>'+validCount+' valid</span>';
-  if(skipCount)html+='<span class="badge badge-amber"><i class="fas fa-forward mr-1"></i>'+skipCount+' skipped (duplicate)</span>';
-  if(errCount)html+='<span class="badge badge-red"><i class="fas fa-exclamation-triangle mr-1"></i>'+errCount+' with errors</span>';
+  S.pendingImport=parsed.filter(function(p){return !p.skip&&!p.re.length;});
+  var vc=parsed.filter(function(p){return !p.skip&&!p.re.length;}).length;
+  var sk=parsed.filter(function(p){return p.skip;}).length,ec=parsed.filter(function(p){return p.re.length&&!p.skip;}).length;
+  var html='<div class="mt-4 p-3 rounded-lg" style="background:var(--bg2);border:1px solid var(--border)"><div class="flex gap-3 mb-3 flex-wrap"><span class="badge badge-green"><i class="fas fa-check mr-1"></i>'+vc+' valid</span>'+(sk?'<span class="badge badge-amber"><i class="fas fa-forward mr-1"></i>'+sk+' skipped</span>':'')+(ec?'<span class="badge badge-red"><i class="fas fa-exclamation-triangle mr-1"></i>'+ec+' errors</span>':'')+'</div>';
+  if(parsed.length){html+='<div class="import-preview"><table><thead><tr><th>#</th><th>Name</th><th>ID</th><th>PIN</th><th>Site</th><th>Status</th></tr></thead><tbody>';parsed.forEach(function(p){var cls=p.skip||p.re.length?'err-row':'ok-row';var st=p.skip?'<span class="badge badge-amber">Skip</span>':p.re.length?'<span class="badge badge-red">'+p.re.join(', ')+'</span>':'<span class="badge badge-green">OK</span>';html+='<tr class="'+cls+'"><td class="mono text-xs">'+p.row+'</td><td class="text-sm">'+escHtml(p.fn+' '+p.ln)+'</td><td class="mono text-xs">'+escHtml(p.eid)+'</td><td class="mono text-xs">'+(p.pin?'****':'—')+'</td><td class="text-xs" style="color:var(--muted)">'+escHtml(p.sn)+'</td><td class="text-xs">'+st+'</td></tr>';});html+='</tbody></table></div>';}
   html+='</div>';
-  if(parsed.length){
-    html+='<div class="import-preview"><table><thead><tr><th>#</th><th>Name</th><th>ID</th><th>PIN</th><th>Site</th><th>Status</th></tr></thead><tbody>';
-    parsed.forEach(function(p){
-      var cls=p.skip?'err-row':(p.errors.length?'err-row':'ok-row');
-      var status=p.skip?'<span class="badge badge-amber">Skip</span>':(p.errors.length?'<span class="badge badge-red">'+p.errors.join(', ')+'</span>':'<span class="badge badge-green">OK</span>');
-      html+='<tr class="'+cls+'"><td class="mono text-xs">'+p.row+'</td><td class="text-sm">'+escHtml(p.firstName+' '+p.lastName)+'</td><td class="mono text-xs">'+escHtml(p.employeeId)+'</td><td class="mono text-xs">'+(p.pin?'****':'—')+'</td><td class="text-xs" style="color:var(--muted)">'+escHtml(p.siteName)+'</td><td class="text-xs">'+status+'</td></tr>';
-    });
-    html+='</tbody></table></div>';
-  }
-  html+='</div>';
-  if(validCount>0)html+='<div class="flex gap-3 mt-3"><button class="btn btn-primary flex-1 justify-center" onclick="confirmBulkImport()"><i class="fas fa-file-import"></i> Import '+validCount+' Employee'+(validCount>1?'s':'')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>';
+  if(vc>0)html+='<div class="flex gap-3 mt-3"><button class="btn btn-primary flex-1 justify-center" onclick="confirmBulkImport()"><i class="fas fa-file-import"></i> Import '+vc+' Employee'+(vc>1?'s':'')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>';
   document.getElementById('mbe-preview').innerHTML=html;
 }
-function confirmBulkImport(){
-  if(!S.pendingImport.length){toast('No valid employees to import','error');return;}
-  var count=0;
-  S.pendingImport.forEach(function(p){
-    var id=db.ref('employees').push().key;
-    fbSet('employees/'+id,{id:id,firstName:p.firstName,lastName:p.lastName,employeeId:p.employeeId,pin:p.pin,siteId:p.siteId,active:true});
-    count++;
-  });
-  closeModal();nav('employees');toast(count+' employee'+(count>1?'s':'')+' imported successfully','success');
-}
-
-/* ===== SINGLE EMPLOYEE CRUD ===== */
+function confirmBulkImport(){if(!S.pendingImport.length){toast('None to import','error');return;}var c=0;S.pendingImport.forEach(function(p){var id=db.ref('employees').push().key;fbSet('employees/'+id,{id:id,firstName:p.fn,lastName:p.ln,employeeId:p.eid,pin:p.pin,siteId:p.sid,active:true});c++;});closeModal();nav('employees');toast(c+' imported','success');}
+/* Single employee */
 function openEmpModal(eid){
-  var e=eid?emps().find(function(x){return x.id===eid;}):null,ss=sites();
-  if(!ss.length){toast('Add a site first','error');return;}
+  var e=eid?emps().find(function(x){return x.id===eid;}):null,ss=sites();if(!ss.length){toast('Add a site first','error');return;}
   var so=ss.map(function(s){return '<option value="'+s.id+'" '+(e&&e.siteId===s.id?'selected':'')+'>'+escHtml(s.name)+'</option>';}).join('');
-  openModal('<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-3"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="me-fn" value="'+escHtml(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="me-ln" value="'+escHtml(e?e.lastName:'')+'"></div></div><div><label>Employee ID</label><input id="me-eid" value="'+escHtml(e?e.employeeId:'')+'" '+(e?'readonly style="opacity:.5"':'')+' placeholder="e.g. EMP004"></div><div><label>PIN (4 digits)</label><input id="me-pin" type="password" maxlength="4" inputmode="numeric" value="'+(e?e.pin:'')+'"></div><div><label>Assigned Site</label><select id="me-si">'+so+'</select></div><div class="flex items-center gap-2"><input id="me-act" type="checkbox" '+((!e||e.active)?'checked':'')+' class="w-4 h-4 accent-amber-500"><label for="me-act" style="margin:0;cursor:pointer">Active employee</label></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\''+(eid||'')+'\')">'+(e?'Update':'Add Employee')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+  openModal('<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-3"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="me-fn" value="'+escHtml(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="me-ln" value="'+escHtml(e?e.lastName:'')+'"></div></div><div><label>Employee ID</label><input id="me-eid" value="'+escHtml(e?e.employeeId:'')+'" '+(e?'readonly style="opacity:.5"':'')+' placeholder="EMP004"></div><div><label>PIN (4 digits)</label><input id="me-pin" type="password" maxlength="4" inputmode="numeric" value="'+(e?e.pin:'')+'"></div><div><label>Site</label><select id="me-si">'+so+'</select></div><div class="flex items-center gap-2"><input id="me-act" type="checkbox" '+((!e||e.active)?'checked':'')+' class="w-4 h-4 accent-amber-500"><label for="me-act" style="margin:0;cursor:pointer">Active</label></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\''+(eid||'')+'\')">'+(e?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
-function saveEmp(eid){
-  var fn=document.getElementById('me-fn').value.trim(),ln=document.getElementById('me-ln').value.trim(),eid2=document.getElementById('me-eid').value.trim().toUpperCase(),pin=document.getElementById('me-pin').value,si=document.getElementById('me-si').value,act=document.getElementById('me-act').checked;
-  if(!fn||!ln){toast('Name is required','error');return;}if(!eid2){toast('Employee ID is required','error');return;}if(!/^\d{4}$/.test(pin)){toast('PIN must be exactly 4 digits','error');return;}
-  if(!eid&&emps().some(function(e){return e.employeeId===eid2;})){toast('Employee ID already exists','error');return;}
-  var obj={firstName:fn,lastName:ln,employeeId:eid2,pin:pin,siteId:si,active:act};
-  if(eid)fbUpd('employees/'+eid,obj);else{var id=db.ref('employees').push().key;obj.id=id;fbSet('employees/'+id,obj);}
-  closeModal();nav('employees');toast(eid?'Employee updated':'Employee added','success');
-}
-function delEmp(id){var e=empById(id);if(recs().some(function(r){return r.employeeId===id;})){toast('Has clock records — deactivate instead','error');return;}toBin('employees',id,e);nav('employees');toast('Moved to recycle bin','info');}
+function saveEmp(eid){var fn=document.getElementById('me-fn').value.trim(),ln=document.getElementById('me-ln').value.trim(),eid2=document.getElementById('me-eid').value.trim().toUpperCase(),pin=document.getElementById('me-pin').value,si=document.getElementById('me-si').value,act=document.getElementById('me-act').checked;if(!fn||!ln){toast('Name required','error');return;}if(!eid2){toast('ID required','error');return;}if(!/^\d{4}$/.test(pin)){toast('PIN must be 4 digits','error');return;}if(!eid&&emps().some(function(e){return e.employeeId===eid2;})){toast('ID exists','error');return;}var obj={firstName:fn,lastName:ln,employeeId:eid2,pin:pin,siteId:si,active:act};if(eid)fbUpd('employees/'+eid,obj);else{var id=db.ref('employees').push().key;obj.id=id;fbSet('employees/'+id,obj);}closeModal();nav('employees');toast(eid?'Updated':'Added','success');}
+function delEmp(id){var e=empById(id);if(recs().some(function(r){return r.employeeId===id;})){toast('Has records — deactivate instead','error');return;}toBin('employees',id,e);nav('employees');toast('Moved to bin','info');}
 
 /* ===== SHIFTS ===== */
 function renderShifts(){
   var sh=shifts(),q=(S.searchTerms.shifts||'').toLowerCase();
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Shifts</h2><p class="text-sm" style="color:var(--muted)">'+sh.length+' total</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk Add</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shift</button></div></div>';
-  h+='<div class="search-box mb-4"><i class="fas fa-search"></i><input placeholder="Search shifts..." value="'+escHtml(q)+'" oninput="S.searchTerms.shifts=this.value;document.getElementById(\'shifts-container\').innerHTML=shiftGroups(this.value.toLowerCase())"></div>';
-  h+='<div id="shifts-container">'+shiftGroups(q)+'</div></div>';return h;
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Shifts</h2><p class="text-sm" style="color:var(--muted)">'+sh.length+'</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
+  h+='<div class="search-box mb-4"><i class="fas fa-search"></i><input placeholder="Search..." value="'+escHtml(q)+'" oninput="S.searchTerms.shifts=this.value;document.getElementById(\'shifts-container\').innerHTML=shiftGroups(this.value.toLowerCase())"></div><div id="shifts-container">'+shiftGroups(q)+'</div></div>';return h;
 }
 function shiftGroups(q){
   var sh=shifts();if(q)sh=sh.filter(function(s){return(empFullName(s.employeeId)+siteName(s.siteId)+s.date).toLowerCase().indexOf(q)!==-1;});
   var byDate={};sh.forEach(function(s){if(!byDate[s.date])byDate[s.date]=[];byDate[s.date].push(s);});
   var dates=Object.keys(byDate).sort().reverse();if(!dates.length)return '<div class="empty-state card"><i class="fas fa-calendar-days block"></i><p>No shifts found</p></div>';
-  return dates.map(function(d){
-    var items=byDate[d],isTd=d===today();
-    var g='<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">'+(isTd?'<span style="color:var(--accent)">Today</span> — ':'')+new Date(d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</h3>'+dayBadge(dayType(d))+'<span class="badge badge-amber">'+items.length+'</span></div>';
-    g+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Break</th><th>Status</th><th style="width:80px"></th></tr></thead><tbody>';
-    items.forEach(function(s){var rec=recs().find(function(r){return r.shiftId===s.id;});g+='<tr><td class="font-medium text-sm">'+escHtml(empFullName(s.employeeId))+'</td><td class="text-xs" style="color:var(--muted)">'+escHtml(siteName(s.siteId))+'</td><td class="mono text-xs">'+s.startTime+'–'+s.endTime+'</td><td class="text-xs">'+(s.breakMinutes||0)+'m</td><td>'+statusBadge(rec?rec.status:'pending')+'</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-icon btn-sm" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen" style="font-size:.7rem"></i></button><button class="btn btn-danger btn-icon btn-sm" onclick="delShift(\''+s.id+'\')"><i class="fas fa-trash" style="font-size:.7rem"></i></button></div></td></tr>';});
-    g+='</tbody></table></div></div>';return g;
-  }).join('');
+  return dates.map(function(d){var items=byDate[d];var g='<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">'+(d===today()?'<span style="color:var(--accent)">Today</span> — ':'')+new Date(d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</h3>'+dayBadge(dayType(d))+'<span class="badge badge-amber">'+items.length+'</span></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Break</th><th>Status</th><th style="width:80px"></th></tr></thead><tbody>';items.forEach(function(s){var rec=recs().find(function(r){return r.shiftId===s.id;});g+='<tr><td class="font-medium text-sm">'+escHtml(empFullName(s.employeeId))+'</td><td class="text-xs" style="color:var(--muted)">'+escHtml(siteName(s.siteId))+'</td><td class="mono text-xs">'+s.startTime+'–'+s.endTime+'</td><td class="text-xs">'+(s.breakMinutes||0)+'m</td><td>'+statusBadge(rec?rec.status:'pending')+'</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-icon btn-sm" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen" style="font-size:.7rem"></i></button><button class="btn btn-danger btn-icon btn-sm" onclick="delShift(\''+s.id+'\')"><i class="fas fa-trash" style="font-size:.7rem"></i></button></div></td></tr>';});g+='</tbody></table></div></div>';return g;}).join('');
 }
 function openShiftModal(eid){
-  var s=eid?shifts().find(function(x){return x.id===eid;}):null,aes=emps().filter(function(e){return e.active;});
-  if(!aes.length){toast('Add active employees first','error');return;}
+  var s=eid?shifts().find(function(x){return x.id===eid;}):null,aes=emps().filter(function(e){return e.active;});if(!aes.length){toast('Add employees first','error');return;}
   var eo=aes.map(function(e){return '<option value="'+e.id+'" '+(s&&s.employeeId===e.id?'selected':'')+'>'+escHtml(e.firstName+' '+e.lastName)+' ('+e.employeeId+')</option>';}).join('');
   var so=sites().map(function(si){return '<option value="'+si.id+'" '+(s&&s.siteId===si.id?'selected':'')+'>'+escHtml(si.name)+'</option>';}).join('');
-  var autoSite=s?s.siteId:(aes.length===1?aes[0].siteId:'');
-  openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Shift</h3><div class="grid gap-3"><div><label>Employee</label><select id="msh-e" onchange="autoFillSite(this.value)">'+eo+'</select></div><div><label>Site</label><select id="msh-s">'+so+'</select></div><div><label>Date</label><input id="msh-d" type="date" value="'+(s?s.date:today())+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="msh-st" type="time" value="'+(s?s.startTime:'08:00')+'"></div><div><label>End Time</label><input id="msh-et" type="time" value="'+(s?s.endTime:'17:00')+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="msh-th" type="number" step="0.5" value="'+(s?s.targetHours||'':'')+'" placeholder="Auto"></div><div><label>Break (min)</label><input id="msh-bm" type="number" value="'+(s?s.breakMinutes!=null?s.breakMinutes:sett().defaultBreak||30:sett().defaultBreak||30)+'"></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+(eid||'')+'\')">'+(s?'Update':'Add Shift')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-  if(autoSite){var sel=document.getElementById('msh-s');if(sel)sel.value=autoSite;}
+  var autoS=s?s.siteId:(aes.length===1?aes[0].siteId:'');
+  openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Shift</h3><div class="grid gap-3"><div><label>Employee</label><select id="msh-e" onchange="autoFillSite(this.value)">'+eo+'</select></div><div><label>Site</label><select id="msh-s">'+so+'</select></div><div><label>Date</label><input id="msh-d" type="date" value="'+(s?s.date:today())+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Start</label><input id="msh-st" type="time" value="'+(s?s.startTime:'08:00')+'"></div><div><label>End</label><input id="msh-et" type="time" value="'+(s?s.endTime:'17:00')+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Target Hrs</label><input id="msh-th" type="number" step="0.5" value="'+(s&&s.targetHours?s.targetHours:'')+'" placeholder="Auto"></div><div><label>Break (min)</label><input id="msh-bm" type="number" value="'+(s?s.breakMinutes!=null?s.breakMinutes:sett().defaultBreak||30:sett().defaultBreak||30)+'"></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+(eid||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+  if(autoS){var sel=document.getElementById('msh-s');if(sel)sel.value=autoS;}
 }
 function autoFillSite(eid){var e=empById(eid);if(e){var sel=document.getElementById('msh-s');if(sel)sel.value=e.siteId;}}
-function saveShift(eid){
-  var eid2=document.getElementById('msh-e').value,sid=document.getElementById('msh-s').value,dt=document.getElementById('msh-d').value,st=document.getElementById('msh-st').value,et=document.getElementById('msh-et').value,th=document.getElementById('msh-th').value,bm=parseInt(document.getElementById('msh-bm').value)||0;
-  if(!dt||!st||!et){toast('Date and times required','error');return;}
-  var obj={employeeId:eid2,siteId:sid,date:dt,startTime:st,endTime:et,breakMinutes:bm};
-  if(th)obj.targetHours=parseFloat(th);
-  if(!th){var sh2=parseInt(st.split(':')[0])+parseInt(st.split(':')[1])/60,eh=parseInt(et.split(':')[0])+parseInt(et.split(':')[1])/60;if(eh<=sh2)eh+=24;obj.targetHours=Math.round((eh-sh2-bm/60)*10)/10;}
-  if(eid)fbUpd('shifts/'+eid,obj);else{var id=db.ref('shifts').push().key;obj.id=id;fbSet('shifts/'+id,obj);}
-  closeModal();nav('shifts');toast(eid?'Shift updated':'Shift added','success');
-}
-function delShift(id){var s=shifts().find(function(x){return x.id===id;});toBin('shifts',id,s);nav('shifts');toast('Moved to recycle bin','info');}
+function saveShift(eid){var eid2=document.getElementById('msh-e').value,sid=document.getElementById('msh-s').value,dt=document.getElementById('msh-d').value,st=document.getElementById('msh-st').value,et=document.getElementById('msh-et').value,th=document.getElementById('msh-th').value,bm=parseInt(document.getElementById('msh-bm').value)||0;if(!dt||!st||!et){toast('Date and times required','error');return;}var obj={employeeId:eid2,siteId:sid,date:dt,startTime:st,endTime:et,breakMinutes:bm};if(th)obj.targetHours=parseFloat(th);if(!th){var sh=parseInt(st.split(':')[0])+parseInt(st.split(':')[1])/60,eh=parseInt(et.split(':')[0])+parseInt(et.split(':')[1])/60;if(eh<=sh)eh+=24;obj.targetHours=Math.round((eh-sh-bm/60)*10)/10;}if(eid)fbUpd('shifts/'+eid,obj);else{var id=db.ref('shifts').push().key;obj.id=id;fbSet('shifts/'+id,obj);}closeModal();nav('shifts');toast(eid?'Updated':'Added','success');}
+function delShift(id){toBin('shifts',id,shifts().find(function(x){return x.id===id;}));nav('shifts');toast('Moved to bin','info');}
 function openBulkShiftModal(){
   var aes=emps().filter(function(e){return e.active;});if(!aes.length){toast('No active employees','error');return;}
   var eo=aes.map(function(e){return '<option value="'+e.id+'">'+escHtml(e.firstName+' '+e.lastName)+' ('+e.employeeId+')</option>';}).join('');
   var so=sites().map(function(s){return '<option value="'+s.id+'">'+escHtml(s.name)+'</option>';}).join('');
-  openModal('<h3 class="font-bold text-lg mb-4">Bulk Add Shifts</h3><p class="text-sm mb-3" style="color:var(--muted)">Create the same shift for multiple employees across multiple dates.</p><div class="grid gap-3"><div><label>Employees (Ctrl/Cmd+click for multiple)</label><select id="mbs-e" multiple style="height:100px">'+eo+'</select></div><div><label>Site</label><select id="mbs-s">'+so+'</select></div><div class="grid grid-cols-3 gap-3"><div><label>Start Date</label><input id="mbs-ds" type="date" value="'+today()+'"></div><div><label>End Date</label><input id="mbs-de" type="date" value="'+today()+'"></div><div><label>Days</label><select id="mbs-days" multiple style="height:38px;font-size:.75rem"><option value="1" selected>Mon</option><option value="2" selected>Tue</option><option value="3" selected>Wed</option><option value="4" selected>Thu</option><option value="5" selected>Fri</option><option value="6">Sat</option><option value="0">Sun</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="mbs-st" type="time" value="08:00"></div><div><label>End Time</label><input id="mbs-et" type="time" value="17:00"></div></div><div><label>Break (min)</label><input id="mbs-bm" type="number" value="'+(sett().defaultBreak||30)+'"></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveBulkShifts()"><i class="fas fa-layer-group"></i> Create Shifts</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+  openModal('<h3 class="font-bold text-lg mb-4">Bulk Add Shifts</h3><div class="grid gap-3"><div><label>Employees (Ctrl+click)</label><select id="mbs-e" multiple style="height:100px">'+eo+'</select></div><div><label>Site</label><select id="mbs-s">'+so+'</select></div><div class="grid grid-cols-3 gap-3"><div><label>Start Date</label><input id="mbs-ds" type="date" value="'+today()+'"></div><div><label>End Date</label><input id="mbs-de" type="date" value="'+today()+'"></div><div><label>Days</label><select id="mbs-days" multiple style="height:38px;font-size:.75rem"><option value="1" selected>Mon</option><option value="2" selected>Tue</option><option value="3" selected>Wed</option><option value="4" selected>Thu</option><option value="5" selected>Fri</option><option value="6">Sat</option><option value="0">Sun</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="mbs-st" type="time" value="08:00"></div><div><label>End Time</label><input id="mbs-et" type="time" value="17:00"></div></div><div><label>Break (min)</label><input id="mbs-bm" type="number" value="'+(sett().defaultBreak||30)+'"></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveBulkShifts()"><i class="fas fa-layer-group"></i> Create</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 function saveBulkShifts(){
   var eSel=document.getElementById('mbs-e'),sId=document.getElementById('mbs-s').value,ds=document.getElementById('mbs-ds').value,de=document.getElementById('mbs-de').value,daySel=document.getElementById('mbs-days'),st=document.getElementById('mbs-st').value,et=document.getElementById('mbs-et').value,bm=parseInt(document.getElementById('mbs-bm').value)||0;
   var eIds=[];for(var i=0;i<eSel.options.length;i++)if(eSel.options[i].selected)eIds.push(eSel.options[i].value);
   var days=[];for(var j=0;j<daySel.options.length;j++)if(daySel.options[j].selected)days.push(parseInt(daySel.options[j].value));
-  if(!eIds.length){toast('Select at least one employee','error');return;}if(!days.length){toast('Select at least one day','error');return;}if(!ds||!de||!st||!et){toast('Fill all date/time fields','error');return;}
-  var sh2=parseInt(st.split(':')[0])+parseInt(st.split(':')[1])/60,eh=parseInt(et.split(':')[0])+parseInt(et.split(':')[1])/60;if(eh<=sh2)eh+=24;var th=Math.round((eh-sh2-bm/60)*10)/10;
+  if(!eIds.length||!days.length||!ds||!de||!st||!et){toast('Fill all fields','error');return;}
+  var sh=parseInt(st.split(':')[0])+parseInt(st.split(':')[1])/60,eh=parseInt(et.split(':')[0])+parseInt(et.split(':')[1])/60;if(eh<=sh)eh+=24;var th=Math.round((eh-sh-bm/60)*10)/10;
   var start=new Date(ds+'T12:00:00'),end=new Date(de+'T12:00:00'),count=0;
-  for(var d=new Date(start);d<=end;d.setDate(d.getDate()+1)){if(days.indexOf(d.getDay())===-1)continue;var dateStr=fmtDate(d);eIds.forEach(function(eid){var id=db.ref('shifts').push().key;fbSet('shifts/'+id,{id:id,employeeId:eid,siteId:sId,date:dateStr,startTime:st,endTime:et,breakMinutes:bm,targetHours:th});count++;});}
+  for(var d=new Date(start);d<=end;d.setDate(d.getDate()+1)){if(days.indexOf(d.getDay())===-1)continue;var ds2=fmtDate(d);eIds.forEach(function(eid){var id=db.ref('shifts').push().key;fbSet('shifts/'+id,{id:id,employeeId:eid,siteId:sId,date:ds2,startTime:st,endTime:et,breakMinutes:bm,targetHours:th});count++;});}
   closeModal();nav('shifts');toast(count+' shifts created','success');
 }
 
 /* ===== RECORDS ===== */
 function renderRecords(){
-  var rc=recs(),q=(S.searchTerms.records||'').toLowerCase();
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Clock Records</h2><p class="text-sm" style="color:var(--muted)">'+rc.length+' total</p></div></div>';
-  h+='<div class="filter-row"><div class="search-box filter-group" style="min-width:200px"><i class="fas fa-search"></i><input placeholder="Search..." value="'+escHtml(q)+'" oninput="S.searchTerms.records=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"></div><div class="filter-group"><label>Date</label><input type="date" value="'+S.recFilterDate+'" onchange="S.recFilterDate=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"></div><div class="filter-group"><label>Status</label><select onchange="S.recFilterStatus=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"><option value="">All</option><option value="completed" '+(S.recFilterStatus==='completed'?'selected':'')+'>Completed</option><option value="clocked_in" '+(S.recFilterStatus==='clocked_in'?'selected':'')+'>Clocked In</option></select></div><div class="filter-group"><label>Site</label><select onchange="S.recFilterSite=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"><option value="">All Sites</option>'+sites().map(function(s){return '<option value="'+s.id+'" '+(S.recFilterSite===s.id?'selected':'')+'>'+escHtml(s.name)+'</option>';}).join('')+'</select></div></div>';
-  h+='<div class="card overflow-x-auto" style="padding:0;max-height:60vh;overflow-y:auto"><table><thead><tr><th>Employee</th><th>Site</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Type</th><th>Status</th></tr></thead><tbody id="rec-tbody">'+recRows()+'</tbody></table></div></div>';return h;
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Clock Records</h2><p class="text-sm" style="color:var(--muted)">'+recs().length+'</p></div></div>';
+  h+='<div class="filter-row"><div class="search-box fg" style="min-width:200px"><i class="fas fa-search"></i><input placeholder="Search..." value="'+escHtml(S.searchTerms.records||'')+'" oninput="S.searchTerms.records=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"></div><div class="fg"><label>Date</label><input type="date" value="'+S.recFilterDate+'" onchange="S.recFilterDate=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"></div><div class="fg"><label>Status</label><select onchange="S.recFilterStatus=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"><option value="">All</option><option value="completed" '+(S.recFilterStatus==='completed'?'selected':'')+'>Completed</option><option value="clocked_in" '+(S.recFilterStatus==='clocked_in'?'selected':'')+'>Active</option></select></div><div class="fg"><label>Site</label><select onchange="S.recFilterSite=this.value;document.getElementById(\'rec-tbody\').innerHTML=recRows()"><option value="">All</option>'+sites().map(function(s){return '<option value="'+s.id+'" '+(S.recFilterSite===s.id?'selected':'')+'>'+escHtml(s.name)+'</option>';}).join('')+'</select></div></div>';
+  h+='<div class="card overflow-x-auto" style="padding:0;max-height:60vh;overflow-y:auto"><table><thead><tr><th>Employee</th><th>Site</th><th>In</th><th>Out</th><th>Total</th><th>Breakdown</th><th>Type</th></tr></thead><tbody id="rec-tbody">'+recRows()+'</tbody></table></div></div>';return h;
 }
 function recRows(){
   var rc=recs().slice().sort(function(a,b){return new Date(b.clockIn||0)-new Date(a.clockIn||0);});
@@ -566,216 +548,98 @@ function recRows(){
   if(S.recFilterDate)rc=rc.filter(function(r){return(r.clockIn||'').slice(0,10)===S.recFilterDate;});
   if(S.recFilterStatus)rc=rc.filter(function(r){return r.status===S.recFilterStatus;});
   if(S.recFilterSite)rc=rc.filter(function(r){return r.siteId===S.recFilterSite;});
-  if(!rc.length)return '<tr><td colspan="7" class="text-center py-8" style="color:var(--muted)">No records found</td></tr>';
-  return rc.map(function(r){
-    var dt=r.dayType||dayType((r.clockIn||'').slice(0,10)),hrs='—';if(r.status==='completed')hrs=fmtH(r.totalHours);
-    var parts=[];if(r.regularHours>0)parts.push('<span style="color:var(--success)">'+fmtH(r.regularHours)+'</span>');if(r.overtimeHours>0)parts.push('<span style="color:var(--warning)">'+fmtH(r.overtimeHours)+'</span>');if(r.doubleTimeHours>0)parts.push('<span style="color:var(--danger)">'+fmtH(r.doubleTimeHours)+'</span>');
-    return '<tr><td class="font-medium text-sm">'+escHtml(empFullName(r.employeeId))+'</td><td class="text-xs" style="color:var(--muted)">'+escHtml(siteName(r.siteId))+'</td><td class="mono text-xs">'+(r.clockIn?r.clockIn.replace('T',' '):'—')+'</td><td class="mono text-xs">'+(r.clockOut?r.clockOut.replace('T',' '):'—')+'</td><td class="mono text-xs font-semibold">'+hrs+(parts.length?' <span style="color:var(--muted);font-weight:400;font-size:.7rem">('+parts.join(', ')+')</span>':'')+'</td><td>'+dayBadge(dt)+'</td><td>'+statusBadge(r.status)+'</td></tr>';
-  }).join('');
+  if(!rc.length)return '<tr><td colspan="7" class="text-center py-8" style="color:var(--muted)">None found</td></tr>';
+  return rc.map(function(r){return '<tr><td class="font-medium text-sm">'+escHtml(empFullName(r.employeeId))+'</td><td class="text-xs" style="color:var(--muted)">'+escHtml(siteName(r.siteId))+'</td><td class="mono text-xs">'+(r.clockIn?r.clockIn.replace('T',' '):'—')+'</td><td class="mono text-xs">'+(r.clockOut?r.clockOut.replace('T',' '):'—')+'</td><td class="mono text-xs font-semibold">'+(r.status==='completed'?fmtH(r.totalHours):'—')+'</td><td class="text-xs">'+(r.status==='completed'?hrsBreakdown(r):'—')+'</td><td>'+dayBadge(r.dayType||dayType((r.clockIn||'').slice(0,10)))+'</td></tr>';}).join('');
 }
 
-/* ===== EXPORT — CSV + JARRISON .DAT ===== */
+/* ===== EXPORT ===== */
 function renderExport(){
-  var ss=sites(),so='<option value="">All Sites</option>'+ss.map(function(s){return '<option value="'+s.id+'">'+escHtml(s.name)+'</option>';}).join('');
-  var es=emps(),eo='<option value="">All Employees</option>'+es.map(function(e){return '<option value="'+e.id+'">'+escHtml(e.firstName+' '+e.lastName)+' ('+e.employeeId+')</option>';}).join('');
+  var so='<option value="">All Sites</option>'+sites().map(function(s){return '<option value="'+s.id+'">'+escHtml(s.name)+'</option>';}).join('');
+  var eo='<option value="">All</option>'+emps().map(function(e){return '<option value="'+e.id+'">'+escHtml(e.firstName+' '+e.lastName)+' ('+e.employeeId+')</option>';}).join('');
   var h='<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-1">Export Data</h2><p class="text-sm mb-5" style="color:var(--muted)">Generate reports from clock records</p>';
-
-  /* Filters */
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-filter mr-2" style="color:var(--accent)"></i>Filters</h3><div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><div><label>From Date</label><input id="exp-from" type="date" value="'+weekStart(today())+'"></div><div><label>To Date</label><input id="exp-to" type="date" value="'+today()+'"></div><div><label>Employee</label><select id="exp-emp">'+eo+'</select></div><div><label>Site</label><select id="exp-site">'+so+'</select></div></div></div>';
-
-  /* Download buttons */
+  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-filter mr-2" style="color:var(--accent)"></i>Filters</h3><div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><div><label>From</label><input id="exp-from" type="date" value="'+weekStart(today())+'"></div><div><label>To</label><input id="exp-to" type="date" value="'+today()+'"></div><div><label>Employee</label><select id="exp-emp">'+eo+'</select></div><div><label>Site</label><select id="exp-site">'+so+'</select></div></div></div>';
   h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">';
-  /* CSV */
-  h+='<div class="card"><h3 class="text-sm font-semibold mb-2"><i class="fas fa-file-csv mr-2" style="color:var(--success)"></i>CSV Export</h3><p class="text-xs mb-3" style="color:var(--muted)">Standard comma-separated file. Compatible with Excel, Google Sheets, and most spreadsheet applications.</p><div class="format-hint mb-3">Employee,ID,Site,Date,In,Out,Total,Reg,OT,Double,Type</div><div class="flex gap-2"><button class="btn btn-success btn-sm" onclick="doExportCSV()"><i class="fas fa-download"></i> Download CSV</button><button class="btn btn-secondary btn-sm" onclick="previewExport(\'csv\')"><i class="fas fa-eye"></i> Preview</button></div></div>';
-  /* Jarrison DAT */
-  h+='<div class="card" style="border-color:rgba(56,189,248,.2)"><h3 class="text-sm font-semibold mb-2"><i class="fas fa-file-lines mr-2" style="color:var(--info)"></i>Jarrison .DAT Export</h3><p class="text-xs mb-3" style="color:var(--muted)">Pipe-delimited file formatted for Jarrison Time &amp; Attendance import.</p><div class="format-hint mb-3">EMPNO|DATE|INTIME|OUTTIME|REGHRS|OTHRS|DTHRS|TOTALHRS|DAYTYPE</div><div class="flex gap-2"><button class="btn btn-primary btn-sm" onclick="doExportJarrison()"><i class="fas fa-download"></i> Download .DAT</button><button class="btn btn-secondary btn-sm" onclick="previewExport(\'jarrison\')"><i class="fas fa-eye"></i> Preview</button></div></div>';
-  h+='</div>';
-
-  /* Jarrison format info */
-  h+='<div class="jarrison-info mb-4"><h4><i class="fas fa-circle-info mr-1"></i> Jarrison Format Details</h4><p>This generates a pipe-delimited <code>.dat</code> file with the following specifications:<br>'+
-    '<code>DATE</code> = YYYYMMDD &nbsp;·&nbsp; <code>INTIME/OUTTIME</code> = HHMM (24hr, no colon) &nbsp;·&nbsp; <code>EMPNO</code> = your Employee ID field<br>'+
-    '<code>DAYTYPE</code> = WEEKDAY / SUNDAY / HOLIDAY &nbsp;·&nbsp; Hours are decimal (e.g. 8.5)<br>'+
-    'Only <strong>completed</strong> clock records are included. Adjust your Jarrison import mapping to match these column positions.</p></div>';
-
-  /* Preview area */
-  h+='<div class="card" id="export-preview"><div class="empty-state"><i class="fas fa-table block"></i><p>Set filters and click Preview to see data</p></div></div></div>';return h;
+  h+='<div class="card"><h3 class="text-sm font-semibold mb-2"><i class="fas fa-file-csv mr-2" style="color:var(--success)"></i>CSV Export</h3><p class="text-xs mb-3" style="color:var(--muted)">For Excel, Google Sheets.</p><div class="format-hint mb-3">Employee,ID,Date,In,Out,Total,Reg,UnauthOT,Double,Type</div><div class="flex gap-2"><button class="btn btn-success btn-sm" onclick="doCSV()"><i class="fas fa-download"></i> Download CSV</button><button class="btn btn-secondary btn-sm" onclick="previewExp(\'csv\')"><i class="fas fa-eye"></i> Preview</button></div></div>';
+  h+='<div class="card" style="border-color:rgba(56,189,248,.2)"><h3 class="text-sm font-semibold mb-2"><i class="fas fa-file-lines mr-2" style="color:var(--info)"></i>Jarrison .DAT Export</h3><p class="text-xs mb-3" style="color:var(--muted)">Pipe-delimited for Jarrison import.</p><div class="format-hint mb-3">EMPNO|DATE|INTIME|OUTTIME|REGHRS|UNAUTHOT|DTHRS|TOTALHRS|DAYTYPE</div><div class="flex gap-2"><button class="btn btn-primary btn-sm" onclick="doJarrison()"><i class="fas fa-download"></i> Download .DAT</button><button class="btn btn-secondary btn-sm" onclick="previewExp(\'jar\')"><i class="fas fa-eye"></i> Preview</button></div></div></div>';
+  h+='<div class="jarrison-info mb-4"><h4><i class="fas fa-circle-info mr-1"></i> Jarrison Format</h4><p><code>DATE</code>=YYYYMMDD · <code>INTIME/OUTTIME</code>=HHMM · <code>DAYTYPE</code>=WEEKDAY/SATURDAY/SUNDAY/HOLIDAY · Hours=decimal · Only completed records · No header row</p></div>';
+  h+='<div class="card" id="export-preview"><div class="empty-state"><i class="fas fa-table block"></i><p>Set filters and click Preview</p></div></div></div>';return h;
 }
-function getFilteredExport(){
-  var from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value,eid=document.getElementById('exp-emp').value,sid=document.getElementById('exp-site').value;
-  var rc=recs().filter(function(r){return r.status==='completed';}).sort(function(a,b){return new Date(a.clockIn)-new Date(b.clockIn);});
-  if(from)rc=rc.filter(function(r){return(r.clockIn||'').slice(0,10)>=from;});
-  if(to)rc=rc.filter(function(r){return(r.clockIn||'').slice(0,10)<=to;});
-  if(eid)rc=rc.filter(function(r){return r.employeeId===eid;});
-  if(sid)rc=rc.filter(function(r){return r.siteId===sid;});
-  return rc;
+function getFiltered(){var from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value,eid=document.getElementById('exp-emp').value,sid=document.getElementById('exp-site').value;var rc=recs().filter(function(r){return r.status==='completed';}).sort(function(a,b){return new Date(a.clockIn)-new Date(b.clockIn);});if(from)rc=rc.filter(function(r){return(r.clockIn||'').slice(0,10)>=from;});if(to)rc=rc.filter(function(r){return(r.clockIn||'').slice(0,10)<=to;});if(eid)rc=rc.filter(function(r){return r.employeeId===eid;});if(sid)rc=rc.filter(function(r){return r.siteId===sid;});return rc;}
+function previewExp(mode){
+  var rc=getFiltered(),el=document.getElementById('export-preview');if(!rc.length){el.innerHTML='<div class="empty-state"><i class="fas fa-table block"></i><p>No records match</p></div>';return;}
+  if(mode==='jar'){var h='<h3 class="text-sm font-semibold mb-3"><i class="fas fa-file-lines mr-2" style="color:var(--info)"></i>Jarrison Preview <span class="badge badge-blue">'+rc.length+'</span></h3><div style="max-height:40vh;overflow:auto"><table><thead><tr><th>EMPNO</th><th>DATE</th><th>IN</th><th>OUT</th><th>REG</th><th>UNAUTH</th><th>DT</th><th>TOTAL</th><th>TYPE</th></tr></thead><tbody>';rc.forEach(function(r){var e=empById(r.employeeId);h+='<tr><td class="mono text-xs">'+(e?e.employeeId:'?')+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(0,10).replace(/-/g,'')+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(11,16).replace(':','')+'</td><td class="mono text-xs">'+(r.clockOut||'').slice(11,16).replace(':','')+'</td><td class="mono text-xs" style="color:var(--success)">'+fmtH(r.regularHours)+'</td><td class="mono text-xs" style="color:var(--danger)">'+fmtH(getUOT(r))+'</td><td class="mono text-xs" style="color:var(--purple)">'+fmtH(r.doubleTimeHours)+'</td><td class="mono text-xs font-semibold">'+fmtH(r.totalHours)+'</td><td class="text-xs">'+(r.dayType||'')+'</td></tr>';});h+='</tbody></table></div>';el.innerHTML=h;}
+  else{var h2='<h3 class="text-sm font-semibold mb-3"><i class="fas fa-file-csv mr-2" style="color:var(--success)"></i>CSV Preview <span class="badge badge-blue">'+rc.length+'</span></h3><div style="max-height:40vh;overflow:auto"><table><thead><tr><th>Employee</th><th>ID</th><th>Date</th><th>In</th><th>Out</th><th>Total</th><th>Reg</th><th>Unauth OT</th><th>Double</th><th>Type</th></tr></thead><tbody>';rc.forEach(function(r){var e=empById(r.employeeId);h2+='<tr><td class="text-sm">'+escHtml(e?e.firstName+' '+e.lastName:'?')+'</td><td class="mono text-xs">'+(e?e.employeeId:'')+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(0,10)+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(11,16)+'</td><td class="mono text-xs">'+(r.clockOut||'').slice(11,16)+'</td><td class="mono text-xs font-semibold">'+fmtH(r.totalHours)+'</td><td class="mono text-xs" style="color:var(--success)">'+fmtH(r.regularHours)+'</td><td class="mono text-xs" style="color:var(--danger)">'+fmtH(getUOT(r))+'</td><td class="mono text-xs" style="color:var(--purple)">'+fmtH(r.doubleTimeHours)+'</td><td class="text-xs">'+(r.dayType||'')+'</td></tr>';});h2+='</tbody></table></div>';el.innerHTML=h2;}
 }
-function previewExport(mode){
-  var rc=getFilteredExport(),el=document.getElementById('export-preview');
-  if(!rc.length){el.innerHTML='<div class="empty-state"><i class="fas fa-table block"></i><p>No records match the filters</p></div>';return;}
-  if(mode==='jarrison'){
-    var h='<h3 class="text-sm font-semibold mb-3"><i class="fas fa-file-lines mr-2" style="color:var(--info)"></i>Jarrison .DAT Preview <span class="badge badge-blue">'+rc.length+' records</span></h3>';
-    h+='<div style="max-height:40vh;overflow:auto"><table><thead><tr><th>EMPNO</th><th>DATE</th><th>INTIME</th><th>OUTTIME</th><th>REG</th><th>OT</th><th>DT</th><th>TOTAL</th><th>DAYTYPE</th></tr></thead><tbody>';
-    rc.forEach(function(r){var e=empById(r.employeeId),ci=r.clockIn,co=r.clockOut;
-      var dateStr=ci?ci.slice(0,10).replace(/-/g,''):'',inTime=ci?ci.slice(11,16).replace(':',''):'',outTime=co?co.slice(11,16).replace(':',''):'';
-      h+='<tr><td class="mono text-xs">'+(e?e.employeeId:'?')+'</td><td class="mono text-xs">'+dateStr+'</td><td class="mono text-xs">'+inTime+'</td><td class="mono text-xs">'+outTime+'</td><td class="mono text-xs" style="color:var(--success)">'+fmtH(r.regularHours)+'</td><td class="mono text-xs" style="color:var(--warning)">'+fmtH(r.overtimeHours)+'</td><td class="mono text-xs" style="color:var(--danger)">'+fmtH(r.doubleTimeHours)+'</td><td class="mono text-xs font-semibold">'+fmtH(r.totalHours)+'</td><td class="text-xs">'+(r.dayType||'')+'</td></tr>';
-    });
-    h+='</tbody></table></div>';el.innerHTML=h;
-  } else {
-    var h2='<h3 class="text-sm font-semibold mb-3"><i class="fas fa-file-csv mr-2" style="color:var(--success)"></i>CSV Preview <span class="badge badge-blue">'+rc.length+' records</span></h3><div style="max-height:40vh;overflow:auto"><table><thead><tr><th>Employee</th><th>Site</th><th>Date</th><th>In</th><th>Out</th><th>Total</th><th>Regular</th><th>OT</th><th>Double</th><th>Type</th></tr></thead><tbody>';
-    rc.forEach(function(r){h2+='<tr><td class="text-sm">'+escHtml(empFullName(r.employeeId))+'</td><td class="text-xs">'+escHtml(siteName(r.siteId))+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(0,10)+'</td><td class="mono text-xs">'+(r.clockIn||'').slice(11,16)+'</td><td class="mono text-xs">'+(r.clockOut||'').slice(11,16)+'</td><td class="mono text-xs font-semibold">'+fmtH(r.totalHours)+'</td><td class="mono text-xs" style="color:var(--success)">'+fmtH(r.regularHours)+'</td><td class="mono text-xs" style="color:var(--warning)">'+fmtH(r.overtimeHours)+'</td><td class="mono text-xs" style="color:var(--danger)">'+fmtH(r.doubleTimeHours)+'</td><td class="text-xs">'+(r.dayType||'')+'</td></tr>';});
-    h2+='</tbody></table></div>';el.innerHTML=h2;
-  }
-}
-
-/* CSV Download */
-function doExportCSV(){
-  var rc=getFilteredExport();if(!rc.length){toast('No records to export','error');return;}
-  var csv='Employee,Employee ID,Site,Date,Clock In,Clock Out,Total Hours,Regular Hours,OT Hours,Double Time Hours,Day Type\n';
-  rc.forEach(function(r){var e=empById(r.employeeId);csv+='"'+(e?e.firstName+' '+e.lastName:'Unknown')+'","'+(e?e.employeeId:'')+'","'+siteName(r.siteId)+'","'+(r.clockIn||'').slice(0,10)+'","'+(r.clockIn||'').slice(11,16)+'","'+(r.clockOut||'').slice(11,16)+'","'+fmtH(r.totalHours)+'","'+fmtH(r.regularHours)+'","'+fmtH(r.overtimeHours)+'","'+fmtH(r.doubleTimeHours)+'","'+(r.dayType||'')+'"\n';});
-  downloadFile(csv,'sitepro-export-'+today()+'.csv','text/csv');
-  toast('CSV downloaded ('+rc.length+' records)','success');
-}
-
-/* Jarrison .DAT Download */
-function doExportJarrison(){
-  var rc=getFilteredExport();if(!rc.length){toast('No records to export','error');return;}
-  /* Pipe-delimited, no header row (Jarrison typically expects data only) */
-  var lines=[];
-  rc.forEach(function(r){
-    var e=empById(r.employeeId),ci=r.clockIn,co=r.clockOut;
-    /* EMPNO|DATE|INTIME|OUTTIME|REGHRS|OTHRS|DTHRS|TOTALHRS|DAYTYPE */
-    var empNo=e?e.employeeId:'';
-    var dateStr=ci?ci.slice(0,10).replace(/-/g,''):'';
-    var inTime=ci?ci.slice(11,16).replace(':',''):'';
-    var outTime=co?co.slice(11,16).replace(':',''):'';
-    var regHrs=fmtH(r.regularHours||0);
-    var otHrs=fmtH(r.overtimeHours||0);
-    var dtHrs=fmtH(r.doubleTimeHours||0);
-    var totalHrs=fmtH(r.totalHours||0);
-    var dayTp=r.dayType||'WEEKDAY';
-    lines.push(empNo+'|'+dateStr+'|'+inTime+'|'+outTime+'|'+regHrs+'|'+otHrs+'|'+dtHrs+'|'+totalHrs+'|'+dayTp);
-  });
-  var dat=lines.join('\n')+'\n';
-  downloadFile(dat,'sitepro-jarrison-'+today()+'.dat','application/octet-stream');
-  toast('.DAT downloaded ('+rc.length+' records)','success');
-}
-
-/* Generic file download helper */
-function downloadFile(content,filename,mimeType){
-  var blob=new Blob([content],{type:mimeType}),url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-}
+function doCSV(){var rc=getFiltered();if(!rc.length){toast('No records','error');return;}var csv='Employee,Employee ID,Date,Clock In,Clock Out,Total Hours,Regular Hours,Unauthorised OT,Double Time,Day Type\n';rc.forEach(function(r){var e=empById(r.employeeId);csv+='"'+(e?e.firstName+' '+e.lastName:'Unknown')+'","'+(e?e.employeeId:'')+'","'+(r.clockIn||'').slice(0,10)+'","'+(r.clockIn||'').slice(11,16)+'","'+(r.clockOut||'').slice(11,16)+'","'+fmtH(r.totalHours)+'","'+fmtH(r.regularHours)+'","'+fmtH(getUOT(r))+'","'+fmtH(r.doubleTimeHours)+'","'+(r.dayType||'')+'"\n';});downloadFile(csv,'sitepro-'+today()+'.csv','text/csv');toast('CSV downloaded ('+rc.length+')','success');}
+function doJarrison(){var rc=getFiltered();if(!rc.length){toast('No records','error');return;}var lines=[];rc.forEach(function(r){var e=empById(r.employeeId);lines.push((e?e.employeeId:'')+'|'+(r.clockIn||'').slice(0,10).replace(/-/g,'')+'|'+(r.clockIn||'').slice(11,16).replace(':','')+'|'+(r.clockOut||'').slice(11,16).replace(':','')+'|'+fmtH(r.regularHours)+'|'+fmtH(getUOT(r))+'|'+fmtH(r.doubleTimeHours)+'|'+fmtH(r.totalHours)+'|'+(r.dayType||''));});downloadFile(lines.join('\n')+'\n','sitepro-jarrison-'+today()+'.dat','application/octet-stream');toast('.DAT downloaded ('+rc.length+')','success');}
 
 /* ===== RECYCLE BIN ===== */
 function renderRecycleBin(){
   var bin=D.recycleBin,types=[{k:'sites',l:'Sites',i:'fa-location-dot',c:'var(--info)'},{k:'employees',l:'Employees',i:'fa-users',c:'var(--accent)'},{k:'shifts',l:'Shifts',i:'fa-calendar-days',c:'var(--success)'},{k:'records',l:'Records',i:'fa-clock-rotate-left',c:'var(--warning)'}];
   var total=0;types.forEach(function(t){if(bin[t.k])total+=Object.keys(bin[t.k]).length;});
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-5 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Recycle Bin</h2><p class="text-sm" style="color:var(--muted)">'+total+' item'+(total!==1?'s':'')+' · auto-deleted after 30 days</p></div>';
-  if(total>0)h+='<button class="btn btn-danger btn-sm" onclick="emptyBin()"><i class="fas fa-trash"></i> Empty Bin</button>';
-  h+='</div>';var hasAny=false;
-  types.forEach(function(t){var items=bin[t.k]?Object.entries(bin[t.k]):[];if(!items.length)return;hasAny=true;
-    h+='<div class="mb-5"><h3 class="text-sm font-semibold mb-2 flex items-center gap-2"><i class="fas '+t.i+'" style="color:'+t.c+'"></i> '+t.l+' <span class="badge badge-amber">'+items.length+'</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Item</th><th>Deleted</th><th>Expires</th><th style="width:160px">Actions</th></tr></thead><tbody>';
-    items.sort(function(a,b){return new Date(b[1].at)-new Date(a[1].at);}).forEach(function(entry){
-      var bid=entry[0],item=entry[1],d=item.data,name='Unknown';
-      if(t.k==='sites')name=d.name||'Unknown';else if(t.k==='employees')name=(d.firstName||'')+' '+(d.lastName||'')+' ('+(d.employeeId||'?')+')';else if(t.k==='shifts')name=empFullName(d.employeeId)+' — '+d.date;else if(t.k==='records')name=empFullName(d.employeeId)+' — '+(d.clockIn||'').slice(0,10);
-      var dl=Math.max(0,Math.ceil((new Date(item.at).getTime()+BIN_TTL-Date.now())/86400000)),ec=dl<=3?'var(--danger)':dl<=7?'var(--warning)':'var(--muted)';
-      h+='<tr><td class="font-medium text-sm">'+escHtml(name)+'</td><td class="text-xs" style="color:var(--muted)">'+timeAgo(item.at)+'</td><td class="text-xs" style="color:'+ec+'">'+dl+'d left</td><td><div class="flex gap-2"><button class="btn btn-success btn-sm" onclick="fromBin(\''+t.k+'\',\''+bid+'\')"><i class="fas fa-rotate-left"></i> Restore</button><button class="btn btn-danger btn-sm" onclick="permDelBin(\''+t.k+'\',\''+bid+'\')"><i class="fas fa-trash"></i></button></div></td></tr>';
-    });h+='</tbody></table></div></div>';});
-  if(!hasAny)h+='<div class="empty-state card"><i class="fas fa-recycle block"></i><p>Recycle bin is empty</p></div>';
-  return h+'</div>';
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-5 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">Recycle Bin</h2><p class="text-sm" style="color:var(--muted)">'+total+' item'+(total!==1?'s':'')+' · auto-delete after 30 days</p></div>'+(total>0?'<button class="btn btn-danger btn-sm" onclick="emptyBin()"><i class="fas fa-trash"></i> Empty</button>':'')+'</div>';var any=false;
+  types.forEach(function(t){var items=bin[t.k]?Object.entries(bin[t.k]):[];if(!items.length)return;any=true;h+='<div class="mb-5"><h3 class="text-sm font-semibold mb-2 flex items-center gap-2"><i class="fas '+t.i+'" style="color:'+t.c+'"></i> '+t.l+' <span class="badge badge-amber">'+items.length+'</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Item</th><th>Deleted</th><th>Expires</th><th style="width:160px">Actions</th></tr></thead><tbody>';items.sort(function(a,b){return new Date(b[1].at)-new Date(a[1].at);}).forEach(function(en){var bid=en[0],it=en[1],d=it.data,nm='?';if(t.k==='sites')nm=d.name||'?';else if(t.k==='employees')nm=(d.firstName||'')+' '+(d.lastName||'')+' ('+(d.employeeId||'?')+')';else if(t.k==='shifts')nm=empFullName(d.employeeId)+' — '+d.date;else nm=empFullName(d.employeeId)+' — '+(d.clockIn||'').slice(0,10);var dl=Math.max(0,Math.ceil((new Date(it.at).getTime()+BIN_TTL-Date.now())/86400000)),ec=dl<=3?'var(--danger)':dl<=7?'var(--warning)':'var(--muted)';h+='<tr><td class="font-medium text-sm">'+escHtml(nm)+'</td><td class="text-xs" style="color:var(--muted)">'+timeAgo(it.at)+'</td><td class="text-xs" style="color:'+ec+'">'+dl+'d</td><td><div class="flex gap-2"><button class="btn btn-success btn-sm" onclick="fromBin(\''+t.k+'\',\''+bid+'\')"><i class="fas fa-rotate-left"></i></button><button class="btn btn-danger btn-sm" onclick="permDelBin(\''+t.k+'\',\''+bid+'\')"><i class="fas fa-trash"></i></button></div></td></tr>';});h+='</tbody></table></div></div>';});
+  if(!any)h+='<div class="empty-state card"><i class="fas fa-recycle block"></i><p>Empty</p></div>';return h+'</div>';
 }
 
 /* ===== SETTINGS ===== */
 function renderSettings(){
-  var s=sett(),holsList=hols();
-  var h='<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-1">Settings</h2><p class="text-sm mb-5" style="color:var(--muted)">Configure time tracking rules and system preferences</p>';
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-clock mr-2" style="color:var(--accent)"></i>Hours Configuration</h3><div class="grid gap-3 sm:grid-cols-3"><div><label>Weekly Target (hours)</label><input id="set-target" type="number" step="1" value="'+(s.weeklyTarget||45)+'"></div><div><label>Overtime After (hours)</label><input id="set-ot" type="number" step="1" value="'+(s.overtimeAfter!=null?s.overtimeAfter:45)+'"></div><div><label>Default Break (minutes)</label><input id="set-break" type="number" value="'+(s.defaultBreak||30)+'"></div></div><p class="text-xs mt-2" style="color:var(--muted)">Weekly target × Mondays in month = monthly target. Overtime kicks in after the threshold within a Mon–Fri week. Sundays and public holidays are always double time.</p><button class="btn btn-primary mt-3" onclick="saveHoursSettings()"><i class="fas fa-save"></i> Save Hours Settings</button></div>';
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-shield-halved mr-2" style="color:var(--danger)"></i>Admin Credentials</h3><div class="grid gap-3 sm:grid-cols-2"><div><label>Username</label><input id="set-user" value="'+escHtml(D.admin.username||'')+'"></div><div><label>New Password</label><input id="set-pass" type="password" placeholder="Leave blank to keep current"></div></div><button class="btn btn-secondary mt-3" onclick="saveAdminCreds()"><i class="fas fa-save"></i> Update Credentials</button></div>';
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-1"><i class="fas fa-calendar-xmark mr-2" style="color:var(--purple)"></i>Public Holidays <span class="badge badge-purple">'+holsList.length+'</span></h3><p class="text-xs mb-3" style="color:var(--muted)">Holiday dates are always paid at double time rate</p><div class="flex gap-2 mb-3"><input id="set-hol" type="date" class="sm:max-w-xs"><button class="btn btn-secondary btn-sm" onclick="addHoliday()"><i class="fas fa-plus"></i> Add</button></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2" id="hol-grid">';
-  holsList.sort().forEach(function(d){var dt=new Date(d+'T12:00:00');h+='<div class="flex items-center justify-between p-2 rounded-lg" style="background:var(--bg2);border:1px solid var(--border)"><span class="text-xs">'+dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</span><button class="btn btn-danger btn-icon" style="width:22px;height:22px;min-width:22px" onclick="removeHoliday(\''+d+'\')"><i class="fas fa-times" style="font-size:.55rem"></i></button></div>';});
-  h+='</div></div>';
-  h+='<div class="card" style="border-color:rgba(248,113,113,.2)"><h3 class="text-sm font-semibold mb-3" style="color:var(--danger)"><i class="fas fa-triangle-exclamation mr-2"></i>Danger Zone</h3><p class="text-xs mb-3" style="color:var(--muted)">These actions cannot be undone.</p><div class="flex gap-3 flex-wrap"><button class="btn btn-danger btn-sm" onclick="clearAllRecords()"><i class="fas fa-eraser"></i> Clear All Records</button><button class="btn btn-danger btn-sm" onclick="resetAllData()"><i class="fas fa-bomb"></i> Reset Everything</button></div></div>';
-  return h+'</div>';
+  var s=sett(),hl=hols();
+  var h='<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-1">Settings</h2><p class="text-sm mb-5" style="color:var(--muted)">Hours rules and system config</p>';
+  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-clock mr-2" style="color:var(--accent)"></i>Daily Hour Targets</h3><div class="grid gap-3 sm:grid-cols-4"><div><label>Weekday Target (Mon–Fri)</label><input id="set-wd" type="number" step="0.5" value="'+(s.weekdayDailyTarget||8)+'"></div><div><label>Saturday Target</label><input id="set-sat" type="number" step="0.5" value="'+(s.saturdayDailyTarget||5)+'"></div><div><label>Weekly Target (progress bar)</label><input id="set-wk" type="number" step="1" value="'+(s.weeklyTarget||45)+'"></div><div><label>Default Break (min)</label><input id="set-brk" type="number" value="'+(s.defaultBreak||30)+'"></div></div><p class="text-xs mt-3" style="color:var(--muted)">Mon–Fri: first <strong>'+getDailyTarget('Weekday')+'h</strong> = Regular, over = <strong style="color:var(--danger)">Unauthorised OT</strong>. Saturday: first <strong>'+getDailyTarget('Saturday')+'h</strong> = Regular, over = Unauth OT. Sunday/Holiday: ALL = <strong style="color:var(--purple)">Double Time</strong>. Weekly target is for progress display only (5×8 + 1×5 = '+getWeeklyTarget()+'h).</p><button class="btn btn-primary mt-3" onclick="saveSett()"><i class="fas fa-save"></i> Save</button></div>';
+  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-shield-halved mr-2" style="color:var(--danger)"></i>Admin Credentials</h3><div class="grid gap-3 sm:grid-cols-2"><div><label>Username</label><input id="set-user" value="'+escHtml(D.admin.username||'')+'"></div><div><label>New Password</label><input id="set-pass" type="password" placeholder="Blank = keep current"></div></div><button class="btn btn-secondary mt-3" onclick="saveCreds()"><i class="fas fa-save"></i> Update</button></div>';
+  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-1"><i class="fas fa-calendar-xmark mr-2" style="color:var(--purple)"></i>Public Holidays <span class="badge badge-purple">'+hl.length+'</span></h3><p class="text-xs mb-3" style="color:var(--muted)">These dates = Double Time</p><div class="flex gap-2 mb-3"><input id="set-hol" type="date" class="sm:max-w-xs"><button class="btn btn-secondary btn-sm" onclick="addHol()"><i class="fas fa-plus"></i> Add</button></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">';hl.sort().forEach(function(d){h+='<div class="flex items-center justify-between p-2 rounded-lg" style="background:var(--bg2);border:1px solid var(--border)"><span class="text-xs">'+new Date(d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</span><button class="btn btn-danger btn-icon" style="width:22px;height:22px;min-width:22px" onclick="rmHol(\''+d+'\')"><i class="fas fa-times" style="font-size:.55rem"></i></button></div>';});h+='</div></div>';
+  h+='<div class="card" style="border-color:rgba(248,113,113,.2)"><h3 class="text-sm font-semibold mb-3" style="color:var(--danger)"><i class="fas fa-triangle-exclamation mr-2"></i>Danger Zone</h3><div class="flex gap-3 flex-wrap"><button class="btn btn-danger btn-sm" onclick="clearRecs()"><i class="fas fa-eraser"></i> Clear All Records</button><button class="btn btn-danger btn-sm" onclick="resetAll()"><i class="fas fa-bomb"></i> Reset Everything</button></div></div></div>';return h;
 }
-function saveHoursSettings(){var t=parseFloat(document.getElementById('set-target').value),o=parseFloat(document.getElementById('set-ot').value),b=parseInt(document.getElementById('set-break').value);if(isNaN(t)||isNaN(o)||isNaN(b)){toast('Invalid values','error');return;}fbUpd('settings',{weeklyTarget:t,overtimeAfter:o,defaultBreak:b});toast('Hours settings saved','success');}
-function saveAdminCreds(){var u=document.getElementById('set-user').value.trim(),p=document.getElementById('set-pass').value;if(!u){toast('Username required','error');return;}var obj={username:u};if(p)obj.password=p;fbUpd('admin',obj);toast('Credentials updated','success');document.getElementById('set-pass').value='';}
-function addHoliday(){var d=document.getElementById('set-hol').value;if(!d){toast('Select a date','error');return;}var h=hols();if(h.indexOf(d)!==-1){toast('Date already exists','error');return;}h.push(d);h.sort();fbUpd('settings',{holidays:h});toast('Holiday added','success');nav('settings');}
-function removeHoliday(d){var h=hols().filter(function(x){return x!==d;});fbUpd('settings',{holidays:h});nav('settings');toast('Holiday removed','info');}
-function clearAllRecords(){openModal('<h3 class="font-bold text-lg mb-3">Clear All Clock Records?</h3><p class="text-sm mb-4" style="color:var(--muted)">This will permanently delete all clock-in/out records.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'records\',[]);closeModal();toast(\'All records cleared\',\'success\')"><i class="fas fa-eraser"></i> Clear Records</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
-function resetAllData(){openModal('<h3 class="font-bold text-lg mb-3" style="color:var(--danger)">Reset Everything?</h3><p class="text-sm mb-4" style="color:var(--muted)">This will delete ALL data and re-seed with defaults. Cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="doReset()"><i class="fas fa-bomb"></i> Reset Everything</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
-function doReset(){['sites','employees','shifts','records','settings','admin','recycleBin'].forEach(function(p){fbRm(p);});setTimeout(function(){seedData();closeModal();toast('All data reset to defaults','success');nav('dashboard');},500);}
+function saveSett(){fbUpd('settings',{weekdayDailyTarget:parseFloat(document.getElementById('set-wd').value)||8,saturdayDailyTarget:parseFloat(document.getElementById('set-sat').value)||5,weeklyTarget:parseInt(document.getElementById('set-wk').value)||45,defaultBreak:parseInt(document.getElementById('set-brk').value)||30});toast('Saved','success');nav('settings');}
+function saveCreds(){var u=document.getElementById('set-user').value.trim(),p=document.getElementById('set-pass').value;if(!u){toast('Username required','error');return;}var o={username:u};if(p)o.password=p;fbUpd('admin',o);D.admin.username=u;if(p)D.admin.password=p;toast('Updated','success');document.getElementById('set-pass').value='';}
+function addHol(){var d=document.getElementById('set-hol').value;if(!d){toast('Pick a date','error');return;}var h=hols();if(h.indexOf(d)!==-1){toast('Exists','error');return;}h.push(d);h.sort();fbUpd('settings',{holidays:h});nav('settings');toast('Added','success');}
+function rmHol(d){fbUpd('settings',{holidays:hols().filter(function(x){return x!==d;})});nav('settings');}
+function clearRecs(){openModal('<h3 class="font-bold text-lg mb-3">Clear All Records?</h3><p class="text-sm mb-4" style="color:var(--muted)">Permanent.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'records\',[]);closeModal();toast(\'Cleared\',\'success\')"><i class="fas fa-eraser"></i> Clear</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
+function resetAll(){openModal('<h3 class="font-bold text-lg mb-3" style="color:var(--danger)">Reset Everything?</h3><p class="text-sm mb-4" style="color:var(--muted)">Cannot undo.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="doReset()"><i class="fas fa-bomb"></i> Reset</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
+function doReset(){['sites','employees','shifts','records','settings','admin','recycleBin'].forEach(function(p){fbRm(p);});setTimeout(function(){seedData();closeModal();toast('Reset','success');nav('dashboard');},500);}
 
 /* ===== EMPLOYEE CLOCK PAGE ===== */
 function renderClockPage(){
   var e=S.emp,site=sites().find(function(s){return s.id===e.siteId;});
-  var isCI=S.clockState==='clocked_in',faceClass=isCI?'co':'ci',iconClass=isCI?'fa-arrow-right-from-bracket':'fa-fingerprint',label=isCI?'CLOCK OUT':'CLOCK IN',sub=isCI?'Tap to end shift':'Tap to start shift';
-  var ws=weekStart(today()),we=weekEnd(ws),tc=tierCfg();
-  var weekRecs=recs().filter(function(r){return r.employeeId===e.id&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=we;});
-  var wReg=0,wOt=0,wDt=0;weekRecs.forEach(function(r){wReg+=(r.regularHours||0);wOt+=(r.overtimeHours||0);wDt+=(r.doubleTimeHours||0);});
-  var wTotal=wReg+wOt+wDt,wPct=Math.min(100,Math.round((wTotal/tc.target)*100));
-  if(isCI&&S.activeRec){var liveHrs=(Date.now()-new Date(S.activeRec.clockIn).getTime())/3600000;wTotal+=liveHrs;wPct=Math.min(100,Math.round((wTotal/tc.target)*100));}
-  var h='<div class="fade-in"><div class="emp-hero mb-5"><div class="emp-avatar">'+e.firstName.charAt(0)+e.lastName.charAt(0)+'</div><div class="text-lg font-bold">'+escHtml(e.firstName+' '+e.lastName)+'</div><div class="text-xs" style="color:var(--muted)">'+escHtml(e.employeeId)+' · '+escHtml(site?site.name:'Unknown site')+'</div><div class="mono text-3xl font-bold mt-3" id="emp-live-clock">'+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div><div class="text-xs" style="color:var(--muted)">'+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>';
-  h+='<div class="flex justify-center mb-5"><div class="clock-face '+faceClass+'" onclick="handleClock()"><div class="clock-ring"></div><div class="cf-icon"><i class="fas '+iconClass+'"></i></div><div class="cf-label">'+label+'</div><div class="cf-sub">'+sub+'</div></div></div>';
+  var isCI=S.clockState==='clocked_in',fc=isCI?'co':'ci',ic=isCI?'fa-arrow-right-from-bracket':'fa-fingerprint',lb=isCI?'CLOCK OUT':'CLOCK IN',sub=isCI?'Tap to end shift':'Tap to start';
+  var wt=empWeekTotal(e.id,today()),wtLive=wt,wc=getWeeklyTarget();
+  if(isCI&&S.activeRec)wtLive+=(Date.now()-new Date(S.activeRec.clockIn).getTime())/3600000;
+  var wp=Math.min(100,Math.round((wtLive/wc)*100));
+  /* Week tier totals */
+  var ws=weekStart(today()),we=weekEnd(ws);
+  var wRecs=recs().filter(function(r){return r.employeeId===e.id&&r.status==='completed'&&r.clockIn&&r.clockIn.slice(0,10)>=ws&&r.clockIn.slice(0,10)<=we;});
+  var wR=0,wU=0,wD=0;wRecs.forEach(function(r){wR+=(r.regularHours||0);wU+=getUOT(r);wD+=(r.doubleTimeHours||0);});
+  var h='<div class="fade-in"><div class="emp-hero mb-5"><div class="emp-avatar">'+e.firstName.charAt(0)+e.lastName.charAt(0)+'</div><div class="text-lg font-bold">'+escHtml(e.firstName+' '+e.lastName)+'</div><div class="text-xs" style="color:var(--muted)">'+escHtml(e.employeeId)+' · '+escHtml(site?site.name:'Unknown')+'</div><div class="mono text-3xl font-bold mt-3" id="emp-live-clock">'+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div><div class="text-xs" style="color:var(--muted)">'+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>';
+  h+='<div class="flex justify-center mb-5"><div class="clock-face '+fc+'" onclick="handleClock()"><div class="clock-ring"></div><div class="cf-icon"><i class="fas '+ic+'"></i></div><div class="cf-label">'+lb+'</div><div class="cf-sub">'+sub+'</div></div></div>';
   h+='<div class="text-center mb-5"><div id="gps-status" class="text-xs flex items-center justify-center gap-1.5" style="color:var(--muted)"><span class="conn-dot loading"></span> Checking location...</div></div>';
-  if(isCI){h+='<div class="text-center mb-5"><div class="text-xs" style="color:var(--muted)">Current shift duration</div><div class="mono text-2xl font-bold mt-1" style="color:var(--danger)" id="live-elapsed">0h 0m</div><div class="text-xs mt-1" style="color:var(--muted)">Since '+fmtTime(new Date(S.activeRec.clockIn))+'</div></div>';}
-  h+='<div class="card mb-4"><div class="flex items-center justify-between mb-2"><h3 class="text-sm font-semibold"><i class="fas fa-chart-simple mr-2" style="color:var(--accent)"></i>This Week</h3><span class="mono text-sm font-bold" style="color:var(--accent)" id="week-total">'+fmtH(wTotal)+'h</span></div><div class="progress-track mb-2"><div class="progress-fill" style="width:'+wPct+'%;background:linear-gradient(90deg,var(--success),var(--accent))"></div></div><div class="flex justify-between text-xs" style="color:var(--muted)"><span>0h</span><span>Target: '+tc.target+'h ('+wPct+'%)</span></div><div class="tier-legend mt-3"><span><span class="td" style="background:var(--success)"></span>Regular: '+fmtH(wReg)+'h</span><span><span class="td" style="background:var(--warning)"></span>OT: '+fmtH(wOt)+'h</span><span><span class="td" style="background:var(--danger)"></span>Double: '+fmtH(wDt)+'h</span></div></div>';
+  if(isCI)h+='<div class="text-center mb-5"><div class="text-xs" style="color:var(--muted)">Current shift</div><div class="mono text-2xl font-bold mt-1" style="color:var(--danger)" id="live-elapsed">0h 0m</div><div class="text-xs mt-1" style="color:var(--muted)">Since '+fmtTime(new Date(S.activeRec.clockIn))+'</div></div>';
+  h+='<div class="card mb-4"><div class="flex items-center justify-between mb-2"><h3 class="text-sm font-semibold"><i class="fas fa-chart-simple mr-2" style="color:var(--accent)"></i>This Week</h3><span class="mono text-sm font-bold" style="color:var(--accent)">'+fmtH(wtLive)+'h</span></div><div class="progress-track mb-2"><div class="progress-fill" style="width:'+wp+'%;background:linear-gradient(90deg,var(--success),var(--accent))"></div></div><div class="flex justify-between text-xs" style="color:var(--muted)"><span>0h</span><span>Target: '+wc+'h ('+wp+'%)</span></div><div class="tier-legend mt-3"><span><span class="td" style="background:var(--success)"></span>Regular: '+fmtH(wR)+'h</span><span><span class="td" style="background:var(--danger)"></span>Unauth OT: '+fmtH(wU)+'h</span><span><span class="td" style="background:var(--purple)"></span>Double: '+fmtH(wD)+'h</span></div></div>';
   var recent=recs().filter(function(r){return r.employeeId===e.id;}).sort(function(a,b){return new Date(b.clockIn||0)-new Date(a.clockIn||0);}).slice(0,5);
-  if(recent.length){h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-history mr-2" style="color:var(--info)"></i>Recent Activity</h3>';recent.forEach(function(r){var dt=r.dayType||dayType((r.clockIn||'').slice(0,10));h+='<div class="flex items-center justify-between py-1.5 border-b" style="border-color:var(--border)"><div><div class="text-xs font-medium">'+(r.clockIn||'').slice(0,10)+' '+dayBadge(dt)+'</div><div class="text-xs" style="color:var(--muted)">'+(r.clockIn||'').slice(11,16)+(r.clockOut?' – '+(r.clockOut||'').slice(11,16):'')+'</div></div><div class="text-right"><div class="mono text-xs font-semibold">'+(r.status==='completed'?fmtH(r.totalHours)+'h':'<span style="color:var(--success)">Active</span>')+'</div></div></div>';});h+='</div>';}
+  if(recent.length){h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-history mr-2" style="color:var(--info)"></i>Recent</h3>';recent.forEach(function(r){h+='<div class="flex items-center justify-between py-1.5 border-b" style="border-color:var(--border)"><div><div class="text-xs font-medium">'+(r.clockIn||'').slice(0,10)+' '+dayBadge(r.dayType||dayType((r.clockIn||'').slice(0,10)))+'</div><div class="text-xs" style="color:var(--muted)">'+(r.clockIn||'').slice(11,16)+(r.clockOut?' – '+(r.clockOut||'').slice(11,16):'')+'</div></div><div class="text-right"><div class="mono text-xs font-semibold">'+(r.status==='completed'?fmtH(r.totalHours)+'h':'<span style="color:var(--success)">Active</span>')+'</div></div></div>';});h+='</div>';}
   return h+'</div>';
 }
 function initClockPage(){
   clearInterval(S.clockInt);clearInterval(S.timerInt);
   (function tick(){var el=document.getElementById('emp-live-clock');if(el)el.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});else{clearInterval(S.clockInt);return;}S.clockInt=setInterval(tick,1000);})();
-  if(S.clockState==='clocked_in'&&S.activeRec){(function tickEl(){var el=document.getElementById('live-elapsed');if(!el){clearInterval(S.timerInt);return;}var ms=Date.now()-new Date(S.activeRec.clockIn).getTime(),m=Math.floor(ms/60000),h=Math.floor(m/60);el.textContent=h+'h '+String(m%60).padStart(2,'0')+'m';S.timerInt=setInterval(tickEl,1000);})();}
+  if(S.clockState==='clocked_in'&&S.activeRec){(function te(){var el=document.getElementById('live-elapsed');if(!el){clearInterval(S.timerInt);return;}var ms=Date.now()-new Date(S.activeRec.clockIn).getTime(),m=Math.floor(ms/60000);el.textContent=Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';S.timerInt=setInterval(te,1000);})();}
   checkGps();
 }
-function checkGps(){
-  if(!navigator.geolocation){setGpsStatus('unsupported','GPS not supported');return;}
-  setGpsStatus('checking','Checking location...');
-  navigator.geolocation.getCurrentPosition(function(p){
-    S.gpsLat=p.coords.latitude;S.gpsLng=p.coords.longitude;
-    var site=sites().find(function(s){return s.id===S.emp.siteId;});
-    if(site){S.gpsDist=haversine(p.coords.latitude,p.coords.longitude,site.lat,site.lng);if(S.gpsDist<=site.radius)setGpsStatus('ok','At '+site.name+' ('+Math.round(S.gpsDist)+'m)');else setGpsStatus('warn','Outside '+site.name+' ('+Math.round(S.gpsDist)+'m from '+site.radius+'m radius)');}
-    else setGpsStatus('ok','Location acquired ('+p.coords.latitude.toFixed(4)+', '+p.coords.longitude.toFixed(4)+')');
-  },function(e){setGpsStatus('error','GPS error: '+e.message);},{enableHighAccuracy:true,timeout:10000});
-}
-function setGpsStatus(status,msg){var el=document.getElementById('gps-status');if(!el)return;var dotCls=status==='ok'?'conn-dot on':status==='warn'?'conn-dot loading':status==='error'?'conn-dot off':'conn-dot loading',clr=status==='ok'?'var(--success)':status==='warn'?'var(--warning)':status==='error'?'var(--danger)':'var(--muted)';el.innerHTML='<span class="'+dotCls+'"></span> <span style="color:'+clr+'">'+msg+'</span>';}
-function handleClock(){if(S.clockState==='idle')doClockIn();else doClockOut();}
-function doClockIn(){
-  var site=sites().find(function(s){return s.id===S.emp.siteId;});
-  if(site&&S.gpsDist!=null&&S.gpsDist>site.radius){openModal('<h3 class="font-bold text-lg mb-3">Outside GPS Zone</h3><p class="text-sm mb-1" style="color:var(--muted)">You are <strong style="color:var(--danger)">'+Math.round(S.gpsDist)+'m</strong> away from <strong>'+escHtml(site.name)+'</strong> (radius: '+site.radius+'m).</p><p class="text-sm mb-4" style="color:var(--muted)">Clock in anyway?</p><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="closeModal();confirmClockIn()">Clock In Anyway</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');return;}
-  confirmClockIn();
-}
-function confirmClockIn(){
-  var now=new Date().toISOString(),id=db.ref('records').push().key;
-  var todayShift=shifts().find(function(s){return s.employeeId===S.emp.id&&s.date===today();});
-  var rec={id:id,employeeId:S.emp.id,siteId:S.emp.siteId,shiftId:todayShift?todayShift.id:null,clockIn:now,status:'clocked_in',dayType:dayType(today()),gpsLat:S.gpsLat,gpsLng:S.gpsLng,gpsDistance:S.gpsDist};
-  fbSet('records/'+id,rec);S.clockState='clocked_in';S.activeRec=rec;navEmp('clock');toast('Clocked in successfully','success');
-}
-function doClockOut(){
-  if(!S.activeRec)return;
-  var now=new Date().toISOString(),ci=S.activeRec.clockIn,dt=S.activeRec.dayType||dayType(today());
-  var bm=0;var sh=S.activeRec.shiftId?shifts().find(function(s){return s.id===S.activeRec.shiftId;}):null;if(sh)bm=sh.breakMinutes||0;
-  var ww=empWeekWorked(S.emp.id,ci.slice(0,10)),tc=tierCfg();
-  var hrs=calcHours(ci,now,bm,ww,dt,tc);
-  var upd={clockOut:now,status:'completed',totalHours:hrs.totalHours,regularHours:hrs.regularHours,overtimeHours:hrs.overtimeHours,doubleTimeHours:hrs.doubleTimeHours,breakMinutes:bm,dayType:dt};
-  fbUpd('records/'+S.activeRec.id,upd);S.clockState='idle';S.activeRec=null;navEmp('clock');toast('Clocked out — '+fmtH(hrs.totalHours)+'h recorded','success');
-}
+function checkGps(){if(!navigator.geolocation){setGps('unsupported','GPS not supported');return;}setGps('checking','Checking location...');navigator.geolocation.getCurrentPosition(function(p){S.gpsLat=p.coords.latitude;S.gpsLng=p.coords.longitude;var site=sites().find(function(s){return s.id===S.emp.siteId;});if(site){S.gpsDist=haversine(p.coords.latitude,p.coords.longitude,site.lat,site.lng);setGps(S.gpsDist<=site.radius?'ok':'warn',S.gpsDist<=site.radius?'At '+site.name+' ('+Math.round(S.gpsDist)+'m)':'Outside '+site.name+' ('+Math.round(S.gpsDist)+'m from '+site.radius+'m)');}else setGps('ok','Location acquired');},function(e){setGps('error','GPS: '+e.message);},{enableHighAccuracy:true,timeout:10000});}
+function setGps(st,msg){var el=document.getElementById('gps-status');if(!el)return;var dc=st==='ok'?'conn-dot on':st==='warn'?'conn-dot loading':st==='error'?'conn-dot off':'conn-dot loading',cl=st==='ok'?'var(--success)':st==='warn'?'var(--warning)':st==='error'?'var(--danger)':'var(--muted)';el.innerHTML='<span class="'+dc+'"></span> <span style="color:'+cl+'">'+msg+'</span>';}
+function handleClock(){if(S.clockState==='idle')doCI();else doCO();}
+function doCI(){var site=sites().find(function(s){return s.id===S.emp.siteId;});if(site&&S.gpsDist!=null&&S.gpsDist>site.radius){openModal('<h3 class="font-bold text-lg mb-3">Outside GPS Zone</h3><p class="text-sm mb-4" style="color:var(--muted)"><strong style="color:var(--danger)">'+Math.round(S.gpsDist)+'m</strong> from '+escHtml(site.name)+' (radius: '+site.radius+'m). Clock in anyway?</p><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="closeModal();confirmCI()">Clock In Anyway</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');return;}confirmCI();}
+function confirmCI(){var now=new Date().toISOString(),id=db.ref('records').push().key,ts=shifts().find(function(s){return s.employeeId===S.emp.id&&s.date===today();});fbSet('records/'+id,{id:id,employeeId:S.emp.id,siteId:S.emp.siteId,shiftId:ts?ts.id:null,clockIn:now,status:'clocked_in',dayType:dayType(today()),gpsLat:S.gpsLat,gpsLng:S.gpsLng,gpsDistance:S.gpsDist});S.clockState='clocked_in';S.activeRec={id:id,clockIn:now};navEmp('clock');toast('Clocked in','success');}
+function doCO(){if(!S.activeRec)return;var now=new Date().toISOString(),ci=S.activeRec.clockIn,dt=dayType(today()),bm=0;var sh=S.activeRec.shiftId?shifts().find(function(s){return s.id===S.activeRec.shiftId;}):null;if(sh)bm=sh.breakMinutes||0;var hrs=calcHours(ci,now,bm,dt);fbUpd('records/'+S.activeRec.id,{clockOut:now,status:'completed',totalHours:hrs.totalHours,regularHours:hrs.regularHours,unauthOT:hrs.unauthOT,doubleTimeHours:hrs.doubleTimeHours,breakMinutes:bm,dayType:dt});S.clockState='idle';S.activeRec=null;navEmp('clock');toast('Clocked out — '+fmtH(hrs.totalHours)+'h','success');}
 
 /* ===== EMPLOYEE HISTORY ===== */
 function renderEmpHistory(){
-  var e=S.emp,now=new Date(),y=now.getFullYear(),m=now.getMonth();
-  var mh=empMonthHours(e.id,y,m);
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-5 flex-wrap gap-3"><div><h2 class="text-xl font-bold tracking-tight">My History</h2><p class="text-sm" style="color:var(--muted)">'+now.toLocaleDateString('en-GB',{month:'long',year:'numeric'})+'</p></div></div>';
-  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-chart-bar mr-2" style="color:var(--accent)"></i>Monthly Summary</h3><div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3"><div><div class="text-xs" style="color:var(--muted)">Total Hours</div><div class="mono text-lg font-bold">'+fmtH(mh.total)+'</div></div><div><div class="text-xs" style="color:var(--muted)">Target</div><div class="mono text-lg font-bold" style="color:var(--muted)">'+mh.target+'h</div></div><div><div class="text-xs" style="color:var(--muted)">Over Target</div><div class="mono text-lg font-bold" style="color:'+(mh.overTarget>0?'var(--warning)':'var(--muted)')+'">'+fmtH(mh.overTarget)+'h</div></div><div><div class="text-xs" style="color:var(--muted)">Records</div><div class="mono text-lg font-bold">'+mh.count+'</div></div></div>';
-  h+='<div class="tier-legend mb-2"><span><span class="td" style="background:var(--success)"></span>Regular: '+fmtH(mh.regular)+'h</span><span><span class="td" style="background:var(--warning)"></span>OT: '+fmtH(mh.overtime)+'h</span><span><span class="td" style="background:var(--danger)"></span>Double: '+fmtH(mh.doubleTime)+'h</span></div>';
-  var pct=Math.min(100,Math.round((mh.total/Math.max(1,mh.target))*100));h+='<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--success),'+(pct>=100?'var(--warning)':'var(--accent)')+')"></div></div><div class="text-xs mt-1" style="color:var(--muted)">'+pct+'% of monthly target</div></div>';
-  var monthStr=y+'-'+String(m+1).padStart(2,'0');
-  var myRecs=recs().filter(function(r){return r.employeeId===e.id&&r.clockIn&&r.clockIn.slice(0,7)===monthStr;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});
-  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-list mr-2" style="color:var(--info)"></i>All Records This Month</h3>';
-  if(myRecs.length){h+='<div class="overflow-x-auto"><table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Breakdown</th><th>Type</th></tr></thead><tbody>';
-  myRecs.forEach(function(r){var dt=r.dayType||dayType(r.clockIn.slice(0,10)),hrs=r.status==='completed'?fmtH(r.totalHours):'—';var parts=[];if(r.regularHours>0)parts.push('<span style="color:var(--success)">'+fmtH(r.regularHours)+'</span>');if(r.overtimeHours>0)parts.push('<span style="color:var(--warning)">'+fmtH(r.overtimeHours)+'</span>');if(r.doubleTimeHours>0)parts.push('<span style="color:var(--danger)">'+fmtH(r.doubleTimeHours)+'</span>');h+='<tr><td class="text-sm">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+r.clockIn.slice(11,16)+'</td><td class="mono text-xs">'+(r.clockOut?r.clockOut.slice(11,16):'—')+'</td><td class="mono text-xs font-semibold">'+hrs+'</td><td class="text-xs">'+(parts.join(', ')||'—')+'</td><td>'+dayBadge(dt)+'</td></tr>';});
-  h+='</tbody></table></div>';}else h+='<div class="empty-state"><i class="fas fa-calendar-xmark block"></i><p>No records this month</p></div>';
+  var e=S.emp,now=new Date(),y=now.getFullYear(),m=now.getMonth(),mh=empMonthHours(e.id,y,m);
+  var h='<div class="fade-in"><h2 class="text-xl font-bold tracking-tight mb-5">My History <span class="text-sm font-normal" style="color:var(--muted)">'+now.toLocaleDateString('en-GB',{month:'long',year:'numeric'})+'</span></h2>';
+  h+='<div class="card mb-4"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-chart-bar mr-2" style="color:var(--accent)"></i>Monthly Summary</h3><div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3"><div><div class="text-xs" style="color:var(--muted)">Total</div><div class="mono text-lg font-bold">'+fmtH(mh.total)+'</div></div><div><div class="text-xs" style="color:var(--muted)">Target</div><div class="mono text-lg font-bold" style="color:var(--muted)">'+mh.target+'h</div></div><div><div class="text-xs" style="color:var(--muted)">Over</div><div class="mono text-lg font-bold" style="color:'+(mh.overTarget>0?'var(--danger)':'var(--muted)')+'">'+fmtH(mh.overTarget)+'h</div></div><div><div class="text-xs" style="color:var(--muted)">Records</div><div class="mono text-lg font-bold">'+mh.count+'</div></div></div><div class="tier-legend mb-2"><span><span class="td" style="background:var(--success)"></span>Regular: '+fmtH(mh.regular)+'h</span><span><span class="td" style="background:var(--danger)"></span>Unauth OT: '+fmtH(mh.unauthOT)+'h</span><span><span class="td" style="background:var(--purple)"></span>Double: '+fmtH(mh.doubleTime)+'h</span></div>';var pct=Math.min(100,Math.round((mh.total/Math.max(1,mh.target))*100));h+='<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--success),'+(pct>=100?'var(--danger)':'var(--accent)')+')"></div></div><div class="text-xs mt-1" style="color:var(--muted)">'+pct+'% of target</div></div>';
+  var ms=y+'-'+String(m+1).padStart(2,'0'),myRecs=recs().filter(function(r){return r.employeeId===e.id&&r.clockIn&&r.clockIn.slice(0,7)===ms;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});
+  h+='<div class="card"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-list mr-2" style="color:var(--info)"></i>Records</h3>';
+  if(myRecs.length){h+='<div class="overflow-x-auto"><table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Total</th><th>Breakdown</th><th>Type</th></tr></thead><tbody>';myRecs.forEach(function(r){h+='<tr><td class="text-sm">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+r.clockIn.slice(11,16)+'</td><td class="mono text-xs">'+(r.clockOut?r.clockOut.slice(11,16):'—')+'</td><td class="mono text-xs font-semibold">'+(r.status==='completed'?fmtH(r.totalHours):'—')+'</td><td class="text-xs">'+(r.status==='completed'?hrsBreakdown(r):'—')+'</td><td>'+dayBadge(r.dayType||dayType(r.clockIn.slice(0,10)))+'</td></tr>';});h+='</tbody></table></div>';}else h+='<div class="empty-state"><i class="fas fa-calendar-xmark block"></i><p>No records this month</p></div>';
   return h+'</div></div>';
 }
 
@@ -783,7 +647,7 @@ function renderEmpHistory(){
 initFirebase(FB_CONFIG);
 document.getElementById('admin-pass').addEventListener('keydown',function(e){if(e.key==='Enter')adminLogin();});
 document.getElementById('emp-pin').addEventListener('keydown',function(e){if(e.key==='Enter')employeeLogin();});
-var resizeTimer;window.addEventListener('resize',function(){clearTimeout(resizeTimer);resizeTimer=setTimeout(function(){if(S.page==='dashboard')initDashCharts();},250);});
+var _rt;window.addEventListener('resize',function(){clearTimeout(_rt);_rt=setTimeout(function(){if(S.page==='dashboard')initDashCharts();},250);});
 </script>
 </body>
 </html>
