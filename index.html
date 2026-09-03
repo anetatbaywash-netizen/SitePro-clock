@@ -81,6 +81,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
 .big-date{font-size:.85rem;color:var(--muted);margin-top:.25rem}
 .emp-hero{background:linear-gradient(180deg,rgba(232,168,56,.04) 0%,transparent 60%);border-radius:16px;padding:2rem 1.5rem 1.5rem;text-align:center;position:relative;overflow:hidden}
 .emp-hero .emp-avatar{width:64px;height:64px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin-bottom:.75rem;border:2px solid var(--accent);color:var(--accent);background:var(--card)}
+.elapsed-display{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;letter-spacing:.04em;color:var(--success);line-height:1}
 .ts-table{border-collapse:collapse;width:100%}
 .ts-table th,.ts-table td{border:1px solid var(--border);padding:.45rem .6rem;font-size:.78rem;text-align:center;white-space:nowrap}
 .ts-table th{background:var(--bg2);color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:.7rem}
@@ -95,7 +96,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
 .dow-row{display:flex;flex-wrap:wrap;gap:.4rem}
 .dow-row label{display:inline-flex;align-items:center;gap:.3rem;font-size:.8rem;cursor:pointer;padding:.3rem .6rem;border:1px solid var(--border);border-radius:6px;margin:0}
 .dow-row input[type=checkbox]{width:auto;accent-color:var(--accent)}
-@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:1rem}.clock-face{width:220px;height:220px}.clock-face .cf-icon{font-size:2rem}.big-time{font-size:2.5rem}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:1rem}.clock-face{width:220px;height:220px}.clock-face .cf-icon{font-size:2rem}.big-time{font-size:2.5rem}.elapsed-display{font-size:2rem}}
 @media print{.sidebar,.toast-container,header,nav{display:none!important}.main-content{margin-left:0!important;padding:1rem!important}.card{break-inside:avoid;border:1px solid #ccc}}
 </style>
 </head>
@@ -151,9 +152,9 @@ tr:hover td{background:rgba(232,168,56,.03)}
 </div>
 <div id="employee-layout" class="hidden">
   <div class="min-h-screen flex flex-col">
-    <header class="p-4 flex items-center justify-between border-b" style="border-color:var(--border);background:var(--bg2)">
+    <header class="p-4 flex items-center justify-center border-b" style="border-color:var(--border);background:var(--bg2)">
       <div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xs" style="color:#0c0e16"></i></div><span class="font-bold text-sm">SitePro</span><span class="conn-dot on" id="emp-conn-dot"></span></div>
-      <div class="flex items-center gap-3"><span id="emp-header-name" class="text-sm hidden sm:inline" style="color:var(--muted)"></span><button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-right-from-bracket"></i></button></div>
+      <div class="ml-auto flex items-center gap-3"><span id="emp-header-name" class="text-sm hidden sm:inline" style="color:var(--muted)"></span><button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-right-from-bracket"></i></button></div>
     </header>
     <div class="flex-1 flex">
       <nav class="w-16 sm:w-48 border-r flex flex-col pt-4" style="border-color:var(--border);background:var(--bg2)" id="emp-nav">
@@ -167,9 +168,6 @@ tr:hover td{background:rgba(232,168,56,.03)}
 <div id="modal-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()"><div class="modal-box fade-in" id="modal-box"></div></div>
 
 <script>
-/* ============================================
-   FIREBASE CONFIG & DATA
-   ============================================ */
 var EMBEDDED_FB = {
   apiKey:"AIzaSyAkHU3eWCWTUt3Ks0Vxq3PkgcATtin0Zaw",
   authDomain:"baywashclock.firebaseapp.com",
@@ -180,19 +178,12 @@ var EMBEDDED_FB = {
   appId:"1:207388184141:web:718d4348bc91672a369604"
 };
 
-var db = null;
-var fbConnected = false;
-var dataLoaded = 0;
-var initialLoadDone = false;
+var db = null, fbConnected = false, dataLoaded = 0, initialLoadDone = false;
 var D = { sites:[], employees:[], shifts:[], records:[], settings:{}, admin:{}, recycleBin:{} };
 
 function initFirebase(config) {
-  firebase.initializeApp(config);
-  db = firebase.database();
-  db.ref('.info/connected').on('value', function(s) {
-    fbConnected = (s.val() === true);
-    updateConnDots();
-  });
+  firebase.initializeApp(config); db = firebase.database();
+  db.ref('.info/connected').on('value', function(s) { fbConnected = (s.val() === true); updateConnDots(); });
   db.ref('sites').on('value', function(s) { D.sites = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
   db.ref('employees').on('value', function(s) { D.employees = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
   db.ref('shifts').on('value', function(s) { D.shifts = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
@@ -206,7 +197,7 @@ function checkAllLoaded() {
   if (dataLoaded >= 7 && !initialLoadDone) {
     initialLoadDone = true;
     document.getElementById('loading-screen').classList.add('hidden');
-    if (!D.admin || !D.admin.username) { seedFirebase(); }
+    if (!D.admin || !D.admin.username) seedFirebase();
     cleanExpiredBin();
     showScreen('login-screen');
   }
@@ -214,16 +205,15 @@ function checkAllLoaded() {
 
 function updateConnDots() {
   var cls = fbConnected ? 'conn-dot on' : 'conn-dot off';
-  var lbl = fbConnected ? 'Synced' : 'Offline';
   var dots = document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot');
-  for (var i = 0; i < dots.length; i++) { dots[i].className = cls; }
+  for (var i = 0; i < dots.length; i++) dots[i].className = cls;
   var el = document.getElementById('admin-conn-label');
-  if (el) { el.textContent = lbl; }
+  if (el) el.textContent = fbConnected ? 'Synced' : 'Offline';
 }
 
-function fbSet(p, d) { if (db) { db.ref(p).set(d).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); } }
-function fbUpdate(p, d) { if (db) { db.ref(p).update(d).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); } }
-function fbRemove(p) { if (db) { db.ref(p).remove().catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); } }
+function fbSet(p, d) { if (db) db.ref(p).set(d).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
+function fbUpdate(p, d) { if (db) db.ref(p).update(d).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
+function fbRemove(p) { if (db) db.ref(p).remove().catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
 
 function getSites() { return D.sites || []; }
 function getEmployees() { return D.employees || []; }
@@ -240,13 +230,10 @@ function seedFirebase() {
     holidays:['2025-01-01','2025-03-21','2025-04-18','2025-04-21','2025-05-01','2025-05-04','2025-05-25','2025-05-29','2025-08-26','2025-12-10','2025-12-25','2025-12-26','2026-01-01','2026-03-21','2026-04-03','2026-04-06','2026-05-01','2026-05-04','2026-05-14','2026-05-25','2026-08-26','2026-12-10','2026-12-25','2026-12-26']
   });
   fbSet('recycleBin', {});
-  var s1 = db.ref('sites').push().key;
-  var s2 = db.ref('sites').push().key;
+  var s1 = db.ref('sites').push().key, s2 = db.ref('sites').push().key;
   fbSet('sites/' + s1, { id:s1, name:'Baywash Chemicals Windhoek', address:'Windhoek, Namibia', lat:-22.5609, lng:17.0658, radius:100 });
   fbSet('sites/' + s2, { id:s2, name:'Baywash Chemicals Swakopmund', address:'Swakopmund, Namibia', lat:-22.6754, lng:14.5256, radius:100 });
-  var e1 = db.ref('employees').push().key;
-  var e2 = db.ref('employees').push().key;
-  var e3 = db.ref('employees').push().key;
+  var e1 = db.ref('employees').push().key, e2 = db.ref('employees').push().key, e3 = db.ref('employees').push().key;
   fbSet('employees/' + e1, { id:e1, firstName:'James', lastName:'Carter', employeeId:'EMP001', pin:'1234', siteId:s1, active:true });
   fbSet('employees/' + e2, { id:e2, firstName:'Sarah', lastName:'Mitchell', employeeId:'EMP002', pin:'5678', siteId:s1, active:true });
   fbSet('employees/' + e3, { id:e3, firstName:'Daniel', lastName:'Nguyen', employeeId:'EMP003', pin:'4321', siteId:s2, active:true });
@@ -256,15 +243,15 @@ function seedFirebase() {
    APP STATE
    ============================================ */
 var state = {
-  loggedIn: false, role: null, currentPage: 'dashboard', empPage: 'clock',
-  currentEmployee: null, clockState: 'idle', activeRecord: null,
-  gpsStatus: 'pending', gpsDistance: null, gpsLat: null, gpsLng: null,
-  liveTimerInterval: null, clockTimeInterval: null,
-  exportWS: null, exportEmpId: null
+  loggedIn:false, role:null, currentPage:'dashboard', empPage:'clock',
+  currentEmployee:null, clockState:'idle', activeRecord:null,
+  gpsStatus:'pending', gpsDistance:null, gpsLat:null, gpsLng:null,
+  liveTimerInterval:null, clockTimeInterval:null,
+  exportWS:null, exportEmpId:null
 };
 
 /* ============================================
-   UTILITY FUNCTIONS
+   UTILITIES
    ============================================ */
 function fmtDate(d) {
   var dt = (d instanceof Date) ? d : new Date(d);
@@ -283,7 +270,16 @@ function haversine(lat1,lon1,lat2,lon2) {
   var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(t(lat1))*Math.cos(t(lat2))*Math.sin(dLon/2)*Math.sin(dLon/2);
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-function fmtHrs(h) { return (Math.round((h||0)*100)/100).toFixed(2); }
+
+/* HH:MM format — matches the screenshot exactly (e.g. 8:00, 1:30, 44:07) */
+function fmtHrs(h) {
+  var totalMin = Math.round((h || 0) * 60);
+  if (totalMin < 0) totalMin = 0;
+  var hrs = Math.floor(totalMin / 60);
+  var mins = totalMin % 60;
+  return String(hrs).padStart(2, '0') + ':' + String(mins).padStart(2, '0');
+}
+
 function timeAgo(ts) {
   var s = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
   if (s < 60) return s + 's ago';
@@ -396,26 +392,20 @@ function restoreFromBin(type, binId) {
   if (!item) return;
   fbSet(type + '/' + (item.originalId || item.data.id), item.data);
   fbRemove('recycleBin/' + type + '/' + binId);
-  toast('Restored', 'success');
-  navigateAdmin('recyclebin');
+  toast('Restored', 'success'); navigateAdmin('recyclebin');
 }
 function permanentDeleteBin(type, binId) {
   openModal('<h3 class="font-bold text-lg mb-3">Permanently Delete?</h3><p class="text-sm mb-4" style="color:var(--muted)">This cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRemove(\'recycleBin/' + type + '/' + binId + '\');closeModal();navigateAdmin(\'recyclebin\');toast(\'Deleted\',\'success\')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
 }
 function cleanExpiredBin() {
-  var bin = D.recycleBin;
-  if (!bin) return;
-  var now = Date.now();
-  var types = ['sites','employees','shifts','records'];
+  var bin = D.recycleBin; if (!bin) return;
+  var now = Date.now(), types = ['sites','employees','shifts','records'];
   for (var t = 0; t < types.length; t++) {
-    var type = types[t];
-    if (!bin[type]) continue;
-    var keys = Object.keys(bin[type]);
+    if (!bin[types[t]]) continue;
+    var keys = Object.keys(bin[types[t]]);
     for (var k = 0; k < keys.length; k++) {
-      var item = bin[type][keys[k]];
-      if (item.deletedAt && (now - new Date(item.deletedAt).getTime()) > BIN_TTL) {
-        fbRemove('recycleBin/' + type + '/' + keys[k]);
-      }
+      var item = bin[types[t]][keys[k]];
+      if (item.deletedAt && (now - new Date(item.deletedAt).getTime()) > BIN_TTL) fbRemove('recycleBin/' + types[t] + '/' + keys[k]);
     }
   }
 }
@@ -424,44 +414,31 @@ function emptyBin() {
 }
 function renderRecycleBin() {
   var bin = D.recycleBin;
-  var types = [
-    { key:'sites', label:'Sites', icon:'fa-location-dot', color:'var(--info)' },
-    { key:'employees', label:'Employees', icon:'fa-users', color:'var(--accent)' },
-    { key:'shifts', label:'Shifts', icon:'fa-calendar-days', color:'var(--success)' },
-    { key:'records', label:'Records', icon:'fa-clock-rotate-left', color:'var(--warning)' }
-  ];
+  var types = [{ key:'sites', label:'Sites', icon:'fa-location-dot', color:'var(--info)' },{ key:'employees', label:'Employees', icon:'fa-users', color:'var(--accent)' },{ key:'shifts', label:'Shifts', icon:'fa-calendar-days', color:'var(--success)' },{ key:'records', label:'Records', icon:'fa-clock-rotate-left', color:'var(--warning)' }];
   var totalItems = 0;
-  for (var t = 0; t < types.length; t++) {
-    if (bin[types[t].key]) totalItems += Object.keys(bin[types[t].key]).length;
-  }
+  for (var t = 0; t < types.length; t++) { if (bin[types[t].key]) totalItems += Object.keys(bin[types[t].key]).length; }
   var h = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Recycle Bin</h2><p class="text-sm" style="color:var(--muted)">' + totalItems + ' item(s) &middot; auto-deleted after 30 days</p></div>';
   if (totalItems > 0) h += '<button class="btn btn-danger btn-sm" onclick="emptyBin()"><i class="fas fa-trash"></i> Empty Bin</button>';
-  h += '</div>';
-  var hasAny = false;
+  h += '</div>'; var hasAny = false;
   for (var t = 0; t < types.length; t++) {
-    var tp = types[t];
-    var items = bin[tp.key] ? Object.entries(bin[tp.key]) : [];
-    if (!items.length) continue;
-    hasAny = true;
+    var tp = types[t], items = bin[tp.key] ? Object.entries(bin[tp.key]) : [];
+    if (!items.length) continue; hasAny = true;
     items.sort(function(a,b) { return new Date(b[1].deletedAt) - new Date(a[1].deletedAt); });
-    h += '<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas ' + tp.icon + '" style="color:' + tp.color + '"></i> ' + tp.label + ' <span class="badge badge-amber">' + items.length + '</span></h3>';
-    h += '<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Item</th><th>Deleted</th><th>Expires</th><th>Actions</th></tr></thead><tbody>';
+    h += '<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas ' + tp.icon + '" style="color:' + tp.color + '"></i> ' + tp.label + ' <span class="badge badge-amber">' + items.length + '</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Item</th><th>Deleted</th><th>Expires</th><th>Actions</th></tr></thead><tbody>';
     for (var i = 0; i < items.length; i++) {
       var binId = items[i][0], item = items[i][1], d = item.data, name = '\u2014';
       if (tp.key === 'sites') name = d.name || 'Unknown';
       else if (tp.key === 'employees') name = (d.firstName||'') + ' ' + (d.lastName||'') + ' (' + (d.employeeId||'?') + ')';
       else if (tp.key === 'shifts') { var emp = getEmpById(d.employeeId); name = (emp ? emp.firstName+' '+emp.lastName : '?') + ' \u2014 ' + d.date; }
       else if (tp.key === 'records') { var emp2 = getEmpById(d.employeeId); name = (emp2 ? emp2.firstName+' '+emp2.lastName : '?') + ' \u2014 ' + (d.clockIn||'').slice(0,10); }
-      var daysLeft = Math.max(0, Math.ceil((new Date(item.deletedAt).getTime() + BIN_TTL - Date.now()) / (24*60*60*1000)));
+      var daysLeft = Math.max(0, Math.ceil((new Date(item.deletedAt).getTime() + BIN_TTL - Date.now()) / 86400000));
       var expiryColor = daysLeft <= 3 ? 'var(--danger)' : daysLeft <= 7 ? 'var(--warning)' : 'var(--muted)';
-      h += '<tr><td class="font-medium text-sm">' + name + '</td><td class="text-xs" style="color:var(--muted)">' + timeAgo(item.deletedAt) + '</td><td class="text-xs" style="color:' + expiryColor + '">' + daysLeft + 'd left</td>';
-      h += '<td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="restoreFromBin(\'' + tp.key + '\',\'' + binId + '\')"><i class="fas fa-rotate-left"></i></button><button class="btn btn-danger btn-sm" onclick="permanentDeleteBin(\'' + tp.key + '\',\'' + binId + '\')"><i class="fas fa-trash"></i></button></div></td></tr>';
+      h += '<tr><td class="font-medium text-sm">' + name + '</td><td class="text-xs" style="color:var(--muted)">' + timeAgo(item.deletedAt) + '</td><td class="text-xs" style="color:' + expiryColor + '">' + daysLeft + 'd left</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="restoreFromBin(\'' + tp.key + '\',\'' + binId + '\')"><i class="fas fa-rotate-left"></i></button><button class="btn btn-danger btn-sm" onclick="permanentDeleteBin(\'' + tp.key + '\',\'' + binId + '\')"><i class="fas fa-trash"></i></button></div></td></tr>';
     }
     h += '</tbody></table></div></div>';
   }
   if (!hasAny) h += '<div class="card text-center py-16"><i class="fas fa-recycle text-4xl mb-4" style="color:var(--border)"></i><p style="color:var(--muted)">Recycle bin is empty</p></div>';
-  h += '</div>';
-  return h;
+  return h + '</div>';
 }
 
 /* ============================================
@@ -469,8 +446,7 @@ function renderRecycleBin() {
    ============================================ */
 function toast(msg, type) {
   type = type || 'info';
-  var c = document.getElementById('toast-container');
-  var t = document.createElement('div');
+  var c = document.getElementById('toast-container'), t = document.createElement('div');
   t.className = 'toast toast-' + type;
   var icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
   t.innerHTML = '<i class="fas ' + (icons[type]||icons.info) + '"></i><span>' + msg + '</span>';
@@ -482,9 +458,7 @@ function closeModal() { document.getElementById('modal-overlay').classList.add('
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 function showScreen(id) {
   var screens = ['loading-screen','login-screen','admin-layout','employee-layout'];
-  for (var i = 0; i < screens.length; i++) {
-    document.getElementById(screens[i]).classList.toggle('hidden', screens[i] !== id);
-  }
+  for (var i = 0; i < screens.length; i++) document.getElementById(screens[i]).classList.toggle('hidden', screens[i] !== id);
 }
 
 /* ============================================
@@ -492,31 +466,24 @@ function showScreen(id) {
    ============================================ */
 function switchLoginTab(tab) {
   var btns = document.querySelectorAll('#login-screen .tab-btn');
-  for (var i = 0; i < btns.length; i++) {
-    btns[i].classList.toggle('active', (tab==='admin' && i===0) || (tab==='employee' && i===1));
-  }
+  for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('active', (tab==='admin' && i===0) || (tab==='employee' && i===1));
   document.getElementById('login-admin').classList.toggle('hidden', tab !== 'admin');
   document.getElementById('login-employee').classList.toggle('hidden', tab !== 'employee');
 }
 function adminLogin() {
-  var u = document.getElementById('admin-user').value.trim();
-  var p = document.getElementById('admin-pass').value;
-  if (u === D.admin.username && p === D.admin.password) {
-    state.loggedIn = true; state.role = 'admin'; state.currentPage = 'dashboard';
-    showAdmin(); toast('Welcome, Admin', 'success');
-  } else { toast('Invalid credentials', 'error'); }
+  var u = document.getElementById('admin-user').value.trim(), p = document.getElementById('admin-pass').value;
+  if (u === D.admin.username && p === D.admin.password) { state.loggedIn=true; state.role='admin'; state.currentPage='dashboard'; showAdmin(); toast('Welcome, Admin','success'); }
+  else toast('Invalid credentials','error');
 }
 function employeeLogin() {
-  var eid = document.getElementById('emp-id').value.trim().toUpperCase();
-  var pin = document.getElementById('emp-pin').value;
+  var eid = document.getElementById('emp-id').value.trim().toUpperCase(), pin = document.getElementById('emp-pin').value;
   var emp = getEmployees().find(function(e) { return e.employeeId === eid && e.pin === pin && e.active; });
   if (emp) {
-    state.loggedIn = true; state.role = 'employee'; state.currentEmployee = emp; state.empPage = 'clock';
+    state.loggedIn=true; state.role='employee'; state.currentEmployee=emp; state.empPage='clock';
     var recs = getRecords().filter(function(r) { return r.employeeId === emp.id && r.status === 'clocked_in'; });
-    if (recs.length) { state.clockState = 'clocked_in'; state.activeRecord = recs[0]; }
-    else { state.clockState = 'idle'; state.activeRecord = null; }
-    showEmployee(); toast('Welcome, ' + emp.firstName, 'success');
-  } else { toast('Invalid Employee ID or PIN', 'error'); }
+    if (recs.length) { state.clockState='clocked_in'; state.activeRecord=recs[0]; } else { state.clockState='idle'; state.activeRecord=null; }
+    showEmployee(); toast('Welcome, ' + emp.firstName,'success');
+  } else toast('Invalid Employee ID or PIN','error');
 }
 function logout() {
   if (state.liveTimerInterval) clearInterval(state.liveTimerInterval);
@@ -525,10 +492,8 @@ function logout() {
   document.getElementById('admin-layout').classList.add('hidden');
   document.getElementById('employee-layout').classList.add('hidden');
   showScreen('login-screen');
-  document.getElementById('admin-user').value = '';
-  document.getElementById('admin-pass').value = '';
-  document.getElementById('emp-id').value = '';
-  document.getElementById('emp-pin').value = '';
+  document.getElementById('admin-user').value=''; document.getElementById('admin-pass').value='';
+  document.getElementById('emp-id').value=''; document.getElementById('emp-pin').value='';
 }
 function showAdmin() { showScreen('admin-layout'); navigateAdmin(state.currentPage); }
 function showEmployee() { showScreen('employee-layout'); document.getElementById('emp-header-name').textContent = state.currentEmployee.firstName + ' ' + state.currentEmployee.lastName; navigateEmp(state.empPage); }
@@ -539,10 +504,10 @@ function showEmployee() { showScreen('employee-layout'); document.getElementById
 function navigateAdmin(page) {
   state.currentPage = page;
   var links = document.querySelectorAll('#admin-nav .sidebar-link');
-  for (var i = 0; i < links.length; i++) { links[i].classList.toggle('active', links[i].dataset.page === page); }
+  for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.page === page);
   var el = document.getElementById('admin-content');
-  var renderers = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, shifts:renderShifts, approvals:renderApprovals, records:renderRecords, export:renderExport, recyclebin:renderRecycleBin, settings:renderSettings };
-  if (renderers[page]) el.innerHTML = renderers[page]();
+  var R = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, shifts:renderShifts, approvals:renderApprovals, records:renderRecords, export:renderExport, recyclebin:renderRecycleBin, settings:renderSettings };
+  if (R[page]) el.innerHTML = R[page]();
   if (page === 'dashboard') startDashClock();
 }
 document.getElementById('admin-nav').addEventListener('click', function(e) {
@@ -552,10 +517,10 @@ document.getElementById('admin-nav').addEventListener('click', function(e) {
 function navigateEmp(page) {
   state.empPage = page;
   var links = document.querySelectorAll('#emp-nav .sidebar-link');
-  for (var i = 0; i < links.length; i++) { links[i].classList.toggle('active', links[i].dataset.epage === page); }
+  for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.epage === page);
   var el = document.getElementById('emp-content');
   if (page === 'clock') { el.innerHTML = renderClockPage(); initClockPage(); }
-  else if (page === 'history') { el.innerHTML = renderEmpHistory(); }
+  else if (page === 'history') el.innerHTML = renderEmpHistory();
 }
 document.getElementById('emp-nav').addEventListener('click', function(e) {
   var l = e.target.closest('.sidebar-link');
@@ -568,56 +533,45 @@ document.getElementById('emp-nav').addEventListener('click', function(e) {
 var dashCI = null;
 function startDashClock() {
   if (dashCI) clearInterval(dashCI);
-  var u = function() {
-    var e = document.getElementById('dash-live-clock');
-    if (e) e.textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    else clearInterval(dashCI);
-  };
+  var u = function() { var e = document.getElementById('dash-live-clock'); if (e) e.textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); else clearInterval(dashCI); };
   u(); dashCI = setInterval(u, 1000);
 }
 function renderDashboard() {
-  var emps = getEmployees(), sites = getSites(), shifts = getShifts(), recs = getRecords();
-  var today = todayStr();
-  var todayShifts = shifts.filter(function(s) { return s.date === today; });
-  var clockedIn = recs.filter(function(r) { return r.status === 'clocked_in'; });
-  var pendingApp = recs.filter(function(r) { return r.needsApproval && !r.approved && !r.rejected && r.status === 'completed'; }).length;
-  var bin = getBinItems(); var binCount = 0;
-  var btypes = ['sites','employees','shifts','records'];
-  for (var i = 0; i < btypes.length; i++) { if (bin[btypes[i]]) binCount += Object.keys(bin[btypes[i]]).length; }
-
-  var h = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-2"><div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">' + new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + '</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div></div>';
-  h += '<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">';
-  h += '<div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">' + emps.filter(function(e){return e.active;}).length + '</div></div>';
-  h += '<div class="card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">' + sites.length + '</div></div>';
-  h += '<div class="card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY</div><div class="text-2xl font-bold">' + todayShifts.length + '</div></div>';
-  h += '<div class="card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:' + (clockedIn.length?'var(--success)':'var(--muted)') + '">' + clockedIn.length + '</div></div>';
-  h += '<div class="card" style="border-left:3px solid ' + (pendingApp?'var(--danger)':'var(--border)') + '"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-clipboard-check mr-1"></i>APPROVALS</div><div class="text-2xl font-bold" style="color:' + (pendingApp?'var(--danger)':'var(--muted)') + '">' + pendingApp + '</div></div>';
-  h += '<div class="card" style="border-left:3px solid ' + (binCount?'var(--danger)':'var(--border)') + '"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-recycle mr-1"></i>BIN</div><div class="text-2xl font-bold" style="color:' + (binCount?'var(--danger)':'var(--muted)') + '">' + binCount + '</div></div></div>';
-
-  h += '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">';
-  h += '<div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now</h3>';
+  var emps=getEmployees(), sites=getSites(), shifts=getShifts(), recs=getRecords(), today=todayStr();
+  var todayShifts=shifts.filter(function(s){return s.date===today;});
+  var clockedIn=recs.filter(function(r){return r.status==='clocked_in';});
+  var pendingApp=recs.filter(function(r){return r.needsApproval&&!r.approved&&!r.rejected&&r.status==='completed';}).length;
+  var bin=getBinItems(), binCount=0, btypes=['sites','employees','shifts','records'];
+  for (var i=0;i<btypes.length;i++) { if (bin[btypes[i]]) binCount+=Object.keys(bin[btypes[i]]).length; }
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-2"><div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">'+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div></div>';
+  h+='<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">';
+  h+='<div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">'+emps.filter(function(e){return e.active;}).length+'</div></div>';
+  h+='<div class="card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">'+sites.length+'</div></div>';
+  h+='<div class="card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY</div><div class="text-2xl font-bold">'+todayShifts.length+'</div></div>';
+  h+='<div class="card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:'+(clockedIn.length?'var(--success)':'var(--muted)')+'">'+clockedIn.length+'</div></div>';
+  h+='<div class="card" style="border-left:3px solid '+(pendingApp?'var(--danger)':'var(--border)')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-clipboard-check mr-1"></i>APPROVALS</div><div class="text-2xl font-bold" style="color:'+(pendingApp?'var(--danger)':'var(--muted)')+'">'+pendingApp+'</div></div>';
+  h+='<div class="card" style="border-left:3px solid '+(binCount?'var(--danger)':'var(--border)')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-recycle mr-1"></i>BIN</div><div class="text-2xl font-bold" style="color:'+(binCount?'var(--danger)':'var(--muted)')+'">'+binCount+'</div></div></div>';
+  h+='<div class="grid grid-cols-1 lg:grid-cols-2 gap-4"><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now</h3>';
   if (clockedIn.length) {
-    for (var i = 0; i < clockedIn.length; i++) {
-      var r = clockedIn[i], emp = getEmpById(r.employeeId), start = new Date(r.clockIn), el2 = Math.floor((Date.now()-start.getTime())/60000);
-      h += '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">' + (emp?emp.firstName+' '+emp.lastName:'?') + '</div><div class="text-xs" style="color:var(--muted)">' + getSiteName(r.siteId) + ' &middot; Since ' + fmtTime(start) + '</div></div><div class="text-right"><div class="mono text-sm font-semibold" style="color:var(--success)">' + fmtHrs(el2/60) + '</div><span class="badge badge-green">Active</span></div></div>';
+    for (var i=0;i<clockedIn.length;i++) {
+      var r=clockedIn[i], emp=getEmpById(r.employeeId), start=new Date(r.clockIn), el2=Math.floor((Date.now()-start.getTime())/60000);
+      h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(r.siteId)+' &middot; Since '+fmtTime(start)+'</div></div><div class="text-right"><div class="mono text-sm font-semibold" style="color:var(--success)">'+fmtHrs(el2/60)+'</div><span class="badge badge-green">Active</span></div></div>';
     }
-  } else { h += '<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>'; }
-  h += '</div>';
-
-  h += '<div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today\'s Shifts</h3>';
-  var td = getDayType(today);
-  h += '<span class="badge ' + (td==='Sunday'?'badge-purple':td==='Holiday'?'badge-red':'badge-blue') + ' mb-3">' + td + '</span>';
+  } else h+='<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>';
+  h+='</div><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today\'s Shifts</h3>';
+  var td=getDayType(today);
+  h+='<span class="badge '+(td==='Sunday'?'badge-purple':td==='Holiday'?'badge-red':'badge-blue')+' mb-3">'+td+'</span>';
   if (todayShifts.length) {
-    for (var i = 0; i < Math.min(todayShifts.length, 6); i++) {
-      var s = todayShifts[i], emp = getEmpById(s.employeeId);
-      var rec = recs.find(function(r) { return r.shiftId === s.id; });
-      var st = '<span class="badge badge-amber">Pending</span>';
-      if (rec && rec.status === 'clocked_in') st = '<span class="badge badge-green">In</span>';
-      else if (rec && rec.status === 'completed') st = '<span class="badge badge-blue">Done</span>';
-      h += '<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">' + (emp?emp.firstName+' '+emp.lastName:'\u2014') + '</div><div class="text-xs" style="color:var(--muted)">' + getSiteName(s.siteId) + ' &middot; ' + s.startTime + '-' + s.endTime + '</div></div>' + st + '</div>';
+    for (var i=0;i<Math.min(todayShifts.length,6);i++) {
+      var s=todayShifts[i], emp=getEmpById(s.employeeId);
+      var rec=null; for(var j=0;j<recs.length;j++){if(recs[j].shiftId===s.id){rec=recs[j];break;}}
+      var st='<span class="badge badge-amber">Pending</span>';
+      if (rec&&rec.status==='clocked_in') st='<span class="badge badge-green">In</span>';
+      else if (rec&&rec.status==='completed') st='<span class="badge badge-blue">Done</span>';
+      h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'\u2014')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(s.siteId)+' &middot; '+s.startTime+'-'+s.endTime+'</div></div>'+st+'</div>';
     }
-  } else { h += '<p class="text-sm" style="color:var(--muted)">No shifts today.</p>'; }
-  h += '</div></div></div>';
+  } else h+='<p class="text-sm" style="color:var(--muted)">No shifts today.</p>';
+  h+='</div></div></div>';
   return h;
 }
 
@@ -625,843 +579,411 @@ function renderDashboard() {
    SITES
    ============================================ */
 function renderSites() {
-  var sites = getSites();
-  var h = '<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2><p class="text-sm" style="color:var(--muted)">GPS zones</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-4">';
-  if (sites.length) {
-    for (var i = 0; i < sites.length; i++) {
-      var s = sites[i];
-      h += '<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">' + s.name + '</div><div class="text-sm" style="color:var(--muted)">' + s.address + '</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>' + s.lat.toFixed(5) + ', ' + s.lng.toFixed(5) + '</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>' + s.radius + 'm</span><a href="https://www.google.com/maps?q=' + s.lat + ',' + s.lng + '" target="_blank" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\'' + s.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite(\'' + s.id + '\')"><i class="fas fa-trash"></i></button></div></div>';
-    }
-  } else { h += '<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites.</p></div>'; }
-  h += '</div></div>';
-  return h;
+  var sites=getSites();
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2><p class="text-sm" style="color:var(--muted)">GPS zones</p></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-4">';
+  for (var i=0;i<sites.length;i++) {
+    var s=sites[i];
+    h+='<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">'+s.name+'</div><div class="text-sm" style="color:var(--muted)">'+s.address+'</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>'+s.lat.toFixed(5)+', '+s.lng.toFixed(5)+'</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>'+s.radius+'m</span><a href="https://www.google.com/maps?q='+s.lat+','+s.lng+'" target="_blank" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>';
+  }
+  if (!sites.length) h+='<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites.</p></div>';
+  return h+'</div></div>';
 }
 function openSiteModal(editId) {
-  var s = editId ? getSites().find(function(x){return x.id===editId;}) : null;
-  var html = '<h3 class="font-bold text-lg mb-4">' + (s?'Edit':'Add') + ' Site</h3><div class="grid gap-4">';
-  html += '<div><label>Site Name</label><input id="m-site-name" value="' + (s?s.name:'') + '"></div>';
-  html += '<div><label>Address</label><input id="m-site-addr" value="' + (s?s.address:'') + '"></div>';
-  html += '<div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="' + (s?s.lat:'') + '"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="' + (s?s.lng:'') + '"></div></div>';
-  html += '<div><label>GPS Radius: <span id="m-radius-val">' + (s?s.radius:100) + '</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="' + (s?s.radius:100) + '" oninput="document.getElementById(\'m-radius-val\').textContent=this.value" style="padding:0;background:transparent;border:none"></div>';
-  html += '<button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Location</button>';
-  html += '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\'' + (editId||'') + '\')">' + (s?'Update':'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>';
-  openModal(html);
+  var s=editId?getSites().find(function(x){return x.id===editId;}):null;
+  openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Site</h3><div class="grid gap-4"><div><label>Site Name</label><input id="m-site-name" value="'+(s?s.name:'')+'"></div><div><label>Address</label><input id="m-site-addr" value="'+(s?s.address:'')+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="'+(s?s.lat:'')+'"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="'+(s?s.lng:'')+'"></div></div><div><label>GPS Radius: <span id="m-radius-val">'+(s?s.radius:100)+'</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="'+(s?s.radius:100)+'" oninput="document.getElementById(\'m-radius-val\').textContent=this.value" style="padding:0;background:transparent;border:none"></div><button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Location</button><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 function getMyLocation() {
-  if (!navigator.geolocation) { toast('Not supported','error'); return; }
+  if (!navigator.geolocation){toast('Not supported','error');return;}
   toast('Getting location...','info');
-  navigator.geolocation.getCurrentPosition(function(p) {
-    document.getElementById('m-site-lat').value = p.coords.latitude.toFixed(5);
-    document.getElementById('m-site-lng').value = p.coords.longitude.toFixed(5);
-    toast('Done','success');
-  }, function(e) { toast('Error: '+e.message,'error'); }, { enableHighAccuracy:true });
+  navigator.geolocation.getCurrentPosition(function(p){document.getElementById('m-site-lat').value=p.coords.latitude.toFixed(5);document.getElementById('m-site-lng').value=p.coords.longitude.toFixed(5);toast('Done','success');},function(e){toast('Error: '+e.message,'error');},{enableHighAccuracy:true});
 }
 function saveSite(editId) {
-  var name = document.getElementById('m-site-name').value.trim();
-  var address = document.getElementById('m-site-addr').value.trim();
-  var lat = parseFloat(document.getElementById('m-site-lat').value);
-  var lng = parseFloat(document.getElementById('m-site-lng').value);
-  var radius = parseInt(document.getElementById('m-site-radius').value);
-  if (!name) { toast('Name required','error'); return; }
-  if (isNaN(lat) || isNaN(lng)) { toast('Coordinates required','error'); return; }
-  if (editId) { fbUpdate('sites/'+editId, {name:name,address:address,lat:lat,lng:lng,radius:radius}); }
-  else { var id = db.ref('sites').push().key; fbSet('sites/'+id, {id:id,name:name,address:address,lat:lat,lng:lng,radius:radius}); }
-  closeModal(); navigateAdmin('sites'); toast(editId?'Updated':'Added','success');
+  var name=document.getElementById('m-site-name').value.trim(),address=document.getElementById('m-site-addr').value.trim(),lat=parseFloat(document.getElementById('m-site-lat').value),lng=parseFloat(document.getElementById('m-site-lng').value),radius=parseInt(document.getElementById('m-site-radius').value);
+  if (!name){toast('Name required','error');return;} if (isNaN(lat)||isNaN(lng)){toast('Coordinates required','error');return;}
+  if (editId) fbUpdate('sites/'+editId,{name:name,address:address,lat:lat,lng:lng,radius:radius});
+  else { var id=db.ref('sites').push().key; fbSet('sites/'+id,{id:id,name:name,address:address,lat:lat,lng:lng,radius:radius}); }
+  closeModal();navigateAdmin('sites');toast(editId?'Updated':'Added','success');
 }
-function deleteSite(id) {
-  var s = getSites().find(function(x){return x.id===id;});
-  if (getEmployees().filter(function(e){return e.siteId===id;}).length) { toast('Employees assigned','error'); return; }
-  moveToBin('sites', id, s); navigateAdmin('sites'); toast('Moved to recycle bin','info');
-}
+function deleteSite(id) { var s=getSites().find(function(x){return x.id===id;}); if (getEmployees().filter(function(e){return e.siteId===id;}).length){toast('Employees assigned','error');return;} moveToBin('sites',id,s);navigateAdmin('sites');toast('Moved to recycle bin','info'); }
 
 /* ============================================
    EMPLOYEES
    ============================================ */
 function renderEmployees() {
-  var emps = getEmployees();
-  var h = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Employees</h2><p class="text-sm" style="color:var(--muted)">' + emps.length + ' total</p></div>';
-  h += '<div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkEmpModal()"><i class="fas fa-users-line"></i> Bulk Add</button><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
-  h += '<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-  for (var i = 0; i < emps.length; i++) {
-    var e = emps[i];
-    h += '<tr><td class="font-medium">' + e.firstName + ' ' + e.lastName + '</td><td class="mono text-xs">' + e.employeeId + '</td><td><span class="badge badge-blue">' + getSiteName(e.siteId) + '</span></td><td>' + (e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>') + '</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openEmpModal(\'' + e.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(\'' + e.id + '\')"><i class="fas fa-trash"></i></button></div></td></tr>';
-  }
-  h += '</tbody></table></div></div>';
-  return h;
+  var emps=getEmployees();
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Employees</h2><p class="text-sm" style="color:var(--muted)">'+emps.length+' total</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkEmpModal()"><i class="fas fa-users-line"></i> Bulk Add</button><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
+  h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Site</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  for (var i=0;i<emps.length;i++) { var e=emps[i]; h+='<tr><td class="font-medium">'+e.firstName+' '+e.lastName+'</td><td class="mono text-xs">'+e.employeeId+'</td><td><span class="badge badge-blue">'+getSiteName(e.siteId)+'</span></td><td>'+(e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>')+'</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openEmpModal(\''+e.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(\''+e.id+'\')"><i class="fas fa-trash"></i></button></div></td></tr>'; }
+  h+='</tbody></table></div></div>'; return h;
 }
 function openEmpModal(editId) {
-  var emps = getEmployees(), sites = getSites();
-  var e = editId ? emps.find(function(x){return x.id===editId;}) : null;
-  if (!sites.length) { toast('Add a site first','error'); return; }
-  var so = '';
-  for (var i = 0; i < sites.length; i++) { so += '<option value="' + sites[i].id + '" ' + (e && e.siteId===sites[i].id?'selected':'') + '>' + sites[i].name + '</option>'; }
-  var html = '<h3 class="font-bold text-lg mb-4">' + (e?'Edit':'Add') + ' Employee</h3><div class="grid gap-4">';
-  html += '<div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="' + (e?e.firstName:'') + '"></div><div><label>Last Name</label><input id="m-emp-ln" value="' + (e?e.lastName:'') + '"></div></div>';
-  html += '<div><label>Employee ID</label><input id="m-emp-eid" value="' + (e?e.employeeId:'') + '" ' + (e?'readonly style="opacity:.6"':'') + '></div>';
-  html += '<div><label>PIN (4 digits)</label><input id="m-emp-pin" type="password" maxlength="4" value="' + (e?e.pin:'') + '"></div>';
-  html += '<div><label>Site</label><select id="m-emp-site">' + so + '</select></div>';
-  html += '<div class="flex items-center gap-2"><input id="m-emp-active" type="checkbox" ' + (!e||e.active?'checked':'') + ' class="w-4 h-4"><label for="m-emp-active" style="margin:0;cursor:pointer">Active</label></div>';
-  html += '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\'' + (editId||'') + '\')">' + (e?'Update':'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>';
-  openModal(html);
+  var emps=getEmployees(),sites=getSites(),e=editId?emps.find(function(x){return x.id===editId;}):null;
+  if (!sites.length){toast('Add a site first','error');return;}
+  var so=''; for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'" '+(e&&e.siteId===sites[i].id?'selected':'')+'>'+sites[i].name+'</option>';}
+  openModal('<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-4"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="'+(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="m-emp-ln" value="'+(e?e.lastName:'')+'"></div></div><div><label>Employee ID</label><input id="m-emp-eid" value="'+(e?e.employeeId:'')+'" '+(e?'readonly style="opacity:.6"':'')+'></div><div><label>PIN (4 digits)</label><input id="m-emp-pin" type="password" maxlength="4" value="'+(e?e.pin:'')+'"></div><div><label>Site</label><select id="m-emp-site">'+so+'</select></div><div class="flex items-center gap-2"><input id="m-emp-active" type="checkbox" '+(!e||e.active?'checked':'')+' class="w-4 h-4"><label for="m-emp-active" style="margin:0;cursor:pointer">Active</label></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\''+(editId||'')+'\')">'+(e?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 function saveEmp(editId) {
-  var fn = document.getElementById('m-emp-fn').value.trim();
-  var ln = document.getElementById('m-emp-ln').value.trim();
-  var eid = document.getElementById('m-emp-eid').value.trim().toUpperCase();
-  var pin = document.getElementById('m-emp-pin').value;
-  var siteId = document.getElementById('m-emp-site').value;
-  var active = document.getElementById('m-emp-active').checked;
-  if (!fn || !ln) { toast('Name required','error'); return; }
-  if (!eid) { toast('ID required','error'); return; }
-  if (!/^\d{4}$/.test(pin)) { toast('PIN must be 4 digits','error'); return; }
-  if (!editId && getEmployees().find(function(e){return e.employeeId===eid;})) { toast('ID exists','error'); return; }
-  if (editId) { fbUpdate('employees/'+editId, {firstName:fn,lastName:ln,employeeId:eid,pin:pin,siteId:siteId,active:active}); }
-  else { var id = db.ref('employees').push().key; fbSet('employees/'+id, {id:id,firstName:fn,lastName:ln,employeeId:eid,pin:pin,siteId:siteId,active:active}); }
-  closeModal(); navigateAdmin('employees'); toast(editId?'Updated':'Added','success');
+  var fn=document.getElementById('m-emp-fn').value.trim(),ln=document.getElementById('m-emp-ln').value.trim(),eid=document.getElementById('m-emp-eid').value.trim().toUpperCase(),pin=document.getElementById('m-emp-pin').value,siteId=document.getElementById('m-emp-site').value,active=document.getElementById('m-emp-active').checked;
+  if (!fn||!ln){toast('Name required','error');return;} if (!eid){toast('ID required','error');return;} if (!/^\d{4}$/.test(pin)){toast('PIN must be 4 digits','error');return;}
+  if (!editId&&getEmployees().find(function(e){return e.employeeId===eid;})){toast('ID exists','error');return;}
+  if (editId) fbUpdate('employees/'+editId,{firstName:fn,lastName:ln,employeeId:eid,pin:pin,siteId:siteId,active:active});
+  else { var id=db.ref('employees').push().key; fbSet('employees/'+id,{id:id,firstName:fn,lastName:ln,employeeId:eid,pin:pin,siteId:siteId,active:active}); }
+  closeModal();navigateAdmin('employees');toast(editId?'Updated':'Added','success');
 }
-function deleteEmployee(id) {
-  var e = getEmpById(id);
-  if (getRecords().find(function(r){return r.employeeId===id;})) { toast('Has records \u2014 deactivate instead','error'); return; }
-  moveToBin('employees', id, e); navigateAdmin('employees'); toast('Moved to recycle bin','info');
-}
+function deleteEmployee(id) { var e=getEmpById(id); if(getRecords().find(function(r){return r.employeeId===id;})){toast('Has records \u2014 deactivate instead','error');return;} moveToBin('employees',id,e);navigateAdmin('employees');toast('Moved to recycle bin','info'); }
 
 /* ============================================
    BULK EMPLOYEE ADDING
    ============================================ */
 function openBulkEmpModal() {
-  var sites = getSites();
-  if (!sites.length) { toast('Add a site first','error'); return; }
-  var so = '';
-  for (var i = 0; i < sites.length; i++) { so += '<option value="' + sites[i].id + '">' + sites[i].name + '</option>'; }
-  var html = '<h3 class="font-bold text-lg mb-2">Bulk Add Employees</h3>';
-  html += '<p class="text-xs mb-4" style="color:var(--muted)">One per line: <span class="mono" style="color:var(--fg)">FirstName, LastName, EmployeeID, PIN</span></p>';
-  html += '<div class="grid gap-4">';
-  html += '<div><label>Assign to Site</label><select id="m-bulk-site">' + so + '</select></div>';
-  html += '<div><label>Employees</label><textarea id="m-bulk-emps" rows="8" placeholder="John, Smith, EMP004, 1234&#10;Jane, Doe, EMP005, 5678" style="font-family:\'JetBrains Mono\',monospace;font-size:.8rem;resize:vertical"></textarea></div>';
-  html += '<div id="m-bulk-preview"></div>';
-  html += '<div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="previewBulkEmps()"><i class="fas fa-eye"></i> Preview</button>';
-  html += '<button class="btn btn-success flex-1 justify-center" onclick="saveBulkEmps()" id="m-bulk-save-btn" disabled><i class="fas fa-upload"></i> Add All</button>';
-  html += '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>';
-  openModal(html);
+  var sites=getSites(); if(!sites.length){toast('Add a site first','error');return;}
+  var so=''; for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'">'+sites[i].name+'</option>';}
+  openModal('<h3 class="font-bold text-lg mb-2">Bulk Add Employees</h3><p class="text-xs mb-4" style="color:var(--muted)">One per line: <span class="mono" style="color:var(--fg)">FirstName, LastName, EmployeeID, PIN</span></p><div class="grid gap-4"><div><label>Assign to Site</label><select id="m-bulk-site">'+so+'</select></div><div><label>Employees</label><textarea id="m-bulk-emps" rows="8" placeholder="John, Smith, EMP004, 1234&#10;Jane, Doe, EMP005, 5678" style="font-family:\'JetBrains Mono\',monospace;font-size:.8rem;resize:vertical"></textarea></div><div id="m-bulk-preview"></div><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="previewBulkEmps()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-success flex-1 justify-center" onclick="saveBulkEmps()" id="m-bulk-save-btn" disabled><i class="fas fa-upload"></i> Add All</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 function previewBulkEmps() {
-  var raw = document.getElementById('m-bulk-emps').value.trim();
-  var lines = raw.split('\n').filter(function(l){return l.trim();});
-  var existing = getEmployees();
-  var parsed = [], errors = [];
-  for (var i = 0; i < lines.length; i++) {
-    var parts = lines[i].split(',').map(function(p){return p.trim();});
-    if (parts.length < 4) { errors.push('Line ' + (i+1) + ': needs 4 fields'); continue; }
-    var fn = parts[0], ln = parts[1], eid = parts[2].toUpperCase(), pin = parts[3];
-    if (!fn || !ln) { errors.push('Line ' + (i+1) + ': empty name'); continue; }
-    if (!/^\d{4}$/.test(pin)) { errors.push('Line ' + (i+1) + ': PIN must be 4 digits'); continue; }
-    var dup = false;
-    for (var j = 0; j < existing.length; j++) { if (existing[j].employeeId === eid) { errors.push('Line ' + (i+1) + ': ID ' + eid + ' exists'); dup = true; break; } }
-    if (dup) continue;
-    for (var j = 0; j < parsed.length; j++) { if (parsed[j].eid === eid) { errors.push('Line ' + (i+1) + ': duplicate ID'); dup = true; break; } }
-    if (dup) continue;
-    parsed.push({ fn:fn, ln:ln, eid:eid, pin:pin });
+  var lines=document.getElementById('m-bulk-emps').value.trim().split('\n').filter(function(l){return l.trim();}),existing=getEmployees(),parsed=[],errors=[];
+  for (var i=0;i<lines.length;i++) {
+    var parts=lines[i].split(',').map(function(p){return p.trim();});
+    if (parts.length<4){errors.push('Line '+(i+1)+': needs 4 fields');continue;}
+    var fn=parts[0],ln=parts[1],eid=parts[2].toUpperCase(),pin=parts[3];
+    if (!fn||!ln){errors.push('Line '+(i+1)+': empty name');continue;}
+    if (!/^\d{4}$/.test(pin)){errors.push('Line '+(i+1)+': PIN must be 4 digits');continue;}
+    var dup=false;
+    for(var j=0;j<existing.length;j++){if(existing[j].employeeId===eid){errors.push('Line '+(i+1)+': ID '+eid+' exists');dup=true;break;}}
+    if(dup)continue;
+    for(var j=0;j<parsed.length;j++){if(parsed[j].eid===eid){errors.push('Line '+(i+1)+': duplicate ID');dup=true;break;}}
+    if(dup)continue;
+    parsed.push({fn:fn,ln:ln,eid:eid,pin:pin});
   }
-  var h = '';
-  if (errors.length) {
-    h += '<div class="mb-3 p-3 rounded-lg" style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3)"><div class="text-xs font-semibold mb-1" style="color:var(--danger)">' + errors.length + ' error(s)</div>';
-    for (var i = 0; i < errors.length; i++) { h += '<div class="text-xs" style="color:var(--danger)">' + errors[i] + '</div>'; }
-    h += '</div>';
-  }
-  if (parsed.length) {
-    h += '<div class="p-3 rounded-lg" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)"><div class="text-xs font-semibold mb-2" style="color:var(--success)">' + parsed.length + ' employee(s) ready</div><table style="width:100%"><thead><tr><th>Name</th><th>ID</th><th>PIN</th></tr></thead><tbody>';
-    for (var i = 0; i < parsed.length; i++) { h += '<tr><td class="text-xs">' + parsed[i].fn + ' ' + parsed[i].ln + '</td><td class="text-xs mono">' + parsed[i].eid + '</td><td class="text-xs mono">****</td></tr>'; }
-    h += '</tbody></table></div>';
-    var btn = document.getElementById('m-bulk-save-btn');
-    btn.disabled = false;
-    btn.setAttribute('data-parsed', JSON.stringify(parsed));
-  } else {
-    document.getElementById('m-bulk-save-btn').disabled = true;
-    document.getElementById('m-bulk-save-btn').removeAttribute('data-parsed');
-  }
-  document.getElementById('m-bulk-preview').innerHTML = h;
+  var h='';
+  if (errors.length){h+='<div class="mb-3 p-3 rounded-lg" style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3)"><div class="text-xs font-semibold mb-1" style="color:var(--danger)">'+errors.length+' error(s)</div>';for(var i=0;i<errors.length;i++){h+='<div class="text-xs" style="color:var(--danger)">'+errors[i]+'</div>';}h+='</div>';}
+  if (parsed.length){h+='<div class="p-3 rounded-lg" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)"><div class="text-xs font-semibold mb-2" style="color:var(--success)">'+parsed.length+' employee(s) ready</div><table style="width:100%"><thead><tr><th>Name</th><th>ID</th><th>PIN</th></tr></thead><tbody>';for(var i=0;i<parsed.length;i++){h+='<tr><td class="text-xs">'+parsed[i].fn+' '+parsed[i].ln+'</td><td class="text-xs mono">'+parsed[i].eid+'</td><td class="text-xs mono">****</td></tr>';}h+='</tbody></table></div>';var btn=document.getElementById('m-bulk-save-btn');btn.disabled=false;btn.setAttribute('data-parsed',JSON.stringify(parsed));}
+  else {document.getElementById('m-bulk-save-btn').disabled=true;document.getElementById('m-bulk-save-btn').removeAttribute('data-parsed');}
+  document.getElementById('m-bulk-preview').innerHTML=h;
 }
 function saveBulkEmps() {
-  var btn = document.getElementById('m-bulk-save-btn');
-  var data = btn.getAttribute('data-parsed');
-  if (!data) { toast('Preview first','error'); return; }
-  var parsed = JSON.parse(data);
-  var siteId = document.getElementById('m-bulk-site').value;
-  var count = 0;
-  for (var i = 0; i < parsed.length; i++) {
-    var p = parsed[i];
-    var id = db.ref('employees').push().key;
-    fbSet('employees/' + id, { id:id, firstName:p.fn, lastName:p.ln, employeeId:p.eid, pin:p.pin, siteId:siteId, active:true });
-    count++;
-  }
-  closeModal(); navigateAdmin('employees'); toast(count + ' employee(s) added','success');
+  var btn=document.getElementById('m-bulk-save-btn'),data=btn.getAttribute('data-parsed');
+  if(!data){toast('Preview first','error');return;}
+  var parsed=JSON.parse(data),siteId=document.getElementById('m-bulk-site').value,count=0;
+  for(var i=0;i<parsed.length;i++){var p=parsed[i],id=db.ref('employees').push().key;fbSet('employees/'+id,{id:id,firstName:p.fn,lastName:p.ln,employeeId:p.eid,pin:p.pin,siteId:siteId,active:true});count++;}
+  closeModal();navigateAdmin('employees');toast(count+' employee(s) added','success');
 }
 
 /* ============================================
    SHIFTS
    ============================================ */
 function renderShifts() {
-  var shifts = getShifts(), byDate = {};
-  for (var i = 0; i < shifts.length; i++) {
-    var s = shifts[i];
-    if (!byDate[s.date]) byDate[s.date] = [];
-    byDate[s.date].push(s);
-  }
-  var dates = Object.keys(byDate).sort().reverse();
-  var h = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Shifts</h2><p class="text-sm" style="color:var(--muted)">' + shifts.length + ' total</p></div>';
-  h += '<div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk Add</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
-  var recs = getRecords();
-  if (dates.length) {
-    for (var d = 0; d < dates.length; d++) {
-      var date = dates[d], dt = getDayType(date), dayShifts = byDate[date];
-      h += '<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">' + (date===todayStr()?'<span style="color:var(--accent)">Today</span> \u2014 ':'') + new Date(date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) + '</h3>';
-      h += '<span class="badge ' + (dt==='Sunday'?'badge-purple':dt==='Holiday'?'badge-red':'badge-blue') + '">' + dt + '</span><span class="badge badge-amber">' + dayShifts.length + '</span></div>';
-      h += '<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Target</th><th>Break</th><th>Status</th><th></th></tr></thead><tbody>';
-      for (var i = 0; i < dayShifts.length; i++) {
-        var s = dayShifts[i], emp = getEmpById(s.employeeId);
-        var rec = null;
-        for (var j = 0; j < recs.length; j++) { if (recs[j].shiftId === s.id) { rec = recs[j]; break; } }
-        var st = '<span class="badge badge-amber">Pending</span>';
-        if (rec && rec.status === 'clocked_in') st = '<span class="badge badge-green">In</span>';
-        else if (rec && rec.status === 'completed') st = '<span class="badge badge-blue">Done</span>';
-        h += '<tr><td class="font-medium text-sm">' + (emp?emp.firstName+' '+emp.lastName:'\u2014') + '</td><td class="text-xs">' + getSiteName(s.siteId) + '</td><td class="mono text-xs">' + s.startTime + ' - ' + s.endTime + '</td><td>' + (s.targetHours||'\u2014') + 'h</td><td>' + (s.breakMinutes||0) + 'm</td><td>' + st + '</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-sm" onclick="openShiftModal(\'' + s.id + '\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteShift(\'' + s.id + '\')"><i class="fas fa-trash"></i></button></div></td></tr>';
-      }
-      h += '</tbody></table></div></div>';
-    }
-  } else { h += '<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts.</p></div>'; }
-  h += '</div>';
-  return h;
+  var shifts=getShifts(),byDate={},recs=getRecords();
+  for(var i=0;i<shifts.length;i++){var s=shifts[i];if(!byDate[s.date])byDate[s.date]=[];byDate[s.date].push(s);}
+  var dates=Object.keys(byDate).sort().reverse();
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Shifts</h2><p class="text-sm" style="color:var(--muted)">'+shifts.length+' total</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk Add</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
+  if(dates.length){for(var d=0;d<dates.length;d++){var date=dates[d],dt=getDayType(date),dayShifts=byDate[date];h+='<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">'+(date===todayStr()?'<span style="color:var(--accent)">Today</span> \u2014 ':'')+new Date(date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</h3><span class="badge '+(dt==='Sunday'?'badge-purple':dt==='Holiday'?'badge-red':'badge-blue')+'">'+dt+'</span><span class="badge badge-amber">'+dayShifts.length+'</span></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Target</th><th>Break</th><th>Status</th><th></th></tr></thead><tbody>';for(var i=0;i<dayShifts.length;i++){var s=dayShifts[i],emp=getEmpById(s.employeeId),rec=null;for(var j=0;j<recs.length;j++){if(recs[j].shiftId===s.id){rec=recs[j];break;}}var st='<span class="badge badge-amber">Pending</span>';if(rec&&rec.status==='clocked_in')st='<span class="badge badge-green">In</span>';else if(rec&&rec.status==='completed')st='<span class="badge badge-blue">Done</span>';h+='<tr><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'\u2014')+'</td><td class="text-xs">'+getSiteName(s.siteId)+'</td><td class="mono text-xs">'+s.startTime+' - '+s.endTime+'</td><td>'+(s.targetHours||'\u2014')+'h</td><td>'+(s.breakMinutes||0)+'m</td><td>'+st+'</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-sm" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteShift(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></td></tr>';}h+='</tbody></table></div></div>';}}
+  else h+='<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts.</p></div>';
+  return h+'</div>';
 }
 function openShiftModal(editId) {
-  var s = editId ? getShifts().find(function(x){return x.id===editId;}) : null;
-  var emps = getEmployees().filter(function(e){return e.active;});
-  var sites = getSites();
-  var eo = '';
-  for (var i = 0; i < emps.length; i++) { eo += '<option value="' + emps[i].id + '" ' + (s && s.employeeId===emps[i].id?'selected':'') + '>' + emps[i].firstName + ' ' + emps[i].lastName + ' (' + emps[i].employeeId + ')</option>'; }
-  var so = '';
-  for (var i = 0; i < sites.length; i++) { so += '<option value="' + sites[i].id + '" ' + (s && s.siteId===sites[i].id?'selected':'') + '>' + sites[i].name + '</option>'; }
-  var html = '<h3 class="font-bold text-lg mb-4">' + (s?'Edit':'Add') + ' Shift</h3><div class="grid gap-4">';
-  html += '<div><label>Employee</label><select id="m-shift-emp">' + eo + '</select></div>';
-  html += '<div><label>Site</label><select id="m-shift-site">' + so + '</select></div>';
-  html += '<div><label>Date</label><input id="m-shift-date" type="date" value="' + (s?s.date:todayStr()) + '"></div>';
-  html += '<div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-shift-start" type="time" value="' + (s?s.startTime:'08:00') + '"></div><div><label>End Time</label><input id="m-shift-end" type="time" value="' + (s?s.endTime:'17:00') + '"></div></div>';
-  html += '<div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-shift-target" type="number" step="0.25" value="' + (s?s.targetHours||'':'') + '"></div><div><label>Break (min)</label><input id="m-shift-break" type="number" value="' + (s?s.breakMinutes||0:0) + '"></div></div>';
-  html += '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\'' + (editId||'') + '\')">' + (s?'Update':'Add') + '</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>';
-  openModal(html);
+  var s=editId?getShifts().find(function(x){return x.id===editId;}):null,emps=getEmployees().filter(function(e){return e.active;}),sites=getSites();
+  var eo='';for(var i=0;i<emps.length;i++){eo+='<option value="'+emps[i].id+'" '+(s&&s.employeeId===emps[i].id?'selected':'')+'>'+emps[i].firstName+' '+emps[i].lastName+' ('+emps[i].employeeId+')</option>';}
+  var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'" '+(s&&s.siteId===sites[i].id?'selected':'')+'>'+sites[i].name+'</option>';}
+  openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Shift</h3><div class="grid gap-4"><div><label>Employee</label><select id="m-shift-emp">'+eo+'</select></div><div><label>Site</label><select id="m-shift-site">'+so+'</select></div><div><label>Date</label><input id="m-shift-date" type="date" value="'+(s?s.date:todayStr())+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-shift-start" type="time" value="'+(s?s.startTime:'08:00')+'"></div><div><label>End Time</label><input id="m-shift-end" type="time" value="'+(s?s.endTime:'17:00')+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-shift-target" type="number" step="0.25" value="'+(s?s.targetHours||'':'')+'"></div><div><label>Break (min)</label><input id="m-shift-break" type="number" value="'+(s?s.breakMinutes||0:0)+'"></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 function saveShift(editId) {
-  var empId = document.getElementById('m-shift-emp').value;
-  var siteId = document.getElementById('m-shift-site').value;
-  var date = document.getElementById('m-shift-date').value;
-  var startTime = document.getElementById('m-shift-start').value;
-  var endTime = document.getElementById('m-shift-end').value;
-  var targetHours = parseFloat(document.getElementById('m-shift-target').value) || '';
-  var breakMinutes = parseInt(document.getElementById('m-shift-break').value) || 0;
-  if (!date || !startTime || !endTime) { toast('Fill all fields','error'); return; }
-  var data = { employeeId:empId, siteId:siteId, date:date, startTime:startTime, endTime:endTime, targetHours:targetHours, breakMinutes:breakMinutes };
-  if (editId) { fbUpdate('shifts/'+editId, data); }
-  else { data.id = db.ref('shifts').push().key; fbSet('shifts/'+data.id, data); }
-  closeModal(); navigateAdmin('shifts'); toast(editId?'Updated':'Added','success');
+  var empId=document.getElementById('m-shift-emp').value,siteId=document.getElementById('m-shift-site').value,date=document.getElementById('m-shift-date').value,startTime=document.getElementById('m-shift-start').value,endTime=document.getElementById('m-shift-end').value,targetHours=parseFloat(document.getElementById('m-shift-target').value)||'',breakMinutes=parseInt(document.getElementById('m-shift-break').value)||0;
+  if(!date||!startTime||!endTime){toast('Fill all fields','error');return;}
+  var data={employeeId:empId,siteId:siteId,date:date,startTime:startTime,endTime:endTime,targetHours:targetHours,breakMinutes:breakMinutes};
+  if(editId)fbUpdate('shifts/'+editId,data);else{data.id=db.ref('shifts').push().key;fbSet('shifts/'+data.id,data);}
+  closeModal();navigateAdmin('shifts');toast(editId?'Updated':'Added','success');
 }
-function deleteShift(id) {
-  var s = getShifts().find(function(x){return x.id===id;});
-  if (getRecords().find(function(r){return r.shiftId===id;})) { toast('Has clock records','error'); return; }
-  moveToBin('shifts', id, s); navigateAdmin('shifts'); toast('Moved to recycle bin','info');
-}
+function deleteShift(id){var s=getShifts().find(function(x){return x.id===id;});if(getRecords().find(function(r){return r.shiftId===id;})){toast('Has clock records','error');return;}moveToBin('shifts',id,s);navigateAdmin('shifts');toast('Moved to recycle bin','info');}
 
 /* ============================================
    BULK SHIFT ADDING
    ============================================ */
 function openBulkShiftModal() {
-  var emps = getEmployees().filter(function(e){return e.active;});
-  var sites = getSites();
-  if (!emps.length) { toast('Add employees first','error'); return; }
-  if (!sites.length) { toast('Add a site first','error'); return; }
-
-  var ec = '';
-  for (var i = 0; i < emps.length; i++) {
-    var e = emps[i];
-    ec += '<label><input type="checkbox" class="bulk-emp-cb" value="' + e.id + '"> ' + e.firstName + ' ' + e.lastName + ' <span style="color:var(--muted)">(' + e.employeeId + ')</span></label>';
-  }
-  var so = '';
-  for (var i = 0; i < sites.length; i++) { so += '<option value="' + sites[i].id + '">' + sites[i].name + '</option>'; }
-
-  var dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  var dowHtml = '';
-  for (var i = 0; i < 7; i++) {
-    var chk = (i < 5) ? 'checked' : '';
-    dowHtml += '<label><input type="checkbox" class="bulk-dow-cb" value="' + i + '" ' + chk + '> ' + dayNames[i] + '</label>';
-  }
-
-  var today = todayStr();
-  var html = '<h3 class="font-bold text-lg mb-2">Bulk Add Shifts</h3>';
-  html += '<p class="text-xs mb-4" style="color:var(--muted)">Create shifts for multiple employees over a date range</p>';
-  html += '<div class="grid gap-4">';
-  html += '<div><label>Select Employees</label><div class="flex items-center gap-2 mb-2"><label style="margin:0;cursor:pointer;font-size:.75rem;color:var(--accent)"><input type="checkbox" id="bulk-emp-all" onchange="var cbs=document.querySelectorAll(\'.bulk-emp-cb\');for(var i=0;i<cbs.length;i++){cbs[i].checked=this.checked;}" style="width:auto;accent-color:var(--accent)"> Select All</label></div>';
-  html += '<div class="cb-grid">' + ec + '</div></div>';
-  html += '<div><label>Site</label><select id="m-bulk-shift-site">' + so + '</select></div>';
-  html += '<div class="grid grid-cols-2 gap-3"><div><label>Start Date</label><input id="m-bulk-shift-from" type="date" value="' + today + '"></div><div><label>End Date</label><input id="m-bulk-shift-to" type="date" value="' + today + '"></div></div>';
-  html += '<div><label>Days of Week</label><div class="dow-row">' + dowHtml + '</div></div>';
-  html += '<div class="grid grid-cols-3 gap-3"><div><label>Start Time</label><input id="m-bulk-shift-start" type="time" value="08:00"></div><div><label>End Time</label><input id="m-bulk-shift-end" type="time" value="17:00"></div><div><label>Break (min)</label><input id="m-bulk-shift-break" type="number" value="30"></div></div>';
-  html += '<div><label>Target Hours (blank = auto)</label><input id="m-bulk-shift-target" type="number" step="0.25" placeholder="auto"></div>';
-  html += '<div id="m-bulk-shift-preview"></div>';
-  html += '<div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="previewBulkShifts()"><i class="fas fa-eye"></i> Preview</button>';
-  html += '<button class="btn btn-success flex-1 justify-center" onclick="saveBulkShifts()" id="m-bulk-shift-save" disabled><i class="fas fa-upload"></i> Create All</button>';
-  html += '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>';
-  openModal(html);
+  var emps=getEmployees().filter(function(e){return e.active;}),sites=getSites();
+  if(!emps.length){toast('Add employees first','error');return;} if(!sites.length){toast('Add a site first','error');return;}
+  var ec='';for(var i=0;i<emps.length;i++){var e=emps[i];ec+='<label><input type="checkbox" class="bulk-emp-cb" value="'+e.id+'"> '+e.firstName+' '+e.lastName+' <span style="color:var(--muted)">('+e.employeeId+')</span></label>';}
+  var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'">'+sites[i].name+'</option>';}
+  var dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],dowHtml='';
+  for(var i=0;i<7;i++){dowHtml+='<label><input type="checkbox" class="bulk-dow-cb" value="'+i+'" '+(i<5?'checked':'')+'> '+dayNames[i]+'</label>';}
+  var today=todayStr();
+  openModal('<h3 class="font-bold text-lg mb-2">Bulk Add Shifts</h3><p class="text-xs mb-4" style="color:var(--muted)">Create shifts for multiple employees over a date range</p><div class="grid gap-4"><div><label>Select Employees</label><div class="flex items-center gap-2 mb-2"><label style="margin:0;cursor:pointer;font-size:.75rem;color:var(--accent)"><input type="checkbox" id="bulk-emp-all" onchange="var cbs=document.querySelectorAll(\'.bulk-emp-cb\');for(var i=0;i<cbs.length;i++){cbs[i].checked=this.checked;}" style="width:auto;accent-color:var(--accent)"> Select All</label></div><div class="cb-grid">'+ec+'</div></div><div><label>Site</label><select id="m-bulk-shift-site">'+so+'</select></div><div class="grid grid-cols-2 gap-3"><div><label>Start Date</label><input id="m-bulk-shift-from" type="date" value="'+today+'"></div><div><label>End Date</label><input id="m-bulk-shift-to" type="date" value="'+today+'"></div></div><div><label>Days of Week</label><div class="dow-row">'+dowHtml+'</div></div><div class="grid grid-cols-3 gap-3"><div><label>Start Time</label><input id="m-bulk-shift-start" type="time" value="08:00"></div><div><label>End Time</label><input id="m-bulk-shift-end" type="time" value="17:00"></div><div><label>Break (min)</label><input id="m-bulk-shift-break" type="number" value="30"></div></div><div><label>Target Hours (blank = auto)</label><input id="m-bulk-shift-target" type="number" step="0.25" placeholder="auto"></div><div id="m-bulk-shift-preview"></div><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="previewBulkShifts()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-success flex-1 justify-center" onclick="saveBulkShifts()" id="m-bulk-shift-save" disabled><i class="fas fa-upload"></i> Create All</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
 function previewBulkShifts() {
-  var empCbs = document.querySelectorAll('.bulk-emp-cb:checked');
-  var empIds = [];
-  for (var i = 0; i < empCbs.length; i++) { empIds.push(empCbs[i].value); }
-  if (!empIds.length) { toast('Select at least one employee','error'); return; }
-  var fromDate = document.getElementById('m-bulk-shift-from').value;
-  var toDate = document.getElementById('m-bulk-shift-to').value;
-  if (!fromDate || !toDate) { toast('Set date range','error'); return; }
-  var dowCbs = document.querySelectorAll('.bulk-dow-cb:checked');
-  var dows = [];
-  for (var i = 0; i < dowCbs.length; i++) { dows.push(parseInt(dowCbs[i].value)); }
-  if (!dows.length) { toast('Select at least one day','error'); return; }
-  var dates = [], d = new Date(fromDate + 'T12:00:00'), end = new Date(toDate + 'T12:00:00');
-  while (d <= end) { if (dows.indexOf(d.getDay()) !== -1) dates.push(fmtDate(d)); d.setDate(d.getDate() + 1); }
-  var total = empIds.length * dates.length;
-  var h = '<div class="p-3 rounded-lg" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)">';
-  h += '<div class="text-xs font-semibold mb-1" style="color:var(--success)">' + total + ' shift(s) will be created</div>';
-  h += '<div class="text-xs" style="color:var(--muted)">' + empIds.length + ' employee(s) &times; ' + dates.length + ' day(s)</div>';
-  if (dates.length) h += '<div class="text-xs mt-1" style="color:var(--muted)">' + dates[0] + ' to ' + dates[dates.length-1] + '</div>';
-  h += '</div>';
-  document.getElementById('m-bulk-shift-preview').innerHTML = h;
-  var btn = document.getElementById('m-bulk-shift-save');
-  btn.disabled = false;
-  btn.setAttribute('data-count', total);
+  var empCbs=document.querySelectorAll('.bulk-emp-cb:checked'),empIds=[];for(var i=0;i<empCbs.length;i++){empIds.push(empCbs[i].value);}
+  if(!empIds.length){toast('Select at least one employee','error');return;}
+  var fromDate=document.getElementById('m-bulk-shift-from').value,toDate=document.getElementById('m-bulk-shift-to').value;
+  if(!fromDate||!toDate){toast('Set date range','error');return;}
+  var dowCbs=document.querySelectorAll('.bulk-dow-cb:checked'),dows=[];for(var i=0;i<dowCbs.length;i++){dows.push(parseInt(dowCbs[i].value));}
+  if(!dows.length){toast('Select at least one day','error');return;}
+  var dates=[],d=new Date(fromDate+'T12:00:00'),end=new Date(toDate+'T12:00:00');
+  while(d<=end){if(dows.indexOf(d.getDay())!==-1)dates.push(fmtDate(d));d.setDate(d.getDate()+1);}
+  var total=empIds.length*dates.length;
+  var h='<div class="p-3 rounded-lg" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)"><div class="text-xs font-semibold mb-1" style="color:var(--success)">'+total+' shift(s) will be created</div><div class="text-xs" style="color:var(--muted)">'+empIds.length+' employee(s) &times; '+dates.length+' day(s)</div>'+(dates.length?'<div class="text-xs mt-1" style="color:var(--muted)">'+dates[0]+' to '+dates[dates.length-1]+'</div>':'')+'</div>';
+  document.getElementById('m-bulk-shift-preview').innerHTML=h;
+  var btn=document.getElementById('m-bulk-shift-save');btn.disabled=false;btn.setAttribute('data-count',total);
 }
 function saveBulkShifts() {
-  var btn = document.getElementById('m-bulk-shift-save');
-  if (btn.disabled) return;
-  var empCbs = document.querySelectorAll('.bulk-emp-cb:checked');
-  var empIds = [];
-  for (var i = 0; i < empCbs.length; i++) { empIds.push(empCbs[i].value); }
-  var fromDate = document.getElementById('m-bulk-shift-from').value;
-  var toDate = document.getElementById('m-bulk-shift-to').value;
-  var dowCbs = document.querySelectorAll('.bulk-dow-cb:checked');
-  var dows = [];
-  for (var i = 0; i < dowCbs.length; i++) { dows.push(parseInt(dowCbs[i].value)); }
-  var dates = [], d = new Date(fromDate + 'T12:00:00'), end = new Date(toDate + 'T12:00:00');
-  while (d <= end) { if (dows.indexOf(d.getDay()) !== -1) dates.push(fmtDate(d)); d.setDate(d.getDate() + 1); }
-  var siteId = document.getElementById('m-bulk-shift-site').value;
-  var startTime = document.getElementById('m-bulk-shift-start').value;
-  var endTime = document.getElementById('m-bulk-shift-end').value;
-  var breakMinutes = parseInt(document.getElementById('m-bulk-shift-break').value) || 0;
-  var targetHours = parseFloat(document.getElementById('m-bulk-shift-target').value) || '';
-  var count = 0;
-  for (var e = 0; e < empIds.length; e++) {
-    for (var dd = 0; dd < dates.length; dd++) {
-      var id = db.ref('shifts').push().key;
-      fbSet('shifts/' + id, { id:id, employeeId:empIds[e], siteId:siteId, date:dates[dd], startTime:startTime, endTime:endTime, breakMinutes:breakMinutes, targetHours:targetHours });
-      count++;
-    }
-  }
-  closeModal(); navigateAdmin('shifts'); toast(count + ' shift(s) created','success');
+  var btn=document.getElementById('m-bulk-shift-save');if(btn.disabled)return;
+  var empCbs=document.querySelectorAll('.bulk-emp-cb:checked'),empIds=[];for(var i=0;i<empCbs.length;i++){empIds.push(empCbs[i].value);}
+  var fromDate=document.getElementById('m-bulk-shift-from').value,toDate=document.getElementById('m-bulk-shift-to').value;
+  var dowCbs=document.querySelectorAll('.bulk-dow-cb:checked'),dows=[];for(var i=0;i<dowCbs.length;i++){dows.push(parseInt(dowCbs[i].value));}
+  var dates=[],d=new Date(fromDate+'T12:00:00'),end=new Date(toDate+'T12:00:00');
+  while(d<=end){if(dows.indexOf(d.getDay())!==-1)dates.push(fmtDate(d));d.setDate(d.getDate()+1);}
+  var siteId=document.getElementById('m-bulk-shift-site').value,startTime=document.getElementById('m-bulk-shift-start').value,endTime=document.getElementById('m-bulk-shift-end').value,breakMinutes=parseInt(document.getElementById('m-bulk-shift-break').value)||0,targetHours=parseFloat(document.getElementById('m-bulk-shift-target').value)||'';
+  var count=0;for(var e=0;e<empIds.length;e++){for(var dd=0;dd<dates.length;dd++){var id=db.ref('shifts').push().key;fbSet('shifts/'+id,{id:id,employeeId:empIds[e],siteId:siteId,date:dates[dd],startTime:startTime,endTime:endTime,breakMinutes:breakMinutes,targetHours:targetHours});count++;}}
+  closeModal();navigateAdmin('shifts');toast(count+' shift(s) created','success');
 }
 
 /* ============================================
    APPROVALS
    ============================================ */
 function renderApprovals() {
-  var allRecs = getRecords();
-  var pending = [], rejected = [], approved = [];
-  for (var i = 0; i < allRecs.length; i++) {
-    var r = allRecs[i];
-    if (!r.needsApproval || r.status !== 'completed') continue;
-    if (!r.approved && !r.rejected) pending.push(r);
-    else if (r.rejected) rejected.push(r);
-    else if (r.approved) approved.push(r);
-  }
-  var h = '<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Approvals</h2><p class="text-sm" style="color:var(--muted)">Records outside working hours require approval</p></div>';
-
-  h += '<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas fa-clock" style="color:var(--warning)"></i> Pending Approval <span class="badge badge-amber">' + pending.length + '</span></h3>';
-  if (pending.length) {
-    pending.sort(function(a,b){return new Date(b.clockOut)-new Date(a.clockOut);});
-    h += '<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Date</th><th>Time</th><th>Shift</th><th>Hours</th><th>Reason</th><th>Actions</th></tr></thead><tbody>';
-    for (var i = 0; i < pending.length; i++) {
-      var r = pending[i], emp = getEmpById(r.employeeId), shift = getShifts().find(function(s){return s.id===r.shiftId;});
-      h += '<tr><td class="font-medium text-sm">' + (emp?emp.firstName+' '+emp.lastName:'?') + '</td><td class="text-xs">' + r.clockIn.slice(0,10) + '</td><td class="mono text-xs">' + fmtTime(new Date(r.clockIn)) + ' - ' + fmtTime(new Date(r.clockOut)) + '</td><td class="text-xs">' + (shift?shift.startTime+' - '+shift.endTime:'No shift') + '</td><td class="mono text-xs">' + fmtHrs(r.totalHours) + '</td><td class="text-xs" style="color:var(--warning);max-width:200px">' + (r.approvalReason||'') + '</td>';
-      h += '<td><div class="flex gap-1"><button class="btn btn-success btn-sm" onclick="approveRecord(\'' + r.id + '\')"><i class="fas fa-check"></i></button><button class="btn btn-danger btn-sm" onclick="rejectRecord(\'' + r.id + '\')"><i class="fas fa-xmark"></i></button></div></td></tr>';
-    }
-    h += '</tbody></table></div>';
-  } else { h += '<div class="card text-center py-8"><p class="text-sm" style="color:var(--muted)">No pending approvals</p></div>'; }
-  h += '</div>';
-
-  if (rejected.length) {
-    h += '<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas fa-xmark" style="color:var(--danger)"></i> Rejected <span class="badge badge-red">' + rejected.length + '</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Date</th><th>Time</th><th>Reason</th><th>Actions</th></tr></thead><tbody>';
-    for (var i = 0; i < rejected.length; i++) {
-      var r = rejected[i], emp = getEmpById(r.employeeId);
-      h += '<tr><td class="text-sm">' + (emp?emp.firstName+' '+emp.lastName:'?') + '</td><td class="text-xs">' + r.clockIn.slice(0,10) + '</td><td class="mono text-xs">' + fmtTime(new Date(r.clockIn)) + ' - ' + fmtTime(new Date(r.clockOut)) + '</td><td class="text-xs" style="color:var(--danger)">' + (r.rejectionReason||r.approvalReason||'') + '</td>';
-      h += '<td><button class="btn btn-success btn-sm" onclick="approveRecord(\'' + r.id + '\')"><i class="fas fa-rotate-left"></i> Approve</button></td></tr>';
-    }
-    h += '</tbody></table></div></div>';
-  }
-  if (approved.length) {
-    h += '<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas fa-check-circle" style="color:var(--success)"></i> Approved <span class="badge badge-green">' + approved.length + '</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Date</th><th>Time</th><th>Hours</th></tr></thead><tbody>';
-    for (var i = 0; i < approved.length; i++) {
-      var r = approved[i], emp = getEmpById(r.employeeId);
-      h += '<tr><td class="text-sm">' + (emp?emp.firstName+' '+emp.lastName:'?') + '</td><td class="text-xs">' + r.clockIn.slice(0,10) + '</td><td class="mono text-xs">' + fmtTime(new Date(r.clockIn)) + ' - ' + fmtTime(new Date(r.clockOut)) + '</td><td class="mono text-xs">' + fmtHrs(r.totalHours) + '</td></tr>';
-    }
-    h += '</tbody></table></div></div>';
-  }
-  h += '</div>';
-  return h;
+  var allRecs=getRecords(),pending=[],rejected=[],approved=[];
+  for(var i=0;i<allRecs.length;i++){var r=allRecs[i];if(!r.needsApproval||r.status!=='completed')continue;if(!r.approved&&!r.rejected)pending.push(r);else if(r.rejected)rejected.push(r);else if(r.approved)approved.push(r);}
+  var h='<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Approvals</h2><p class="text-sm" style="color:var(--muted)">Records outside working hours require approval</p></div>';
+  h+='<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas fa-clock" style="color:var(--warning)"></i> Pending Approval <span class="badge badge-amber">'+pending.length+'</span></h3>';
+  if(pending.length){pending.sort(function(a,b){return new Date(b.clockOut)-new Date(a.clockOut);});h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Date</th><th>Time</th><th>Shift</th><th>Hours</th><th>Reason</th><th>Actions</th></tr></thead><tbody>';for(var i=0;i<pending.length;i++){var r=pending[i],emp=getEmpById(r.employeeId),shift=getShifts().find(function(s){return s.id===r.shiftId;});h+='<tr><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+fmtTime(new Date(r.clockIn))+' - '+fmtTime(new Date(r.clockOut))+'</td><td class="text-xs">'+(shift?shift.startTime+' - '+shift.endTime:'No shift')+'</td><td class="mono text-xs">'+fmtHrs(r.totalHours)+'</td><td class="text-xs" style="color:var(--warning);max-width:200px">'+(r.approvalReason||'')+'</td><td><div class="flex gap-1"><button class="btn btn-success btn-sm" onclick="approveRecord(\''+r.id+'\')"><i class="fas fa-check"></i></button><button class="btn btn-danger btn-sm" onclick="rejectRecord(\''+r.id+'\')"><i class="fas fa-xmark"></i></button></div></td></tr>';}h+='</tbody></table></div>';}
+  else h+='<div class="card text-center py-8"><p class="text-sm" style="color:var(--muted)">No pending approvals</p></div>';
+  h+='</div>';
+  if(rejected.length){h+='<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas fa-xmark" style="color:var(--danger)"></i> Rejected <span class="badge badge-red">'+rejected.length+'</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Date</th><th>Time</th><th>Reason</th><th>Actions</th></tr></thead><tbody>';for(var i=0;i<rejected.length;i++){var r=rejected[i],emp=getEmpById(r.employeeId);h+='<tr><td class="text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+fmtTime(new Date(r.clockIn))+' - '+fmtTime(new Date(r.clockOut))+'</td><td class="text-xs" style="color:var(--danger)">'+(r.rejectionReason||r.approvalReason||'')+'</td><td><button class="btn btn-success btn-sm" onclick="approveRecord(\''+r.id+'\')"><i class="fas fa-rotate-left"></i> Approve</button></td></tr>';}h+='</tbody></table></div></div>';}
+  if(approved.length){h+='<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas fa-check-circle" style="color:var(--success)"></i> Approved <span class="badge badge-green">'+approved.length+'</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Date</th><th>Time</th><th>Hours</th></tr></thead><tbody>';for(var i=0;i<approved.length;i++){var r=approved[i],emp=getEmpById(r.employeeId);h+='<tr><td class="text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+fmtTime(new Date(r.clockIn))+' - '+fmtTime(new Date(r.clockOut))+'</td><td class="mono text-xs">'+fmtHrs(r.totalHours)+'</td></tr>';}h+='</tbody></table></div></div>';}
+  return h+'</div>';
 }
-function approveRecord(recordId) { fbUpdate('records/' + recordId, { approved:true, rejected:false }); toast('Approved','success'); navigateAdmin('approvals'); }
-function rejectRecord(recordId) {
-  openModal('<h3 class="font-bold text-lg mb-3">Reject Record</h3><div class="mb-4"><label>Rejection Reason (optional)</label><textarea id="m-reject-reason" rows="2" placeholder="Reason for rejection..."></textarea></div><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="doReject(\'' + recordId + '\')"><i class="fas fa-xmark"></i> Reject</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
-}
-function doReject(recordId) {
-  var reason = document.getElementById('m-reject-reason').value.trim() || 'Rejected by admin';
-  fbUpdate('records/' + recordId, { approved:false, rejected:true, rejectionReason:reason });
-  closeModal(); toast('Rejected','info'); navigateAdmin('approvals');
-}
+function approveRecord(id){fbUpdate('records/'+id,{approved:true,rejected:false});toast('Approved','success');navigateAdmin('approvals');}
+function rejectRecord(id){openModal('<h3 class="font-bold text-lg mb-3">Reject Record</h3><div class="mb-4"><label>Rejection Reason (optional)</label><textarea id="m-reject-reason" rows="2" placeholder="Reason..."></textarea></div><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="doReject(\''+id+'\')"><i class="fas fa-xmark"></i> Reject</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
+function doReject(id){var reason=document.getElementById('m-reject-reason').value.trim()||'Rejected by admin';fbUpdate('records/'+id,{approved:false,rejected:true,rejectionReason:reason});closeModal();toast('Rejected','info');navigateAdmin('approvals');}
 
 /* ============================================
    RECORDS
    ============================================ */
 function renderRecords() {
-  var recs = getRecords().slice().sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});
-  var h = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">' + recs.length + ' total</p></div>';
-  h += '<div class="flex gap-2 items-center"><select id="rec-filter-emp" onchange="filterRecords()" style="width:auto;min-width:150px"><option value="">All Employees</option>';
-  var emps = getEmployees();
-  for (var i = 0; i < emps.length; i++) { h += '<option value="' + emps[i].id + '">' + emps[i].firstName + ' ' + emps[i].lastName + '</option>'; }
-  h += '</select><input id="rec-filter-date" type="date" onchange="filterRecords()" style="width:auto"></div></div>';
-  h += '<div class="card overflow-x-auto" style="padding:0" id="records-table-wrap">' + buildRecordsTable(recs) + '</div></div>';
+  var recs=getRecords().slice().sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">'+recs.length+' total</p></div><div class="flex gap-2 items-center"><select id="rec-filter-emp" onchange="filterRecords()" style="width:auto;min-width:150px"><option value="">All Employees</option>';
+  var emps=getEmployees();for(var i=0;i<emps.length;i++){h+='<option value="'+emps[i].id+'">'+emps[i].firstName+' '+emps[i].lastName+'</option>';}
+  h+='</select><input id="rec-filter-date" type="date" onchange="filterRecords()" style="width:auto"></div></div><div class="card overflow-x-auto" style="padding:0" id="records-table-wrap">'+buildRecordsTable(recs)+'</div></div>';
   return h;
 }
 function buildRecordsTable(recs) {
-  var h = '<table><thead><tr><th>Employee</th><th>Date</th><th>In</th><th>Out</th><th>NT</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th><th>Approval</th></tr></thead><tbody>';
-  if (!recs.length) { h += '<tr><td colspan="10" class="text-center py-8" style="color:var(--muted)">No records</td></tr>'; }
-  for (var i = 0; i < recs.length; i++) {
-    var r = recs[i], emp = getEmpById(r.employeeId);
-    var statusBadge = r.status === 'clocked_in' ? '<span class="badge badge-green">In</span>' : '<span class="badge badge-blue">Done</span>';
-    var approvalBadge = '<span style="color:var(--muted);font-size:.7rem">N/A</span>';
-    if (r.needsApproval) {
-      if (r.approved) approvalBadge = '<span class="badge badge-green">Approved</span>';
-      else if (r.rejected) approvalBadge = '<span class="badge badge-red">Rejected</span>';
-      else approvalBadge = '<span class="badge badge-amber">Pending</span>';
-    }
-    h += '<tr><td class="font-medium text-sm">' + (emp?emp.firstName+' '+emp.lastName:'?') + '</td><td class="text-xs">' + (r.clockIn?r.clockIn.slice(0,10):'') + '</td><td class="mono text-xs">' + (r.clockIn?fmtTime(new Date(r.clockIn)):'') + '</td><td class="mono text-xs">' + (r.clockOut?fmtTime(new Date(r.clockOut)):'\u2014') + '</td>';
-    h += '<td class="mono text-xs">' + fmtHrs(r.regularHours||0) + '</td><td class="mono text-xs">' + fmtHrs(r.overtimeHours||0) + '</td><td class="mono text-xs">' + fmtHrs(r.doubleTimeHours||0) + '</td><td class="mono text-xs font-semibold">' + fmtHrs(r.totalHours||0) + '</td><td>' + statusBadge + '</td><td>' + approvalBadge + '</td></tr>';
-  }
-  h += '</tbody></table>';
-  return h;
+  var h='<table><thead><tr><th>Employee</th><th>Date</th><th>In</th><th>Out</th><th>NT</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th><th>Approval</th></tr></thead><tbody>';
+  if(!recs.length)h+='<tr><td colspan="10" class="text-center py-8" style="color:var(--muted)">No records</td></tr>';
+  for(var i=0;i<recs.length;i++){var r=recs[i],emp=getEmpById(r.employeeId);
+    var statusBadge=r.status==='clocked_in'?'<span class="badge badge-green">In</span>':'<span class="badge badge-blue">Done</span>';
+    var approvalBadge='<span style="color:var(--muted);font-size:.7rem">N/A</span>';
+    if(r.needsApproval){if(r.approved)approvalBadge='<span class="badge badge-green">Approved</span>';else if(r.rejected)approvalBadge='<span class="badge badge-red">Rejected</span>';else approvalBadge='<span class="badge badge-amber">Pending</span>';}
+    h+='<tr><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs">'+(r.clockIn?r.clockIn.slice(0,10):'')+'</td><td class="mono text-xs">'+(r.clockIn?fmtTime(new Date(r.clockIn)):'')+'</td><td class="mono text-xs">'+(r.clockOut?fmtTime(new Date(r.clockOut)):'\u2014')+'</td><td class="mono text-xs">'+fmtHrs(r.regularHours||0)+'</td><td class="mono text-xs">'+fmtHrs(r.overtimeHours||0)+'</td><td class="mono text-xs">'+fmtHrs(r.doubleTimeHours||0)+'</td><td class="mono text-xs font-semibold">'+fmtHrs(r.totalHours||0)+'</td><td>'+statusBadge+'</td><td>'+approvalBadge+'</td></tr>';}
+  h+='</tbody></table>';return h;
 }
-function filterRecords() {
-  var empId = document.getElementById('rec-filter-emp').value;
-  var dateVal = document.getElementById('rec-filter-date').value;
-  var recs = getRecords().filter(function(r) {
-    if (empId && r.employeeId !== empId) return false;
-    if (dateVal && r.clockIn && r.clockIn.slice(0,10) !== dateVal) return false;
-    return true;
-  }).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});
-  document.getElementById('records-table-wrap').innerHTML = buildRecordsTable(recs);
-}
+function filterRecords(){var empId=document.getElementById('rec-filter-emp').value,dateVal=document.getElementById('rec-filter-date').value;var recs=getRecords().filter(function(r){if(empId&&r.employeeId!==empId)return false;if(dateVal&&r.clockIn&&r.clockIn.slice(0,10)!==dateVal)return false;return true;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});document.getElementById('records-table-wrap').innerHTML=buildRecordsTable(recs);}
 
 /* ============================================
-   TIMESHEET EXPORT
+   TIMESHEET EXPORT  (HH:MM format matching screenshot)
    ============================================ */
 function renderExport() {
-  var emps = getEmployees().filter(function(e){return e.active;});
-  if (!state.exportEmpId && emps.length) state.exportEmpId = emps[0].id;
-  if (!state.exportWS) state.exportWS = getWeekStart(todayStr());
-  var ws = state.exportWS;
-  var weekDates = getWeekDates(ws);
-  var dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var emps=getEmployees().filter(function(e){return e.active;});
+  if(!state.exportEmpId&&emps.length)state.exportEmpId=emps[0].id;
+  if(!state.exportWS)state.exportWS=getWeekStart(todayStr());
+  var ws=state.exportWS,weekDates=getWeekDates(ws),dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var eo='';for(var i=0;i<emps.length;i++){eo+='<option value="'+emps[i].id+'" '+(state.exportEmpId===emps[i].id?'selected':'')+'>'+emps[i].firstName+' '+emps[i].lastName+' ('+emps[i].employeeId+')</option>';}
+  var emp=getEmpById(state.exportEmpId);
+  if(!emp)return '<div class="fade-in card text-center py-12"><p style="color:var(--muted)">Select an employee</p></div>';
+  var site=getSites().find(function(s){return s.id===emp.siteId;});
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Timesheet Export</h2><p class="text-sm" style="color:var(--muted)">HH:MM format with approval status</p></div></div>';
+  h+='<div class="card mb-4"><div class="flex flex-wrap items-end gap-4"><div class="flex-1 min-w-[180px]"><label>Employee</label><select id="ts-emp" onchange="state.exportEmpId=this.value;navigateAdmin(\'export\')">'+eo+'</select></div><div><label>Week Starting</label><div class="flex items-center gap-2"><button class="btn btn-secondary btn-sm" onclick="shiftExportWeek(-1)"><i class="fas fa-chevron-left"></i></button><input id="ts-week" type="date" value="'+ws+'" onchange="state.exportWS=this.value;navigateAdmin(\'export\')" style="width:auto"><button class="btn btn-secondary btn-sm" onclick="shiftExportWeek(1)"><i class="fas fa-chevron-right"></i></button></div></div><div class="flex gap-2"><button class="btn btn-primary" onclick="downloadTimesheetCSV()"><i class="fas fa-download"></i> Export CSV</button><button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i> Print</button></div></div></div>';
+  h+='<div class="card mb-4"><div class="flex flex-wrap gap-4 mb-4"><div><span class="text-xs" style="color:var(--muted)">Employee</span><div class="font-bold">'+emp.firstName+' '+emp.lastName+'</div></div><div><span class="text-xs" style="color:var(--muted)">ID</span><div class="mono font-bold">'+emp.employeeId+'</div></div><div><span class="text-xs" style="color:var(--muted)">Site</span><div class="text-sm font-medium">'+(site?site.name:'\u2014')+'</div></div><div><span class="text-xs" style="color:var(--muted)">Period</span><div class="text-sm font-medium">'+new Date(weekDates[0]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' - '+new Date(weekDates[6]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+'</div></div></div>';
+  h+='<div class="overflow-x-auto"><table class="ts-table"><thead><tr><th class="row-label"></th>';
+  for(var i=0;i<7;i++){var dt=getDayType(weekDates[i]);h+='<th><div class="day-header">'+dayNames[i]+'</div><div style="font-weight:400;font-size:.65rem">'+new Date(weekDates[i]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'</div>'+(dt!=='Weekday'?'<div class="badge '+(dt==='Sunday'?'badge-purple':'badge-red')+'" style="font-size:.55rem;margin-top:2px">'+dt+'</div>':'')+'</th>';}
+  h+='<th style="background:rgba(232,168,56,.1);color:var(--accent)">Total</th></tr></thead><tbody>';
 
-  var eo = '';
-  for (var i = 0; i < emps.length; i++) {
-    eo += '<option value="' + emps[i].id + '" ' + (state.exportEmpId===emps[i].id?'selected':'') + '>' + emps[i].firstName + ' ' + emps[i].lastName + ' (' + emps[i].employeeId + ')</option>';
-  }
-  var emp = getEmpById(state.exportEmpId);
-  if (!emp) { return '<div class="fade-in card text-center py-12"><p style="color:var(--muted)">Select an employee</p></div>'; }
-  var site = getSites().find(function(s){return s.id===emp.siteId;});
-
-  var h = '<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Timesheet Export</h2><p class="text-sm" style="color:var(--muted)">Decimal format with approval status</p></div></div>';
-  h += '<div class="card mb-4"><div class="flex flex-wrap items-end gap-4">';
-  h += '<div class="flex-1 min-w-[180px]"><label>Employee</label><select id="ts-emp" onchange="state.exportEmpId=this.value;navigateAdmin(\'export\')">' + eo + '</select></div>';
-  h += '<div><label>Week Starting</label><div class="flex items-center gap-2"><button class="btn btn-secondary btn-sm" onclick="shiftExportWeek(-1)"><i class="fas fa-chevron-left"></i></button><input id="ts-week" type="date" value="' + ws + '" onchange="state.exportWS=this.value;navigateAdmin(\'export\')" style="width:auto"><button class="btn btn-secondary btn-sm" onclick="shiftExportWeek(1)"><i class="fas fa-chevron-right"></i></button></div></div>';
-  h += '<div class="flex gap-2"><button class="btn btn-primary" onclick="downloadTimesheetCSV()"><i class="fas fa-download"></i> Export CSV</button><button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i> Print</button></div></div></div>';
-
-  h += '<div class="card mb-4"><div class="flex flex-wrap gap-4 mb-4">';
-  h += '<div><span class="text-xs" style="color:var(--muted)">Employee</span><div class="font-bold">' + emp.firstName + ' ' + emp.lastName + '</div></div>';
-  h += '<div><span class="text-xs" style="color:var(--muted)">ID</span><div class="mono font-bold">' + emp.employeeId + '</div></div>';
-  h += '<div><span class="text-xs" style="color:var(--muted)">Site</span><div class="text-sm font-medium">' + (site?site.name:'\u2014') + '</div></div>';
-  h += '<div><span class="text-xs" style="color:var(--muted)">Period</span><div class="text-sm font-medium">' + new Date(weekDates[0]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ' - ' + new Date(weekDates[6]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + '</div></div></div>';
-
-  h += '<div class="overflow-x-auto"><table class="ts-table"><thead><tr><th class="row-label"></th>';
-  for (var i = 0; i < 7; i++) {
-    var dt = getDayType(weekDates[i]);
-    h += '<th><div class="day-header">' + dayNames[i] + '</div><div style="font-weight:400;font-size:.65rem">' + new Date(weekDates[i]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + '</div>';
-    if (dt !== 'Weekday') h += '<div class="badge ' + (dt==='Sunday'?'badge-purple':'badge-red') + '" style="font-size:.55rem;margin-top:2px">' + dt + '</div>';
-    h += '</th>';
-  }
-  h += '<th style="background:rgba(232,168,56,.1);color:var(--accent)">Total</th></tr></thead><tbody>';
-
-  var totals = { nt:0, ot:0, dt:0, total:0 };
-  var rowLabels = [
-    { key:'timeIn', label:'Time In' },
-    { key:'timeOut', label:'Time Out' },
-    { key:'nt', label:'NT' },
-    { key:'ot', label:'OT 1.5x' },
-    { key:'dt', label:'DT 2x' },
-    { key:'total', label:'Total' },
-    { key:'approval', label:'Approval' },
-    { key:'comments', label:'Comments' }
+  var allRecs=getRecords(),totals={nt:0,ot:0,dt:0,total:0};
+  var rowDefs=[
+    {key:'timeIn',label:'Time In',isNum:false},
+    {key:'timeOut',label:'Time Out',isNum:false},
+    {key:'nt',label:'NT',isNum:true,acc:'nt'},
+    {key:'ot',label:'OT 1.5x',isNum:true,acc:'ot'},
+    {key:'dt',label:'DT 2x',isNum:true,acc:'dt'},
+    {key:'total',label:'Total',isNum:true,acc:'total',isTotal:true},
+    {key:'approval',label:'Approval',isNum:false},
+    {key:'comments',label:'Comments',isNum:false}
   ];
-
-  for (var ri = 0; ri < rowLabels.length; ri++) {
-    var rl = rowLabels[ri];
-    var isTotalRow = (rl.key === 'total');
-    h += '<tr' + (isTotalRow ? ' class="total-row"' : '') + '><td class="row-label">' + rl.label + '</td>';
-    var rowVal = 0;
-    for (var di = 0; di < 7; di++) {
-      var rec = null;
-      var allRecs = getRecords();
-      for (var j = 0; j < allRecs.length; j++) {
-        if (allRecs[j].employeeId === emp.id && allRecs[j].status === 'completed' && allRecs[j].clockIn && allRecs[j].clockIn.slice(0,10) === weekDates[di]) { rec = allRecs[j]; break; }
-      }
-      var cell = '';
-      if (rl.key === 'timeIn') cell = rec ? fmtTime(new Date(rec.clockIn)) : '';
-      else if (rl.key === 'timeOut') cell = (rec && rec.clockOut) ? fmtTime(new Date(rec.clockOut)) : '';
-      else if (rl.key === 'nt') { var v = rec ? rec.regularHours||0 : 0; cell = fmtHrs(v); totals.nt += v; }
-      else if (rl.key === 'ot') { var v = rec ? rec.overtimeHours||0 : 0; cell = fmtHrs(v); totals.ot += v; }
-      else if (rl.key === 'dt') { var v = rec ? rec.doubleTimeHours||0 : 0; cell = fmtHrs(v); totals.dt += v; }
-      else if (rl.key === 'total') { var v = rec ? rec.totalHours||0 : 0; cell = fmtHrs(v); totals.total += v; }
-      else if (rl.key === 'approval') {
-        if (!rec) cell = '<span style="color:var(--border)">-</span>';
-        else if (!rec.needsApproval) cell = '<span class="badge badge-green" style="font-size:.55rem">OK</span>';
-        else if (rec.approved) cell = '<span class="badge badge-green" style="font-size:.55rem">Approved</span>';
-        else if (rec.rejected) cell = '<span class="badge badge-red" style="font-size:.55rem">Rejected</span>';
-        else cell = '<span class="badge badge-amber" style="font-size:.55rem">Pending</span>';
-      }
-      else if (rl.key === 'comments') {
-        var comment = '';
-        if (rec && rec.needsApproval && !rec.approved && !rec.rejected) comment = 'Awaiting approval';
-        else if (rec && rec.rejected) comment = rec.rejectionReason || 'Rejected';
-        else if (rec && rec.approvalReason) comment = rec.approvalReason;
-        cell = '<span style="font-size:.65rem;color:var(--muted)" title="' + comment + '">' + comment + '</span>';
-      }
-      h += '<td' + (rl.key !== 'approval' && rl.key !== 'comments' ? ' class="mono"' : '') + '>' + cell + '</td>';
+  for(var ri=0;ri<rowDefs.length;ri++){
+    var rl=rowDefs[ri];
+    h+='<tr'+(rl.isTotal?' class="total-row"':'')+'><td class="row-label">'+rl.label+'</td>';
+    for(var di=0;di<7;di++){
+      var rec=null;for(var j=0;j<allRecs.length;j++){if(allRecs[j].employeeId===emp.id&&allRecs[j].status==='completed'&&allRecs[j].clockIn&&allRecs[j].clockIn.slice(0,10)===weekDates[di]){rec=allRecs[j];break;}}
+      var cell='';
+      if(rl.key==='timeIn')cell=rec?fmtTime(new Date(rec.clockIn)):'';
+      else if(rl.key==='timeOut')cell=(rec&&rec.clockOut)?fmtTime(new Date(rec.clockOut)):'';
+      else if(rl.key==='nt'){var v=rec?rec.regularHours||0:0;cell=fmtHrs(v);totals.nt+=v;}
+      else if(rl.key==='ot'){var v=rec?rec.overtimeHours||0:0;cell=fmtHrs(v);totals.ot+=v;}
+      else if(rl.key==='dt'){var v=rec?rec.doubleTimeHours||0:0;cell=fmtHrs(v);totals.dt+=v;}
+      else if(rl.key==='total'){var v=rec?rec.totalHours||0:0;cell=fmtHrs(v);totals.total+=v;}
+      else if(rl.key==='approval'){if(!rec)cell='<span style="color:var(--border)">-</span>';else if(!rec.needsApproval)cell='<span class="badge badge-green" style="font-size:.55rem">OK</span>';else if(rec.approved)cell='<span class="badge badge-green" style="font-size:.55rem">Approved</span>';else if(rec.rejected)cell='<span class="badge badge-red" style="font-size:.55rem">Rejected</span>';else cell='<span class="badge badge-amber" style="font-size:.55rem">Pending</span>';}
+      else if(rl.key==='comments'){var comment='';if(rec&&rec.needsApproval&&!rec.approved&&!rec.rejected)comment='Awaiting approval';else if(rec&&rec.rejected)comment=rec.rejectionReason||'Rejected';else if(rec&&rec.approvalReason)comment=rec.approvalReason;cell='<span style="font-size:.65rem;color:var(--muted)" title="'+comment+'">'+comment+'</span>';}
+      h+='<td'+(rl.isNum?' class="mono"':'')+'>'+cell+'</td>';
     }
-    /* Column total */
-    if (rl.key === 'nt') h += '<td class="mono font-bold">' + fmtHrs(totals.nt) + '</td>';
-    else if (rl.key === 'ot') h += '<td class="mono font-bold">' + fmtHrs(totals.ot) + '</td>';
-    else if (rl.key === 'dt') h += '<td class="mono font-bold">' + fmtHrs(totals.dt) + '</td>';
-    else if (rl.key === 'total') h += '<td class="mono font-bold">' + fmtHrs(totals.total) + '</td>';
-    else h += '<td></td>';
-    h += '</tr>';
+    if(rl.key==='nt')h+='<td class="mono font-bold">'+fmtHrs(totals.nt)+'</td>';
+    else if(rl.key==='ot')h+='<td class="mono font-bold">'+fmtHrs(totals.ot)+'</td>';
+    else if(rl.key==='dt')h+='<td class="mono font-bold">'+fmtHrs(totals.dt)+'</td>';
+    else if(rl.key==='total')h+='<td class="mono font-bold">'+fmtHrs(totals.total)+'</td>';
+    else h+='<td></td>';
+    h+='</tr>';
   }
 
-  var payNT = totals.nt, payOT = totals.ot * 1.5, payDT = totals.dt * 2, payTotal = payNT + payOT + payDT;
-  h += '<tr class="total-row"><td class="row-label" style="color:var(--accent)">Period Totals</td>';
-  for (var i = 0; i < 7; i++) h += '<td></td>';
-  h += '<td class="mono">' + fmtHrs(totals.total) + '</td></tr>';
-  h += '<tr class="pay-row"><td class="row-label" style="color:var(--success)">Pay Totals</td>';
-  for (var i = 0; i < 7; i++) h += '<td></td>';
-  h += '<td class="mono">' + fmtHrs(payTotal) + '</td></tr>';
-  h += '<tr class="pay-row"><td class="row-label" style="color:var(--success);font-size:.65rem">NT / OT / DT</td>';
-  for (var i = 0; i < 7; i++) h += '<td></td>';
-  h += '<td class="mono" style="font-size:.7rem">' + fmtHrs(payNT) + ' / ' + fmtHrs(payOT) + ' / ' + fmtHrs(payDT) + '</td></tr>';
-  h += '</tbody></table></div></div>';
+  var payNT=totals.nt,payOT=totals.ot*1.5,payDT=totals.dt*2,payTotal=payNT+payOT+payDT;
+  h+='<tr class="total-row"><td class="row-label" style="color:var(--accent)">Period Totals</td>';for(var i=0;i<7;i++)h+='<td></td>';h+='<td class="mono">'+fmtHrs(totals.total)+'</td></tr>';
+  h+='<tr class="pay-row"><td class="row-label" style="color:var(--success)">Pay Totals</td>';for(var i=0;i<7;i++)h+='<td></td>';h+='<td class="mono">'+fmtHrs(payTotal)+'</td></tr>';
+  h+='<tr class="pay-row"><td class="row-label" style="color:var(--success);font-size:.65rem">NT / OT / DT</td>';for(var i=0;i<7;i++)h+='<td></td>';h+='<td class="mono" style="font-size:.7rem">'+fmtHrs(payNT)+' / '+fmtHrs(payOT)+' / '+fmtHrs(payDT)+'</td></tr>';
+  h+='</tbody></table></div></div>';
 
-  var tc = getTierConfig();
-  var remaining = Math.max(0, tc.otAfter - totals.total);
-  h += '<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">';
-  h += '<div class="card"><div class="text-xs" style="color:var(--muted)">Weekly Target</div><div class="mono text-lg font-bold">' + fmtHrs(tc.otAfter) + '</div></div>';
-  h += '<div class="card"><div class="text-xs" style="color:var(--muted)">Worked This Week</div><div class="mono text-lg font-bold" style="color:' + (totals.total>=tc.otAfter?'var(--warning)':'var(--success)') + '">' + fmtHrs(totals.total) + '</div></div>';
-  h += '<div class="card"><div class="text-xs" style="color:var(--muted)">Before OT</div><div class="mono text-lg font-bold">' + fmtHrs(remaining) + '</div></div></div>';
-  h += '</div>';
-  return h;
+  var tc=getTierConfig(),remaining=Math.max(0,tc.otAfter-totals.total);
+  h+='<div class="grid grid-cols-1 sm:grid-cols-3 gap-4"><div class="card"><div class="text-xs" style="color:var(--muted)">Weekly Target</div><div class="mono text-lg font-bold">'+fmtHrs(tc.otAfter)+'</div></div><div class="card"><div class="text-xs" style="color:var(--muted)">Worked This Week</div><div class="mono text-lg font-bold" style="color:'+(totals.total>=tc.otAfter?'var(--warning)':'var(--success)')+'">'+fmtHrs(totals.total)+'</div></div><div class="card"><div class="text-xs" style="color:var(--muted)">Before OT</div><div class="mono text-lg font-bold">'+fmtHrs(remaining)+'</div></div></div>';
+  return h+'</div>';
 }
-function shiftExportWeek(dir) {
-  var d = new Date(state.exportWS + 'T12:00:00');
-  d.setDate(d.getDate() + dir * 7);
-  state.exportWS = fmtDate(d);
-  navigateAdmin('export');
-}
+function shiftExportWeek(dir){var d=new Date(state.exportWS+'T12:00:00');d.setDate(d.getDate()+dir*7);state.exportWS=fmtDate(d);navigateAdmin('export');}
+
 function downloadTimesheetCSV() {
-  var emp = getEmpById(state.exportEmpId);
-  if (!emp) { toast('Select employee','error'); return; }
-  var ws = state.exportWS;
-  var weekDates = getWeekDates(ws);
-  var dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  var site = getSites().find(function(s){return s.id===emp.siteId;});
-  var tc = getTierConfig();
-  var lines = [];
+  var emp=getEmpById(state.exportEmpId);if(!emp){toast('Select employee','error');return;}
+  var ws=state.exportWS,weekDates=getWeekDates(ws),dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var site=getSites().find(function(s){return s.id===emp.siteId;});var tc=getTierConfig();
+  var lines=[];
   lines.push('EMPLOYEE TIMESHEET');
-  lines.push('Name:,' + emp.firstName + ' ' + emp.lastName);
-  lines.push('ID:,' + emp.employeeId);
-  lines.push('Site:,' + (site ? site.name : ''));
-  lines.push('Period:,' + new Date(weekDates[0]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' - ' + new Date(weekDates[6]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}));
+  lines.push('Name:,'+emp.firstName+' '+emp.lastName);
+  lines.push('ID:,'+emp.employeeId);
+  lines.push('Site:,'+(site?site.name:''));
+  lines.push('Period:,'+new Date(weekDates[0]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' - '+new Date(weekDates[6]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}));
   lines.push('');
-
-  var header = ',';
-  for (var i = 0; i < 7; i++) { header += dayNames[i] + ' ' + new Date(weekDates[i]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ','; }
-  header += 'Total';
-  lines.push(header);
-
-  var rows = ['Time In','Time Out','NT','OT 1.5x','DT 2x','Total','Approval','Comments'];
-  var totals = { nt:0, ot:0, dt:0, total:0 };
-
-  for (var ri = 0; ri < rows.length; ri++) {
-    var rowLabel = rows[ri];
-    var line = rowLabel + ',';
-    for (var di = 0; di < 7; di++) {
-      var rec = null;
-      var allRecs = getRecords();
-      for (var j = 0; j < allRecs.length; j++) {
-        if (allRecs[j].employeeId === emp.id && allRecs[j].status === 'completed' && allRecs[j].clockIn && allRecs[j].clockIn.slice(0,10) === weekDates[di]) { rec = allRecs[j]; break; }
-      }
-      var val = '';
-      if (rowLabel === 'Time In') val = rec ? fmtTime(new Date(rec.clockIn)) : '';
-      else if (rowLabel === 'Time Out') val = (rec && rec.clockOut) ? fmtTime(new Date(rec.clockOut)) : '';
-      else if (rowLabel === 'NT') { var v = rec ? rec.regularHours||0 : 0; val = fmtHrs(v); totals.nt += v; }
-      else if (rowLabel === 'OT 1.5x') { var v = rec ? rec.overtimeHours||0 : 0; val = fmtHrs(v); totals.ot += v; }
-      else if (rowLabel === 'DT 2x') { var v = rec ? rec.doubleTimeHours||0 : 0; val = fmtHrs(v); totals.dt += v; }
-      else if (rowLabel === 'Total') { var v = rec ? rec.totalHours||0 : 0; val = fmtHrs(v); totals.total += v; }
-      else if (rowLabel === 'Approval') {
-        if (!rec) val = '-';
-        else if (!rec.needsApproval) val = 'OK';
-        else if (rec.approved) val = 'Approved';
-        else if (rec.rejected) val = 'Rejected';
-        else val = 'Pending';
-      }
-      else if (rowLabel === 'Comments') {
-        if (!rec) val = '';
-        else if (rec.needsApproval && !rec.approved && !rec.rejected) val = 'Awaiting approval';
-        else if (rec.rejected) val = rec.rejectionReason || 'Rejected';
-        else val = '';
-      }
-      line += val + ',';
+  var header=',';for(var i=0;i<7;i++){header+=dayNames[i]+' '+new Date(weekDates[i]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})+',';}header+='Total';lines.push(header);
+  var rows=['Time In','Time Out','NT','OT 1.5x','DT 2x','Total','Approval','Comments'];
+  var totals={nt:0,ot:0,dt:0,total:0},allRecs=getRecords();
+  for(var ri=0;ri<rows.length;ri++){
+    var rowLabel=rows[ri],line=rowLabel+',';
+    for(var di=0;di<7;di++){
+      var rec=null;for(var j=0;j<allRecs.length;j++){if(allRecs[j].employeeId===emp.id&&allRecs[j].status==='completed'&&allRecs[j].clockIn&&allRecs[j].clockIn.slice(0,10)===weekDates[di]){rec=allRecs[j];break;}}
+      var val='';
+      if(rowLabel==='Time In')val=rec?fmtTime(new Date(rec.clockIn)):'';
+      else if(rowLabel==='Time Out')val=(rec&&rec.clockOut)?fmtTime(new Date(rec.clockOut)):'';
+      else if(rowLabel==='NT'){var v=rec?rec.regularHours||0:0;val=fmtHrs(v);totals.nt+=v;}
+      else if(rowLabel==='OT 1.5x'){var v=rec?rec.overtimeHours||0:0;val=fmtHrs(v);totals.ot+=v;}
+      else if(rowLabel==='DT 2x'){var v=rec?rec.doubleTimeHours||0:0;val=fmtHrs(v);totals.dt+=v;}
+      else if(rowLabel==='Total'){var v=rec?rec.totalHours||0:0;val=fmtHrs(v);totals.total+=v;}
+      else if(rowLabel==='Approval'){if(!rec)val='-';else if(!rec.needsApproval)val='OK';else if(rec.approved)val='Approved';else if(rec.rejected)val='Rejected';else val='Pending';}
+      else if(rowLabel==='Comments'){if(!rec)val='';else if(rec.needsApproval&&!rec.approved&&!rec.rejected)val='Awaiting approval';else if(rec.rejected)val=rec.rejectionReason||'Rejected';else val='';}
+      line+=val+',';
     }
-    if (rowLabel === 'NT') line += fmtHrs(totals.nt);
-    else if (rowLabel === 'OT 1.5x') line += fmtHrs(totals.ot);
-    else if (rowLabel === 'DT 2x') line += fmtHrs(totals.dt);
-    else if (rowLabel === 'Total') line += fmtHrs(totals.total);
+    if(rowLabel==='NT')line+=fmtHrs(totals.nt);else if(rowLabel==='OT 1.5x')line+=fmtHrs(totals.ot);else if(rowLabel==='DT 2x')line+=fmtHrs(totals.dt);else if(rowLabel==='Total')line+=fmtHrs(totals.total);
     lines.push(line);
   }
-
   lines.push('');
-  lines.push('Period Totals,,,,' + fmtHrs(totals.nt) + ',' + fmtHrs(totals.ot) + ',' + fmtHrs(totals.dt) + ',' + fmtHrs(totals.total));
-  var payNT = totals.nt, payOT = totals.ot * 1.5, payDT = totals.dt * 2, payTotal = payNT + payOT + payDT;
-  lines.push('Pay Totals (weighted),,,,' + fmtHrs(payNT) + ',' + fmtHrs(payOT) + ',' + fmtHrs(payDT) + ',' + fmtHrs(payTotal));
-  lines.push('');
-  lines.push('Weekly Target: ' + fmtHrs(tc.otAfter));
-
-  var csv = lines.join('\n');
-  var blob = new Blob([csv], { type:'text/csv' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'Timesheet_' + emp.employeeId + '_' + ws + '.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('CSV downloaded','success');
+  lines.push('Period Totals,,,'+fmtHrs(totals.nt)+','+fmtHrs(totals.ot)+','+fmtHrs(totals.dt)+','+fmtHrs(totals.total));
+  var payNT=totals.nt,payOT=totals.ot*1.5,payDT=totals.dt*2;
+  lines.push('Pay Totals (weighted),,,'+fmtHrs(payNT)+','+fmtHrs(payOT)+','+fmtHrs(payDT)+','+fmtHrs(payNT+payOT+payDT));
+  lines.push('');lines.push('Weekly Target: '+fmtHrs(tc.otAfter));
+  var blob=new Blob([lines.join('\n')],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='Timesheet_'+emp.employeeId+'_'+ws+'.csv';a.click();URL.revokeObjectURL(url);toast('CSV downloaded','success');
 }
 
 /* ============================================
    SETTINGS
    ============================================ */
 function renderSettings() {
-  var s = getSettings();
-  var h = '<div class="fade-in"><h2 class="text-xl font-bold mb-6">Settings</h2><div class="grid gap-4 max-w-xl">';
-  h += '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-clock mr-2" style="color:var(--accent)"></i>Hours & Tiers</h3><div class="grid gap-4">';
-  h += '<div class="grid grid-cols-2 gap-3"><div><label>Weekly Target (hours)</label><input id="s-target" type="number" step="0.5" value="' + (s.weeklyTarget||45) + '"></div><div><label>Overtime After (hours)</label><input id="s-ot" type="number" step="0.5" value="' + (s.overtimeAfter!=null?s.overtimeAfter:45) + '"></div></div>';
-  h += '<div class="grid grid-cols-2 gap-3"><div><label>Default Break (min)</label><input id="s-break" type="number" value="' + (s.defaultBreak||30) + '"></div><div><label>Grace Period (min)</label><input id="s-grace" type="number" value="' + (s.graceMinutes!=null?s.graceMinutes:10) + '"><p class="text-xs mt-1" style="color:var(--muted)">Clock in/out within this many minutes of shift start/end won\'t require approval</p></div></div></div></div>';
-  h += '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-calendar-xmark mr-2" style="color:var(--danger)"></i>Public Holidays</h3><div><label>Holiday Dates (YYYY-MM-DD, one per line)</label><textarea id="s-holidays" rows="8" style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;resize:vertical">' + getHolidays().join('\n') + '</textarea></div></div>';
-  h += '<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-shield-halved mr-2" style="color:var(--info)"></i>Admin Credentials</h3><div class="grid gap-4"><div><label>Username</label><input id="s-admin-user" value="' + (D.admin.username||'') + '"></div><div><label>New Password (leave blank to keep)</label><input id="s-admin-pass" type="password" placeholder="Enter new password"></div></div></div>';
-  h += '<button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button>';
-  h += '</div></div>';
+  var s=getSettings();
+  var h='<div class="fade-in"><h2 class="text-xl font-bold mb-6">Settings</h2><div class="grid gap-4 max-w-xl">';
+  h+='<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-clock mr-2" style="color:var(--accent)"></i>Hours & Tiers</h3><div class="grid gap-4"><div class="grid grid-cols-2 gap-3"><div><label>Weekly Target (hours)</label><input id="s-target" type="number" step="0.5" value="'+(s.weeklyTarget||45)+'"></div><div><label>Overtime After (hours)</label><input id="s-ot" type="number" step="0.5" value="'+(s.overtimeAfter!=null?s.overtimeAfter:45)+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Default Break (min)</label><input id="s-break" type="number" value="'+(s.defaultBreak||30)+'"></div><div><label>Grace Period (min)</label><input id="s-grace" type="number" value="'+(s.graceMinutes!=null?s.graceMinutes:10)+'"><p class="text-xs mt-1" style="color:var(--muted)">Clock in/out within this many minutes of shift start/end won\'t require approval</p></div></div></div></div>';
+  h+='<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-calendar-xmark mr-2" style="color:var(--danger)"></i>Public Holidays</h3><div><label>YYYY-MM-DD, one per line</label><textarea id="s-holidays" rows="8" style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;resize:vertical">'+getHolidays().join('\n')+'</textarea></div></div>';
+  h+='<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-shield-halved mr-2" style="color:var(--info)"></i>Admin Credentials</h3><div class="grid gap-4"><div><label>Username</label><input id="s-admin-user" value="'+(D.admin.username||'')+'"></div><div><label>New Password (leave blank to keep)</label><input id="s-admin-pass" type="password" placeholder="Enter new password"></div></div></div>';
+  h+='<button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button></div></div>';
   return h;
 }
 function saveSettings() {
-  var target = parseFloat(document.getElementById('s-target').value) || 45;
-  var ot = parseFloat(document.getElementById('s-ot').value) || target;
-  var brk = parseInt(document.getElementById('s-break').value) || 30;
-  var grace = parseInt(document.getElementById('s-grace').value) || 10;
-  var holidays = document.getElementById('s-holidays').value.trim().split('\n').map(function(h){return h.trim();}).filter(function(h){return /^\d{4}-\d{2}-\d{2}$/.test(h);});
-  fbSet('settings', { weeklyTarget:target, overtimeAfter:ot, defaultBreak:brk, graceMinutes:grace, holidays:holidays });
-  var newUser = document.getElementById('s-admin-user').value.trim();
-  var newPass = document.getElementById('s-admin-pass').value;
-  var updates = { username:newUser };
-  if (newPass) updates.password = newPass;
-  fbUpdate('admin', updates);
-  toast('Settings saved','success');
+  var target=parseFloat(document.getElementById('s-target').value)||45,ot=parseFloat(document.getElementById('s-ot').value)||target,brk=parseInt(document.getElementById('s-break').value)||30,grace=parseInt(document.getElementById('s-grace').value)||10;
+  var holidays=document.getElementById('s-holidays').value.trim().split('\n').map(function(h){return h.trim();}).filter(function(h){return /^\d{4}-\d{2}-\d{2}$/.test(h);});
+  fbSet('settings',{weeklyTarget:target,overtimeAfter:ot,defaultBreak:brk,graceMinutes:grace,holidays:holidays});
+  var newUser=document.getElementById('s-admin-user').value.trim(),newPass=document.getElementById('s-admin-pass').value,updates={username:newUser};if(newPass)updates.password=newPass;
+  fbUpdate('admin',updates);toast('Settings saved','success');
 }
 
 /* ============================================
-   EMPLOYEE CLOCK PAGE
+   EMPLOYEE CLOCK PAGE — elapsed time in HH:MM
    ============================================ */
 function renderClockPage() {
-  var emp = state.currentEmployee;
-  var site = getSites().find(function(s){return s.id===emp.siteId;});
-  var now = new Date();
-  var h = '<div class="fade-in"><div class="emp-hero mb-6"><div class="emp-avatar">' + emp.firstName[0] + emp.lastName[0] + '</div>';
-  h += '<div class="text-lg font-bold">' + emp.firstName + ' ' + emp.lastName + '</div>';
-  h += '<div class="text-sm" style="color:var(--muted)">' + emp.employeeId + ' &middot; ' + (site?site.name:'') + '</div>';
-  h += '<div class="big-time mt-4" id="emp-live-clock">' + now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) + '</div>';
-  h += '<div class="big-date" id="emp-live-date">' + now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + '</div></div>';
+  var emp=state.currentEmployee,site=getSites().find(function(s){return s.id===emp.siteId;}),now=new Date();
+  var h='<div class="fade-in"><div class="emp-hero mb-6"><div class="emp-avatar">'+emp.firstName[0]+emp.lastName[0]+'</div>';
+  h+='<div class="text-lg font-bold">'+emp.firstName+' '+emp.lastName+'</div>';
+  h+='<div class="text-sm" style="color:var(--muted)">'+emp.employeeId+' &middot; '+(site?site.name:'')+'</div>';
+  h+='<div class="big-time mt-4" id="emp-live-clock">'+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div>';
+  h+='<div class="big-date" id="emp-live-date">'+now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>';
 
-  var todayShift = null;
-  var allShifts = getShifts();
-  for (var i = 0; i < allShifts.length; i++) {
-    if (allShifts[i].employeeId === emp.id && allShifts[i].date === todayStr()) { todayShift = allShifts[i]; break; }
-  }
-  if (todayShift) {
-    h += '<div class="card mb-4"><div class="text-xs font-semibold mb-2" style="color:var(--muted)">TODAY\'S SHIFT</div><div class="flex items-center gap-4"><span class="mono text-sm" style="color:var(--accent)">' + todayShift.startTime + ' - ' + todayShift.endTime + '</span><span class="badge badge-blue">' + (todayShift.targetHours||'auto') + 'h</span>' + (todayShift.breakMinutes ? '<span class="text-xs" style="color:var(--muted)">' + todayShift.breakMinutes + 'm break</span>' : '') + '</div></div>';
+  var todayShift=null,allShifts=getShifts();for(var i=0;i<allShifts.length;i++){if(allShifts[i].employeeId===emp.id&&allShifts[i].date===todayStr()){todayShift=allShifts[i];break;}}
+  if(todayShift){
+    h+='<div class="card mb-4"><div class="text-xs font-semibold mb-2" style="color:var(--muted)">TODAY\'S SHIFT</div><div class="flex items-center gap-4 flex-wrap"><span class="mono text-sm" style="color:var(--accent)">'+todayShift.startTime+' - '+todayShift.endTime+'</span><span class="badge badge-blue">'+(todayShift.targetHours||'auto')+'h</span>'+(todayShift.breakMinutes?'<span class="text-xs" style="color:var(--muted)">'+todayShift.breakMinutes+'m break</span>':'')+'</div></div>';
   } else {
-    h += '<div class="card mb-4" style="border-color:rgba(248,113,113,.3)"><div class="flex items-center gap-2"><i class="fas fa-triangle-exclamation" style="color:var(--warning)"></i><span class="text-sm">No shift scheduled today \u2014 clocking in will require approval</span></div></div>';
+    h+='<div class="card mb-4" style="border-color:rgba(248,113,113,.3)"><div class="flex items-center gap-2"><i class="fas fa-triangle-exclamation" style="color:var(--warning)"></i><span class="text-sm">No shift scheduled today \u2014 clocking in will require approval</span></div></div>';
   }
 
-  if (state.gpsStatus === 'checked' && site) {
-    var gpsOk = state.gpsDistance != null && state.gpsDistance <= site.radius;
-    h += '<div class="card mb-4"><div class="flex items-center gap-2"><i class="fas ' + (gpsOk?'fa-location-dot':'fa-location-crosshairs') + '" style="color:' + (gpsOk?'var(--success)':'var(--warning)') + '"></i><span class="text-xs" style="color:var(--muted)">GPS: ' + (gpsOk ? 'On site (' + Math.round(state.gpsDistance) + 'm)' : 'Off site (' + (state.gpsDistance!=null?Math.round(state.gpsDistance)+'m':'N/A') + ')') + '</span></div></div>';
-  }
+  if(state.gpsStatus==='checked'&&site){var gpsOk=state.gpsDistance!=null&&state.gpsDistance<=site.radius;h+='<div class="card mb-4"><div class="flex items-center gap-2"><i class="fas '+(gpsOk?'fa-location-dot':'fa-location-crosshairs')+'" style="color:'+(gpsOk?'var(--success)':'var(--warning)')+'"></i><span class="text-xs" style="color:var(--muted)">GPS: '+(gpsOk?'On site ('+Math.round(state.gpsDistance)+'m)':'Off site ('+(state.gpsDistance!=null?Math.round(state.gpsDistance)+'m':'N/A')+')')+'</span></div></div>';}
 
-  h += '<div class="flex justify-center mb-6">';
-  if (state.clockState === 'idle') {
-    h += '<div class="clock-face clock-in-face" onclick="doClockIn()"><div class="cf-icon"><i class="fas fa-fingerprint"></i></div><div class="cf-label">CLOCK IN</div><div class="cf-sub">Tap to start</div></div>';
+  /* Clock button or elapsed time display */
+  h+='<div class="flex justify-center mb-6">';
+  if(state.clockState==='idle'){
+    h+='<div class="clock-face clock-in-face" onclick="doClockIn()"><div class="cf-icon"><i class="fas fa-fingerprint"></i></div><div class="cf-label">CLOCK IN</div><div class="cf-sub">Tap to start</div></div>';
   } else {
-    var elapsed = Math.floor((Date.now() - new Date(state.activeRecord.clockIn).getTime()) / 60000);
-    h += '<div class="clock-face clock-out-face" onclick="doClockOut()"><div class="cf-icon"><i class="fas fa-fingerprint"></i></div><div class="cf-label">CLOCK OUT</div><div class="cf-sub mono" id="emp-elapsed">' + fmtHrs(elapsed/60) + 'h</div></div>';
+    var elapsedSec=Math.floor((Date.now()-new Date(state.activeRecord.clockIn).getTime())/1000);
+    var elapsedMin=Math.floor(elapsedSec/60);
+    h+='<div class="clock-face clock-out-face" onclick="doClockOut()"><div class="cf-icon"><i class="fas fa-fingerprint"></i></div><div class="cf-label">CLOCK OUT</div><div class="elapsed-display" id="emp-elapsed">'+fmtHrs(elapsedMin/60)+'</div></div>';
   }
-  h += '</div>';
+  h+='</div>';
 
-  var allRecs = getRecords();
-  var pendingCount = 0, rejectedCount = 0;
-  for (var i = 0; i < allRecs.length; i++) {
-    var r = allRecs[i];
-    if (r.employeeId === emp.id && r.status === 'completed') {
-      if (r.needsApproval && !r.approved && !r.rejected) pendingCount++;
-      if (r.rejected) rejectedCount++;
-    }
-  }
-  if (pendingCount) {
-    h += '<div class="card mb-4" style="border-color:rgba(251,191,36,.3)"><div class="flex items-center gap-2"><i class="fas fa-clock" style="color:var(--warning)"></i><span class="text-sm"><strong>' + pendingCount + '</strong> record(s) awaiting admin approval</span></div></div>';
-  }
-  if (rejectedCount) {
-    h += '<div class="card mb-4" style="border-color:rgba(248,113,113,.3)"><div class="flex items-center gap-2"><i class="fas fa-circle-xmark" style="color:var(--danger)"></i><span class="text-sm"><strong>' + rejectedCount + '</strong> record(s) rejected by admin</span></div></div>';
-  }
-  h += '</div>';
-  return h;
+  var allRecs=getRecords(),pendingCount=0,rejectedCount=0;
+  for(var i=0;i<allRecs.length;i++){var r=allRecs[i];if(r.employeeId===emp.id&&r.status==='completed'){if(r.needsApproval&&!r.approved&&!r.rejected)pendingCount++;if(r.rejected)rejectedCount++;}}
+  if(pendingCount)h+='<div class="card mb-4" style="border-color:rgba(251,191,36,.3)"><div class="flex items-center gap-2"><i class="fas fa-clock" style="color:var(--warning)"></i><span class="text-sm"><strong>'+pendingCount+'</strong> record(s) awaiting admin approval</span></div></div>';
+  if(rejectedCount)h+='<div class="card mb-4" style="border-color:rgba(248,113,113,.3)"><div class="flex items-center gap-2"><i class="fas fa-circle-xmark" style="color:var(--danger)"></i><span class="text-sm"><strong>'+rejectedCount+'</strong> record(s) rejected by admin</span></div></div>';
+  return h+'</div>';
 }
 function initClockPage() {
-  if (state.clockTimeInterval) clearInterval(state.clockTimeInterval);
-  var update = function() {
-    var ce = document.getElementById('emp-live-clock');
-    if (ce) ce.textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    var de = document.getElementById('emp-live-date');
-    if (de) de.textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    var ee = document.getElementById('emp-elapsed');
-    if (ee && state.activeRecord) {
-      var elapsed = Math.floor((Date.now() - new Date(state.activeRecord.clockIn).getTime()) / 60000);
-      ee.textContent = fmtHrs(elapsed/60) + 'h';
-    }
-    if (!document.getElementById('emp-live-clock')) { clearInterval(state.clockTimeInterval); }
+  if(state.clockTimeInterval)clearInterval(state.clockTimeInterval);
+  var update=function(){
+    var ce=document.getElementById('emp-live-clock');if(ce)ce.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    var de=document.getElementById('emp-live-date');if(de)de.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    var ee=document.getElementById('emp-elapsed');
+    if(ee&&state.activeRecord){var elapsedSec=Math.floor((Date.now()-new Date(state.activeRecord.clockIn).getTime())/1000);ee.textContent=fmtHrs(Math.floor(elapsedSec/60)/60);}
+    if(!document.getElementById('emp-live-clock'))clearInterval(state.clockTimeInterval);
   };
-  update();
-  state.clockTimeInterval = setInterval(update, 1000);
-  if (navigator.geolocation) {
-    var site = getSites().find(function(s){return s.id===state.currentEmployee.siteId;});
-    if (site) {
-      navigator.geolocation.getCurrentPosition(function(p) {
-        state.gpsLat = p.coords.latitude;
-        state.gpsLng = p.coords.longitude;
-        state.gpsDistance = haversine(p.coords.latitude, p.coords.longitude, site.lat, site.lng);
-        state.gpsStatus = 'checked';
-        navigateEmp('clock');
-      }, function() { state.gpsStatus = 'error'; }, { enableHighAccuracy:true, timeout:10000 });
-    }
-  }
+  update();state.clockTimeInterval=setInterval(update,1000);
+  if(navigator.geolocation){var site=getSites().find(function(s){return s.id===state.currentEmployee.siteId;});if(site){navigator.geolocation.getCurrentPosition(function(p){state.gpsLat=p.coords.latitude;state.gpsLng=p.coords.longitude;state.gpsDistance=haversine(p.coords.latitude,p.coords.longitude,site.lat,site.lng);state.gpsStatus='checked';navigateEmp('clock');},function(){state.gpsStatus='error';},{enableHighAccuracy:true,timeout:10000});}}
 }
 function doClockIn() {
-  var emp = state.currentEmployee;
-  var todayShift = null;
-  var allShifts = getShifts();
-  for (var i = 0; i < allShifts.length; i++) {
-    if (allShifts[i].employeeId === emp.id && allShifts[i].date === todayStr()) { todayShift = allShifts[i]; break; }
-  }
-  var id = db.ref('records').push().key;
-  var record = {
-    id:id, employeeId:emp.id, siteId:emp.siteId,
-    shiftId: todayShift ? todayShift.id : '',
-    clockIn: new Date().toISOString(), clockOut: null,
-    status:'clocked_in', regularHours:0, overtimeHours:0, doubleTimeHours:0, totalHours:0,
-    dayType: getDayType(todayStr()),
-    needsApproval: false, approved: false, rejected: false, approvalReason: '', rejectionReason: ''
-  };
-  if (!todayShift) { record.needsApproval = true; record.approvalReason = 'No shift scheduled for this day'; }
-  fbSet('records/' + id, record);
-  state.clockState = 'clocked_in';
-  state.activeRecord = record;
-  toast('Clocked in' + (record.needsApproval ? ' (requires approval)' : ''), 'success');
-  navigateEmp('clock');
+  var emp=state.currentEmployee,todayShift=null,allShifts=getShifts();for(var i=0;i<allShifts.length;i++){if(allShifts[i].employeeId===emp.id&&allShifts[i].date===todayStr()){todayShift=allShifts[i];break;}}
+  var id=db.ref('records').push().key;
+  var record={id:id,employeeId:emp.id,siteId:emp.siteId,shiftId:todayShift?todayShift.id:'',clockIn:new Date().toISOString(),clockOut:null,status:'clocked_in',regularHours:0,overtimeHours:0,doubleTimeHours:0,totalHours:0,dayType:getDayType(todayStr()),needsApproval:false,approved:false,rejected:false,approvalReason:'',rejectionReason:''};
+  if(!todayShift){record.needsApproval=true;record.approvalReason='No shift scheduled for this day';}
+  fbSet('records/'+id,record);state.clockState='clocked_in';state.activeRecord=record;
+  toast('Clocked in'+(record.needsApproval?' (requires approval)':''),'success');navigateEmp('clock');
 }
 function doClockOut() {
-  if (!state.activeRecord) return;
-  var record = state.activeRecord;
-  var clockOut = new Date().toISOString();
-  var shift = null;
-  var allShifts = getShifts();
-  for (var i = 0; i < allShifts.length; i++) { if (allShifts[i].id === record.shiftId) { shift = allShifts[i]; break; } }
-  var breakMin = shift ? (shift.breakMinutes||0) : (getSettings().defaultBreak||0);
-  var tc = getTierConfig();
-  var dayType = getDayType(clockOut.slice(0,10));
-  var weekWorked = getEmployeeWeekWorkedHours(record.employeeId, clockOut.slice(0,10));
-  var hours = calcHours(record.clockIn, clockOut, breakMin, weekWorked, dayType, tc);
-
-  var updates = {
-    clockOut: clockOut, status:'completed',
-    regularHours: hours.regularHours, overtimeHours: hours.overtimeHours,
-    doubleTimeHours: hours.doubleTimeHours, totalHours: hours.totalHours,
-    dayType: dayType
-  };
-
-  var tempRec = {};
-  for (var k in record) { tempRec[k] = record[k]; }
-  for (var k in updates) { tempRec[k] = updates[k]; }
-  var approval = checkNeedsApproval(tempRec);
-  updates.needsApproval = approval.needsApproval;
-  updates.approvalReason = approval.reason;
-  updates.approved = false;
-  updates.rejected = false;
-
-  fbUpdate('records/' + record.id, updates);
-  state.clockState = 'idle';
-  state.activeRecord = null;
-  toast('Clocked out \u2014 ' + fmtHrs(hours.totalHours) + 'h' + (approval.needsApproval ? ' (requires approval)' : ''), 'success');
-  navigateEmp('clock');
+  if(!state.activeRecord)return;
+  var record=state.activeRecord,clockOut=new Date().toISOString();
+  var shift=null,allShifts=getShifts();for(var i=0;i<allShifts.length;i++){if(allShifts[i].id===record.shiftId){shift=allShifts[i];break;}}
+  var breakMin=shift?(shift.breakMinutes||0):(getSettings().defaultBreak||0);
+  var tc=getTierConfig(),dayType=getDayType(clockOut.slice(0,10)),weekWorked=getEmployeeWeekWorkedHours(record.employeeId,clockOut.slice(0,10));
+  var hours=calcHours(record.clockIn,clockOut,breakMin,weekWorked,dayType,tc);
+  var updates={clockOut:clockOut,status:'completed',regularHours:hours.regularHours,overtimeHours:hours.overtimeHours,doubleTimeHours:hours.doubleTimeHours,totalHours:hours.totalHours,dayType:dayType};
+  var tempRec={};for(var k in record)tempRec[k]=record[k];for(var k in updates)tempRec[k]=updates[k];
+  var approval=checkNeedsApproval(tempRec);updates.needsApproval=approval.needsApproval;updates.approvalReason=approval.reason;updates.approved=false;updates.rejected=false;
+  fbUpdate('records/'+record.id,updates);state.clockState='idle';state.activeRecord=null;
+  toast('Clocked out \u2014 '+fmtHrs(hours.totalHours)+(approval.needsApproval?' (requires approval)':''),'success');navigateEmp('clock');
 }
 
 /* ============================================
    EMPLOYEE HISTORY
    ============================================ */
 function renderEmpHistory() {
-  var emp = state.currentEmployee;
-  var recs = getRecords().filter(function(r){return r.employeeId===emp.id && r.status==='completed';}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});
-  var h = '<div class="fade-in"><h2 class="text-xl font-bold mb-4">My History</h2>';
-  if (!recs.length) { h += '<div class="card text-center py-12"><i class="fas fa-history text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No records yet</p></div></div>'; return h; }
-  h += '<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>NT</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th></tr></thead><tbody>';
-  for (var i = 0; i < recs.length; i++) {
-    var r = recs[i];
-    var approvalBadge = '';
-    if (r.needsApproval) {
-      if (r.approved) approvalBadge = '<span class="badge badge-green" style="font-size:.55rem">Approved</span>';
-      else if (r.rejected) approvalBadge = '<span class="badge badge-red" style="font-size:.55rem">Rejected</span>';
-      else approvalBadge = '<span class="badge badge-amber" style="font-size:.55rem">Pending</span>';
-    }
-    h += '<tr><td class="text-xs">' + r.clockIn.slice(0,10) + '</td><td class="mono text-xs">' + fmtTime(new Date(r.clockIn)) + '</td><td class="mono text-xs">' + (r.clockOut?fmtTime(new Date(r.clockOut)):'') + '</td>';
-    h += '<td class="mono text-xs">' + fmtHrs(r.regularHours||0) + '</td><td class="mono text-xs">' + fmtHrs(r.overtimeHours||0) + '</td><td class="mono text-xs">' + fmtHrs(r.doubleTimeHours||0) + '</td><td class="mono text-xs font-semibold">' + fmtHrs(r.totalHours||0) + '</td><td>' + approvalBadge + '</td></tr>';
-  }
-  h += '</tbody></table></div></div>';
-  return h;
+  var emp=state.currentEmployee,recs=getRecords().filter(function(r){return r.employeeId===emp.id&&r.status==='completed';}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});
+  var h='<div class="fade-in"><h2 class="text-xl font-bold mb-4">My History</h2>';
+  if(!recs.length){h+='<div class="card text-center py-12"><i class="fas fa-history text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No records yet</p></div>';return h+'</div>';}
+  h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>NT</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th></tr></thead><tbody>';
+  for(var i=0;i<recs.length;i++){var r=recs[i],approvalBadge='';if(r.needsApproval){if(r.approved)approvalBadge='<span class="badge badge-green" style="font-size:.55rem">Approved</span>';else if(r.rejected)approvalBadge='<span class="badge badge-red" style="font-size:.55rem">Rejected</span>';else approvalBadge='<span class="badge badge-amber" style="font-size:.55rem">Pending</span>';}h+='<tr><td class="text-xs">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+fmtTime(new Date(r.clockIn))+'</td><td class="mono text-xs">'+(r.clockOut?fmtTime(new Date(r.clockOut)):'')+'</td><td class="mono text-xs">'+fmtHrs(r.regularHours||0)+'</td><td class="mono text-xs">'+fmtHrs(r.overtimeHours||0)+'</td><td class="mono text-xs">'+fmtHrs(r.doubleTimeHours||0)+'</td><td class="mono text-xs font-semibold">'+fmtHrs(r.totalHours||0)+'</td><td>'+approvalBadge+'</td></tr>';}
+  h+='</tbody></table></div>';return h+'</div>';
 }
 
 /* ============================================
