@@ -140,8 +140,9 @@ tr:hover td{background:rgba(232,168,56,.03)}
       <a class="sidebar-link" data-page="shifts"><i class="fas fa-calendar-days w-5 text-center"></i> Shifts</a>
       <a class="sidebar-link" data-page="approvals"><i class="fas fa-clipboard-check w-5 text-center"></i> Approvals <span id="approval-badge" class="hidden badge badge-red ml-auto" style="font-size:.6rem">0</span></a>
       <div class="px-4 py-2 mt-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Data</div>
+      <a class="sidebar-link" data-page="timesheets"><i class="fas fa-table-list w-5 text-center"></i> Timesheets</a>
       <a class="sidebar-link" data-page="records"><i class="fas fa-clock-rotate-left w-5 text-center"></i> Clock Records</a>
-      <a class="sidebar-link" data-page="export"><i class="fas fa-file-export w-5 text-center"></i> Timesheet Export</a>
+      <a class="sidebar-link" data-page="export"><i class="fas fa-file-export w-5 text-center"></i> Export</a>
       <a class="sidebar-link" data-page="recyclebin"><i class="fas fa-recycle w-5 text-center"></i> Recycle Bin</a>
       <div class="px-4 py-2 mt-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">System</div>
       <a class="sidebar-link" data-page="settings"><i class="fas fa-gear w-5 text-center"></i> Settings</a>
@@ -344,7 +345,7 @@ function logout() { if (state.liveTimerInterval) clearInterval(state.liveTimerIn
 function showAdmin() { showScreen('admin-layout'); navigateAdmin(state.currentPage); }
 function showEmployee() { showScreen('employee-layout'); document.getElementById('emp-header-name').textContent = state.currentEmployee.firstName + ' ' + state.currentEmployee.lastName; navigateEmp(state.empPage); }
 
-function navigateAdmin(page) { state.currentPage = page; var links = document.querySelectorAll('#admin-nav .sidebar-link'); for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.page === page); var el = document.getElementById('admin-content'); var R = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, shifts:renderShifts, approvals:renderApprovals, records:renderRecords, export:renderExport, recyclebin:renderRecycleBin, settings:renderSettings }; if (R[page]) el.innerHTML = R[page](); if (page === 'dashboard') startDashClock(); }
+function navigateAdmin(page) { state.currentPage = page; var links = document.querySelectorAll('#admin-nav .sidebar-link'); for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.page === page); var el = document.getElementById('admin-content'); var R = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, shifts:renderShifts, approvals:renderApprovals, records:renderRecords, timesheets:renderTimesheets, export:renderExport, recyclebin:renderRecycleBin, settings:renderSettings }; if (R[page]) el.innerHTML = R[page](); if (page === 'dashboard') startDashClock(); }
 document.getElementById('admin-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.page) { navigateAdmin(l.dataset.page); document.getElementById('sidebar').classList.remove('open'); } });
 function navigateEmp(page) { state.empPage = page; var links = document.querySelectorAll('#emp-nav .sidebar-link'); for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.epage === page); var el = document.getElementById('emp-content'); if (page === 'clock') { el.innerHTML = renderClockPage(); initClockPage(); } else if (page === 'history') el.innerHTML = renderEmpHistory(); }
 document.getElementById('emp-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.epage) navigateEmp(l.dataset.epage); });
@@ -373,6 +374,215 @@ function renderDashboard() {
   h+='</div></div></div>';return h;
 }
 
+/* TIMESHEETS LOGIC */
+function renderTimesheets() {
+  var emps = getEmployees();
+  var startStr = localStorage.getItem('ts_start') || fmtDate(new Date(Date.now() - 30*24*60*60*1000));
+  var endStr = localStorage.getItem('ts_end') || fmtDate(new Date());
+
+  var h = '<div class="fade-in"><div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">';
+  h += '<div><h2 class="text-xl font-bold">Weekly Timesheets</h2><p class="text-sm" style="color:var(--muted)">Review Normal Time, Early OT, Late OT, and Double Time</p></div>';
+  h += '<div class="flex flex-wrap items-center gap-2 card p-2"><div><label class="text-xs mb-1">Start Date</label><input type="date" id="ts-start" value="'+startStr+'" class="text-xs"></div>';
+  h += '<div><label class="text-xs mb-1">End Date</label><input type="date" id="ts-end" value="'+endStr+'" class="text-xs"></div>';
+  h += '<button class="btn btn-primary btn-sm mt-4" onclick="generateTimesheets()"><i class="fas fa-filter"></i> Filter</button></div></div>';
+  
+  h += '<div id="ts-results" class="space-y-4"></div></div>';
+  
+  // Auto generate on load
+  setTimeout(function() { generateTimesheets(); }, 50);
+  return h;
+}
+
+function generateTimesheets() {
+  var startStr = document.getElementById('ts-start').value;
+  var endStr = document.getElementById('ts-end').value;
+  localStorage.setItem('ts_start', startStr);
+  localStorage.setItem('ts_end', endStr);
+
+  var startDate = new Date(startStr);
+  var endDate = new Date(endStr);
+  var recs = getRecords();
+  var emps = getEmployees();
+  var container = document.getElementById('ts-results');
+  
+  if (!container) return;
+  
+  if (startDate > endDate) {
+    container.innerHTML = '<p class="text-sm text-red-400">Invalid date range.</p>';
+    return;
+  }
+
+  var weeks = {};
+  
+  // Group records by Week Start and Employee
+  recs.forEach(function(r) {
+    if (r.status !== 'completed' || !r.clockIn || !r.clockOut) return;
+    var d = new Date(r.clockIn);
+    if (d < startDate || d > endDate) return;
+    
+    var ws = getWeekStart(fmtDate(d));
+    var key = ws + '_' + r.employeeId;
+    
+    if (!weeks[key]) {
+      weeks[key] = {
+        weekStart: ws,
+        empId: r.employeeId,
+        records: [],
+        totals: { nt:0, earlyOT:0, lateOT:0, dt:0, earlyPending:0, latePending:0 }
+      };
+    }
+    weeks[key].records.push(r);
+  });
+
+  var sortedKeys = Object.keys(weeks).sort();
+  if (sortedKeys.length === 0) {
+    container.innerHTML = '<div class="card text-center py-8 text-sm" style="color:var(--muted)">No records found for selected period.</div>';
+    return;
+  }
+
+  var html = '';
+  
+  sortedKeys.forEach(function(k) {
+    var w = weeks[k];
+    var emp = getEmpById(w.empId);
+    if (!emp) return;
+    
+    // Calculate detailed breakdown for the week
+    var totals = { nt:0, earlyOT:0, lateOT:0, dt:0, earlyPending:0, latePending:0, records:[] };
+    
+    w.records.forEach(function(rec) {
+      // Get Shift Details for Early/Late calc
+      var shift = getShifts().find(function(s){return s.id === rec.shiftId;});
+      var earlyMins = 0, lateMins = 0;
+      
+      if (shift && rec.clockIn && rec.clockOut) {
+        var ciMin = timeToMinutes(fmtTime(new Date(rec.clockIn)));
+        var coMin = timeToMinutes(fmtTime(new Date(rec.clockOut)));
+        var sStart = timeToMinutes(shift.startTime);
+        var sEnd = timeToMinutes(shift.endTime);
+        
+        // Calculate Early (before start)
+        if (ciMin < sStart) earlyMins = sStart - ciMin;
+        // Calculate Late (after end)
+        if (coMin > sEnd) lateMins = coMin - sEnd;
+      }
+
+      var dayType = getDayType(fmtDate(rec.clockIn));
+      var totalHrs = rec.totalHours || 0;
+      
+      // Logic for allocation
+      // If Sunday/Holiday, all hours go to Double Time
+      if (dayType === 'Sunday' || dayType === 'Holiday') {
+        totals.dt += totalHrs;
+      } else {
+        // Weekday
+        // Check if record has explicit overrides, otherwise calc live
+        // We assume that weekly OT logic takes precedence for general OT,
+        // but Early/Late are specific buckets.
+        // Simplified: Allocate NT first. Any excess is Weekly OT.
+        // BUT user specifically asked for Early/Late approval.
+        
+        // We will treat Early/Late as OT buckets.
+        var earlyHrs = earlyMins / 60;
+        var lateHrs = lateMins / 60;
+        
+        // Determine Approval status (stored in record or calculated live)
+        // We look for fields earlyApproved: bool, lateApproved: bool
+        var isEarlyApproved = rec.earlyApproved === true;
+        var isLateApproved = rec.lateApproved === true;
+        
+        totals.earlyOT += earlyHrs;
+        totals.lateOT += lateHrs;
+        
+        if (!isEarlyApproved && earlyHrs > 0) totals.earlyPending += earlyHrs;
+        if (!isLateApproved && lateHrs > 0) totals.latePending += lateHrs;
+        
+        // The remaining time (Shift duration + lunch) is Normal Time (NT)
+        // Note: In a complex payroll, Weekly OT (40+hrs) might overwrite this. 
+        // For this feature, we focus on the Early/Late breakdown requested.
+        totals.nt += (totalHrs - earlyHrs - lateHrs); 
+      }
+      
+      totals.records.push({ id: rec.id, earlyApproved: rec.earlyApproved, lateApproved: rec.lateApproved });
+    });
+
+    // Render Card for this Employee/Week
+    html += '<div class="card"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b pb-2" style="border-color:var(--border)">';
+    html += '<div><div class="font-bold text-lg">'+emp.firstName+' '+emp.lastName+'</div>';
+    html += '<div class="text-sm" style="color:var(--muted)">Week of '+w.weekStart+'</div></div>';
+    html += '<div class="flex gap-2 text-right mt-2 sm:mt-0">';
+    
+    // Totals Display
+    html += '<div class="text-xs"><div class="muted">Normal</div><div class="font-bold mono text-sm">'+fmtHrs(totals.nt)+'</div></div>';
+    html += '<div class="text-xs"><div class="muted">Early OT</div><div class="font-bold mono text-sm '+(totals.earlyPending>0?'text-amber-400':'text-green-400')+'">'+fmtHrs(totals.earlyOT)+'</div></div>';
+    html += '<div class="text-xs"><div class="muted">Late OT</div><div class="font-bold mono text-sm '+(totals.latePending>0?'text-amber-400':'text-green-400')+'">'+fmtHrs(totals.lateOT)+'</div></div>';
+    html += '<div class="text-xs"><div class="muted">Double</div><div class="font-bold mono text-sm text-purple-400">'+fmtHrs(totals.dt)+'</div></div>';
+    html += '</div></div>';
+
+    // Approval Actions
+    if (totals.earlyPending > 0 || totals.latePending > 0) {
+      html += '<div class="bg-yellow-900/20 border border-yellow-500/30 rounded p-3 mb-3 flex items-center justify-between">';
+      html += '<span class="text-sm font-medium text-yellow-200"><i class="fas fa-exclamation-triangle mr-2"></i> Pending Overtime Approval</span>';
+      html += '<div class="flex gap-2">';
+      if (totals.earlyPending > 0) {
+        html += '<button class="btn btn-success btn-xs" onclick="approveWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'early\')"><i class="fas fa-check"></i> Approve Early</button>';
+      }
+      if (totals.latePending > 0) {
+        html += '<button class="btn btn-success btn-xs" onclick="approveWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'late\')"><i class="fas fa-check"></i> Approve Late</button>';
+      }
+      html += '</div></div>';
+    } else {
+       html += '<div class="mb-3 text-sm text-green-400 flex items-center gap-2"><i class="fas fa-check-circle"></i> All OT Approved</div>';
+    }
+    
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+function approveWeekOT(empId, weekStart, type) {
+  // Find all records for this employee in this week
+  var recs = getRecords();
+  var weekEnd = new Date(weekStart + 'T12:00:00');
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  var weekEndStr = fmtDate(weekEnd);
+  
+  var updates = {};
+  var count = 0;
+
+  recs.forEach(function(r) {
+    if (r.employeeId !== empId) return;
+    var rDate = fmtDate(r.clockIn);
+    if (rDate >= weekStart && rDate <= weekEndStr && r.status === 'completed') {
+      // Calculate if this record actually HAS the type of OT we are approving
+      var shift = getShifts().find(function(s){return s.id === r.shiftId;});
+      if (!shift) return;
+      
+      var ciMin = timeToMinutes(fmtTime(new Date(r.clockIn)));
+      var coMin = timeToMinutes(fmtTime(new Date(r.clockOut)));
+      var sStart = timeToMinutes(shift.startTime);
+      var sEnd = timeToMinutes(shift.endTime);
+      
+      if (type === 'early' && ciMin < sStart) {
+        updates['records/' + r.id + '/earlyApproved'] = true;
+        count++;
+      } else if (type === 'late' && coMin > sEnd) {
+        updates['records/' + r.id + '/lateApproved'] = true;
+        count++;
+      }
+    }
+  });
+
+  if (count > 0) {
+    fbUpdate('', updates); // Pass empty string for path, updates object has full paths
+    toast('Approved ' + count + ' record(s)', 'success');
+    generateTimesheets(); // Refresh view
+  } else {
+    toast('No applicable overtime found.', 'info');
+  }
+}
+
 /* SITES */
 function renderSites() { var sites=getSites(),h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-4">';for(var i=0;i<sites.length;i++){var s=sites[i];h+='<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">'+s.name+'</div><div class="text-sm" style="color:var(--muted)">'+s.address+'</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>'+s.lat.toFixed(5)+', '+s.lng.toFixed(5)+'</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>'+s.radius+'m</span><a href="https://www.google.com/maps?q='+s.lat+','+s.lng+'" target="_blank" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>';}if(!sites.length)h+='<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites.</p></div>';return h+'</div></div>'; }
 function openSiteModal(editId) { var s=editId?getSites().find(function(x){return x.id===editId;}):null; openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Site</h3><div class="grid gap-4"><div><label>Site Name</label><input id="m-site-name" value="'+(s?s.name:'')+'"></div><div><label>Address</label><input id="m-site-addr" value="'+(s?s.address:'')+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="'+(s?s.lat:'')+'"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="'+(s?s.lng:'')+'"></div></div><div><label>GPS Radius: <span id="m-radius-val">'+(s?s.radius:100)+'</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="'+(s?s.radius:100)+'" oninput="document.getElementById(\'m-radius-val\').textContent=this.value" style="padding:0;background:transparent;border:none"></div><button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Location</button><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
@@ -380,7 +590,7 @@ function getMyLocation() { if(!navigator.geolocation){toast('Not supported','err
 function saveSite(editId) { var name=document.getElementById('m-site-name').value.trim(),address=document.getElementById('m-site-addr').value.trim(),lat=parseFloat(document.getElementById('m-site-lat').value),lng=parseFloat(document.getElementById('m-site-lng').value),radius=parseInt(document.getElementById('m-site-radius').value); if(!name){toast('Name required','error');return;} if(isNaN(lat)||isNaN(lng)){toast('Coordinates required','error');return;} if(editId)fbUpdate('sites/'+editId,{name:name,address:address,lat:lat,lng:lng,radius:radius}); else{var id=db.ref('sites').push().key;fbSet('sites/'+id,{id:id,name:name,address:address,lat:lat,lng:lng,radius:radius});} closeModal();navigateAdmin('sites');toast(editId?'Updated':'Added','success'); }
 function deleteSite(id) { var s=getSites().find(function(x){return x.id===id;}); if(getEmployees().filter(function(e){return e.siteId===id;}).length){toast('Employees assigned','error');return;} moveToBin('sites',id,s);navigateAdmin('sites');toast('Moved to recycle bin','info'); }
 
-/* EMPLOYEES — with per-employee target */
+/* EMPLOYEES */
 function getEffectiveTarget(emp) {
   if (emp && emp.weeklyTarget != null && emp.weeklyTarget !== '') return parseFloat(emp.weeklyTarget);
   return getTierConfig().target;
@@ -406,184 +616,48 @@ function openEmpModal(editId) {
   if(!sites.length){toast('Add a site first','error');return;}
   var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'" '+(e&&e.siteId===sites[i].id?'selected':'')+'>'+sites[i].name+'</option>';}
   var globalTarget=getTierConfig().target;
-  var wtVal=(e&&e.weeklyTarget!=null&&e.weeklyTarget!=='')?e.weeklyTarget:'';
-  var otVal=(e&&e.overtimeAfter!=null&&e.overtimeAfter!=='')?e.overtimeAfter:'';
-  var html='<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-4">';
-  html+='<div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="'+(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="m-emp-ln" value="'+(e?e.lastName:'')+'"></div></div>';
-  html+='<div><label>Employee ID</label><input id="m-emp-eid" value="'+(e?e.employeeId:'')+'" '+(e?'readonly style="opacity:.6"':'')+'></div>';
-  html+='<div><label>PIN (4 digits)</label><input id="m-emp-pin" type="password" maxlength="4" value="'+(e?e.pin:'')+'"></div>';
-  html+='<div><label>Site</label><select id="m-emp-site">'+so+'</select></div>';
-  /* Per-employee target section */
-  html+='<div style="border:1px solid var(--border);border-radius:8px;padding:.75rem;background:var(--bg2)">';
-  html+='<div class="flex items-center gap-2 mb-3"><i class="fas fa-bullseye" style="color:var(--accent)"></i><span class="text-sm font-semibold">Weekly Target Override</span></div>';
-  html+='<div class="grid grid-cols-2 gap-3"><div><label>Weekly Target (hours)</label><input id="m-emp-target" type="number" step="0.5" value="'+wtVal+'" placeholder="'+globalTarget+'"><div class="override-hint">Leave blank to use global default ('+globalTarget+'h)</div></div><div><label>OT After (hours)</label><input id="m-emp-ot" type="number" step="0.5" value="'+otVal+'" placeholder="'+globalTarget+'"><div class="override-hint">Leave blank to match weekly target</div></div></div>';
-  html+='</div>';
-  html+='<div class="flex items-center gap-2"><input id="m-emp-active" type="checkbox" '+(!e||e.active?'checked':'')+' class="w-4 h-4"><label for="m-emp-active" style="margin:0;cursor:pointer">Active</label></div>';
-  html+='<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmp(\''+(editId||'')+'\')">'+(e?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>';
-  openModal(html);
+  var wtVal=(e&&e.weeklyTarget!=null)?e.weeklyTarget:'';
+  var otVal=(e&&e.overtimeAfter!=null)?e.overtimeAfter:'';
+  openModal('<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-4"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="'+(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="m-emp-ln" value="'+(e?e.lastName:'')+'"></div></div><div><label>Employee ID</label><input id="m-emp-id" value="'+(e?e.employeeId:'')+'"></div><div><label>Site</label><select id="m-emp-site">'+so+'</select></div><div class="grid grid-cols-2 gap-3"><div><label>PIN</label><input id="m-emp-pin" type="password" maxlength="4" value="'+(e?e.pin:'')+'"></div><div><label>Status</label><select id="m-emp-active"><option value="true" '+(e&&e.active?'selected':'')+'>Active</option><option value="false" '+(!e||!e.active?'selected':'')+'>Inactive</option></select></div></div><div class="card" style="background:var(--bg2);border:none"><div class="font-semibold text-xs mb-2" style="color:var(--muted)">Tiers (Optional)</div><div class="grid grid-cols-2 gap-3"><div><label>Weekly Target (h)</label><input id="m-emp-target" type="number" step="0.5" placeholder="'+globalTarget+'" value="'+wtVal+'"><div class="override-hint">Leave empty for global ('+globalTarget+')</div></div><div><label>OT After (h)</label><input id="m-emp-ot" type="number" step="0.5" placeholder="Same as Target" value="'+otVal+'"></div></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmployee(\''+(editId||'')+'\')">'+(e?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
-function saveEmp(editId) {
-  var fn=document.getElementById('m-emp-fn').value.trim(),ln=document.getElementById('m-emp-ln').value.trim(),eid=document.getElementById('m-emp-eid').value.trim().toUpperCase(),pin=document.getElementById('m-emp-pin').value,siteId=document.getElementById('m-emp-site').value,active=document.getElementById('m-emp-active').checked;
-  var targetRaw=document.getElementById('m-emp-target').value.trim();
-  var otRaw=document.getElementById('m-emp-ot').value.trim();
-  if(!fn||!ln){toast('Name required','error');return;} if(!eid){toast('ID required','error');return;} if(!/^\d{4}$/.test(pin)){toast('PIN must be 4 digits','error');return;}
-  if(!editId&&getEmployees().find(function(e){return e.employeeId===eid;})){toast('ID exists','error');return;}
-  var data={firstName:fn,lastName:ln,employeeId:eid,pin:pin,siteId:siteId,active:active};
-  /* Only set target fields if user typed something */
-  if(targetRaw!=='')data.weeklyTarget=parseFloat(targetRaw);
-  else data.weeklyTarget=null; /* explicit null clears override */
-  if(otRaw!=='')data.overtimeAfter=parseFloat(otRaw);
-  else data.overtimeAfter=null;
-  if(editId)fbUpdate('employees/'+editId,data);
-  else{var id=db.ref('employees').push().key;data.id=id;fbSet('employees/'+id,data);}
-  closeModal();navigateAdmin('employees');toast(editId?'Updated':'Added','success');
-}
-function deleteEmployee(id) { var e=getEmpById(id); if(getRecords().find(function(r){return r.employeeId===id;})){toast('Has records \u2014 deactivate instead','error');return;} moveToBin('employees',id,e);navigateAdmin('employees');toast('Moved to recycle bin','info'); }
-
-/* BULK EMPLOYEE ADDING */
-function openBulkEmpModal() {
-  var sites=getSites();if(!sites.length){toast('Add a site first','error');return;}
-  var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'">'+sites[i].name+'</option>';}
-  var globalTarget=getTierConfig().target;
-  openModal('<h3 class="font-bold text-lg mb-2">Bulk Add Employees</h3><p class="text-xs mb-4" style="color:var(--muted)">One per line: <span class="mono" style="color:var(--fg)">FirstName, LastName, EmployeeID, PIN</span></p><div class="grid gap-4"><div><label>Assign to Site</label><select id="m-bulk-site">'+so+'</select></div><div style="border:1px solid var(--border);border-radius:8px;padding:.75rem;background:var(--bg2)"><div class="flex items-center gap-2 mb-2"><i class="fas fa-bullseye" style="color:var(--accent)"></i><span class="text-sm font-semibold">Target Override (optional)</span></div><div class="grid grid-cols-2 gap-3"><div><label>Weekly Target</label><input id="m-bulk-target" type="number" step="0.5" placeholder="'+globalTarget+'"><div class="override-hint">Leave blank for default</div></div><div><label>OT After</label><input id="m-bulk-ot" type="number" step="0.5" placeholder="'+globalTarget+'"><div class="override-hint">Leave blank to match target</div></div></div></div><div><label>Employees</label><textarea id="m-bulk-emps" rows="6" placeholder="John, Smith, EMP004, 1234&#10;Jane, Doe, EMP005, 5678" style="font-family:\'JetBrains Mono\',monospace;font-size:.8rem;resize:vertical"></textarea></div><div id="m-bulk-preview"></div><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="previewBulkEmps()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-success flex-1 justify-center" onclick="saveBulkEmps()" id="m-bulk-save-btn" disabled><i class="fas fa-upload"></i> Add All</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
-}
-function previewBulkEmps() {
-  var lines=document.getElementById('m-bulk-emps').value.trim().split('\n').filter(function(l){return l.trim();}),existing=getEmployees(),parsed=[],errors=[];
-  for(var i=0;i<lines.length;i++){var parts=lines[i].split(',').map(function(p){return p.trim();});if(parts.length<4){errors.push('Line '+(i+1)+': needs 4 fields');continue;}var fn=parts[0],ln=parts[1],eid=parts[2].toUpperCase(),pin=parts[3];if(!fn||!ln){errors.push('Line '+(i+1)+': empty name');continue;}if(!/^\d{4}$/.test(pin)){errors.push('Line '+(i+1)+': PIN must be 4 digits');continue;}var dup=false;for(var j=0;j<existing.length;j++){if(existing[j].employeeId===eid){errors.push('Line '+(i+1)+': ID '+eid+' exists');dup=true;break;}}if(dup)continue;for(var j=0;j<parsed.length;j++){if(parsed[j].eid===eid){errors.push('Line '+(i+1)+': duplicate ID');dup=true;break;}}if(dup)continue;parsed.push({fn:fn,ln:ln,eid:eid,pin:pin});}
-  var h='';if(errors.length){h+='<div class="mb-3 p-3 rounded-lg" style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3)"><div class="text-xs font-semibold mb-1" style="color:var(--danger)">'+errors.length+' error(s)</div>';for(var i=0;i<errors.length;i++){h+='<div class="text-xs" style="color:var(--danger)">'+errors[i]+'</div>';}h+='</div>';}
-  if(parsed.length){h+='<div class="p-3 rounded-lg" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)"><div class="text-xs font-semibold mb-2" style="color:var(--success)">'+parsed.length+' employee(s) ready</div><table style="width:100%"><thead><tr><th>Name</th><th>ID</th><th>PIN</th></tr></thead><tbody>';for(var i=0;i<parsed.length;i++){h+='<tr><td class="text-xs">'+parsed[i].fn+' '+parsed[i].ln+'</td><td class="text-xs mono">'+parsed[i].eid+'</td><td class="text-xs mono">****</td></tr>';}h+='</tbody></table></div>';var btn=document.getElementById('m-bulk-save-btn');btn.disabled=false;btn.setAttribute('data-parsed',JSON.stringify(parsed));}
-  else{document.getElementById('m-bulk-save-btn').disabled=true;document.getElementById('m-bulk-save-btn').removeAttribute('data-parsed');}
-  document.getElementById('m-bulk-preview').innerHTML=h;
-}
-function saveBulkEmps() {
-  var btn=document.getElementById('m-bulk-save-btn'),data=btn.getAttribute('data-parsed');if(!data){toast('Preview first','error');return;}
-  var parsed=JSON.parse(data),siteId=document.getElementById('m-bulk-site').value,count=0;
-  var targetRaw=document.getElementById('m-bulk-target').value.trim();
-  var otRaw=document.getElementById('m-bulk-ot').value.trim();
-  for(var i=0;i<parsed.length;i++){var p=parsed[i],id=db.ref('employees').push().key;
-    var empData={id:id,firstName:p.fn,lastName:p.ln,employeeId:p.eid,pin:p.pin,siteId:siteId,active:true};
-    if(targetRaw!=='')empData.weeklyTarget=parseFloat(targetRaw);
-    if(otRaw!=='')empData.overtimeAfter=parseFloat(otRaw);
-    fbSet('employees/'+id,empData);count++;
-  }
-  closeModal();navigateAdmin('employees');toast(count+' employee(s) added','success');
-}
+function saveEmployee(editId) { var fn=document.getElementById('m-emp-fn').value.trim(),ln=document.getElementById('m-emp-ln').value.trim(),eid=document.getElementById('m-emp-id').value.trim(),site=document.getElementById('m-emp-site').value,pin=document.getElementById('m-emp-pin').value,active=document.getElementById('m-emp-active').value==='true',wt=document.getElementById('m-emp-target').value,ot=document.getElementById('m-emp-ot').value; if(!fn||!ln||!eid||!pin){toast('Fields required','error');return;} var d={firstName:fn,lastName:ln,employeeId:eid.toUpperCase(),siteId:site,pin:pin,active:active}; if(wt!=='')d.weeklyTarget=parseFloat(wt); if(ot!=='')d.overtimeAfter=parseFloat(ot); if(editId)fbUpdate('employees/'+editId,d); else{d.id=db.ref('employees').push().key;fbSet('employees/'+d.id,d);} closeModal();navigateAdmin('employees');toast(editId?'Updated':'Added','success'); }
+function openBulkEmpModal(){ var sites=getSites(); if(!sites.length){toast('Add a site first','error');return;} var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'">'+sites[i].name+'</option>';} openModal('<h3 class="font-bold text-lg mb-4">Bulk Add Employees</h3><div class="grid gap-4"><div><label>Site</label><select id="b-site">'+so+'</select></div><div><label>CSV Data (ID,First,Last,PIN)</label><textarea id="b-csv" rows="5" placeholder="EMP001,John,Doe,1234\nEMP002,Jane,Smith,5678"></textarea></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="processBulk()">Import</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
+function processBulk(){ var site=document.getElementById('b-site').value,lines=document.getElementById('b-csv').value.trim().split('\n'),cnt=0; for(var i=0;i<lines.length;i++){ var p=lines[i].split(','); if(p.length===4){ var id=db.ref('employees').push().key; fbSet('employees/'+id,{id:id,employeeId:p[0].trim(),firstName:p[1].trim(),lastName:p[2].trim(),pin:p[3].trim(),siteId:site,active:true}); cnt++; } } closeModal(); navigateAdmin('employees'); toast('Imported '+cnt+' employees','success'); }
+function deleteEmployee(id) { var e=getEmployees().find(function(x){return x.id===id;}); if(getRecords().filter(function(r){return r.employeeId===id;}).length){toast('Has records','error');return;} moveToBin('employees',id,e);navigateAdmin('employees');toast('Moved to recycle bin','info'); }
 
 /* SHIFTS */
-function renderShifts() { var shifts=getShifts(),byDate={},recs=getRecords();for(var i=0;i<shifts.length;i++){var s=shifts[i];if(!byDate[s.date])byDate[s.date]=[];byDate[s.date].push(s);}var dates=Object.keys(byDate).sort().reverse();var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Shifts</h2><p class="text-sm" style="color:var(--muted)">'+shifts.length+' total</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkShiftModal()"><i class="fas fa-layer-group"></i> Bulk Add</button><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add</button></div></div>';if(dates.length){for(var d=0;d<dates.length;d++){var date=dates[d],dt=getDayType(date),dayShifts=byDate[date];h+='<div class="mb-4"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-semibold">'+(date===todayStr()?'<span style="color:var(--accent)">Today</span> \u2014 ':'')+new Date(date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</h3><span class="badge '+(dt==='Sunday'?'badge-purple':dt==='Holiday'?'badge-red':'badge-blue')+'">'+dt+'</span><span class="badge badge-amber">'+dayShifts.length+'</span></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Site</th><th>Time</th><th>Target</th><th>Break</th><th>Status</th><th></th></tr></thead><tbody>';for(var i=0;i<dayShifts.length;i++){var s=dayShifts[i],emp=getEmpById(s.employeeId),rec=null;for(var j=0;j<recs.length;j++){if(recs[j].shiftId===s.id){rec=recs[j];break;}}var st='<span class="badge badge-amber">Pending</span>';if(rec&&rec.status==='clocked_in')st='<span class="badge badge-green">In</span>';else if(rec&&rec.status==='completed')st='<span class="badge badge-blue">Done</span>';h+='<tr><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'\u2014')+'</td><td class="text-xs">'+getSiteName(s.siteId)+'</td><td class="mono text-xs">'+s.startTime+' - '+s.endTime+'</td><td>'+(s.targetHours||'\u2014')+'h</td><td>'+(s.breakMinutes||0)+'m</td><td>'+st+'</td><td><div class="flex gap-1"><button class="btn btn-secondary btn-sm" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteShift(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></td></tr>';}h+='</tbody></table></div></div>';}}else h+='<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts.</p></div>';return h+'</div>'; }
-function openShiftModal(editId) { var s=editId?getShifts().find(function(x){return x.id===editId;}):null,emps=getEmployees().filter(function(e){return e.active;}),sites=getSites();var eo='';for(var i=0;i<emps.length;i++){eo+='<option value="'+emps[i].id+'" '+(s&&s.employeeId===emps[i].id?'selected':'')+'>'+emps[i].firstName+' '+emps[i].lastName+' ('+emps[i].employeeId+')</option>';}var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'" '+(s&&s.siteId===sites[i].id?'selected':'')+'>'+sites[i].name+'</option>';}openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Shift</h3><div class="grid gap-4"><div><label>Employee</label><select id="m-shift-emp">'+eo+'</select></div><div><label>Site</label><select id="m-shift-site">'+so+'</select></div><div><label>Date</label><input id="m-shift-date" type="date" value="'+(s?s.date:todayStr())+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-shift-start" type="time" value="'+(s?s.startTime:'08:00')+'"></div><div><label>End Time</label><input id="m-shift-end" type="time" value="'+(s?s.endTime:'17:00')+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Target Hours</label><input id="m-shift-target" type="number" step="0.25" value="'+(s?s.targetHours||'':'')+'"></div><div><label>Break (min)</label><input id="m-shift-break" type="number" value="'+(s?s.breakMinutes||0:0)+'"></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
-function saveShift(editId) { var empId=document.getElementById('m-shift-emp').value,siteId=document.getElementById('m-shift-site').value,date=document.getElementById('m-shift-date').value,startTime=document.getElementById('m-shift-start').value,endTime=document.getElementById('m-shift-end').value,targetHours=parseFloat(document.getElementById('m-shift-target').value)||'',breakMinutes=parseInt(document.getElementById('m-shift-break').value)||0;if(!date||!startTime||!endTime){toast('Fill all fields','error');return;}var data={employeeId:empId,siteId:siteId,date:date,startTime:startTime,endTime:endTime,targetHours:targetHours,breakMinutes:breakMinutes};if(editId)fbUpdate('shifts/'+editId,data);else{data.id=db.ref('shifts').push().key;fbSet('shifts/'+data.id,data);}closeModal();navigateAdmin('shifts');toast(editId?'Updated':'Added','success'); }
-function deleteShift(id){var s=getShifts().find(function(x){return x.id===id;});if(getRecords().find(function(r){return r.shiftId===id;})){toast('Has clock records','error');return;}moveToBin('shifts',id,s);navigateAdmin('shifts');toast('Moved to recycle bin','info');}
-
-/* BULK SHIFT ADDING */
-function openBulkShiftModal() { var emps=getEmployees().filter(function(e){return e.active;}),sites=getSites();if(!emps.length){toast('Add employees first','error');return;}if(!sites.length){toast('Add a site first','error');return;}var ec='';for(var i=0;i<emps.length;i++){var e=emps[i];ec+='<label><input type="checkbox" class="bulk-emp-cb" value="'+e.id+'"> '+e.firstName+' '+e.lastName+' <span style="color:var(--muted)">('+e.employeeId+')</span></label>';}var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'">'+sites[i].name+'</option>';}var dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],dowHtml='';for(var i=0;i<7;i++){dowHtml+='<label><input type="checkbox" class="bulk-dow-cb" value="'+i+'" '+(i<5?'checked':'')+'> '+dayNames[i]+'</label>';}var today=todayStr();openModal('<h3 class="font-bold text-lg mb-2">Bulk Add Shifts</h3><p class="text-xs mb-4" style="color:var(--muted)">Create shifts for multiple employees over a date range</p><div class="grid gap-4"><div><label>Select Employees</label><div class="flex items-center gap-2 mb-2"><label style="margin:0;cursor:pointer;font-size:.75rem;color:var(--accent)"><input type="checkbox" id="bulk-emp-all" onchange="var cbs=document.querySelectorAll(\'.bulk-emp-cb\');for(var i=0;i<cbs.length;i++){cbs[i].checked=this.checked;}" style="width:auto;accent-color:var(--accent)"> Select All</label></div><div class="cb-grid">'+ec+'</div></div><div><label>Site</label><select id="m-bulk-shift-site">'+so+'</select></div><div class="grid grid-cols-2 gap-3"><div><label>Start Date</label><input id="m-bulk-shift-from" type="date" value="'+today+'"></div><div><label>End Date</label><input id="m-bulk-shift-to" type="date" value="'+today+'"></div></div><div><label>Days of Week</label><div class="dow-row">'+dowHtml+'</div></div><div class="grid grid-cols-3 gap-3"><div><label>Start Time</label><input id="m-bulk-shift-start" type="time" value="08:00"></div><div><label>End Time</label><input id="m-bulk-shift-end" type="time" value="17:00"></div><div><label>Break (min)</label><input id="m-bulk-shift-break" type="number" value="30"></div></div><div><label>Target Hours (blank = auto)</label><input id="m-bulk-shift-target" type="number" step="0.25" placeholder="auto"></div><div id="m-bulk-shift-preview"></div><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="previewBulkShifts()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-success flex-1 justify-center" onclick="saveBulkShifts()" id="m-bulk-shift-save" disabled><i class="fas fa-upload"></i> Create All</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
-function previewBulkShifts() { var empCbs=document.querySelectorAll('.bulk-emp-cb:checked'),empIds=[];for(var i=0;i<empCbs.length;i++){empIds.push(empCbs[i].value);}if(!empIds.length){toast('Select at least one employee','error');return;}var fromDate=document.getElementById('m-bulk-shift-from').value,toDate=document.getElementById('m-bulk-shift-to').value;if(!fromDate||!toDate){toast('Set date range','error');return;}var dowCbs=document.querySelectorAll('.bulk-dow-cb:checked'),dows=[];for(var i=0;i<dowCbs.length;i++){dows.push(parseInt(dowCbs[i].value));}if(!dows.length){toast('Select at least one day','error');return;}var dates=[],d=new Date(fromDate+'T12:00:00'),end=new Date(toDate+'T12:00:00');while(d<=end){if(dows.indexOf(d.getDay())!==-1)dates.push(fmtDate(d));d.setDate(d.getDate()+1);}var total=empIds.length*dates.length;var h='<div class="p-3 rounded-lg" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)"><div class="text-xs font-semibold mb-1" style="color:var(--success)">'+total+' shift(s) will be created</div><div class="text-xs" style="color:var(--muted)">'+empIds.length+' employee(s) &times; '+dates.length+' day(s)</div>'+(dates.length?'<div class="text-xs mt-1" style="color:var(--muted)">'+dates[0]+' to '+dates[dates.length-1]+'</div>':'')+'</div>';document.getElementById('m-bulk-shift-preview').innerHTML=h;var btn=document.getElementById('m-bulk-shift-save');btn.disabled=false;btn.setAttribute('data-count',total); }
-function saveBulkShifts() { var btn=document.getElementById('m-bulk-shift-save');if(btn.disabled)return;var empCbs=document.querySelectorAll('.bulk-emp-cb:checked'),empIds=[];for(var i=0;i<empCbs.length;i++){empIds.push(empCbs[i].value);}var fromDate=document.getElementById('m-bulk-shift-from').value,toDate=document.getElementById('m-bulk-shift-to').value;var dowCbs=document.querySelectorAll('.bulk-dow-cb:checked'),dows=[];for(var i=0;i<dowCbs.length;i++){dows.push(parseInt(dowCbs[i].value));}var dates=[],d=new Date(fromDate+'T12:00:00'),end=new Date(toDate+'T12:00:00');while(d<=end){if(dows.indexOf(d.getDay())!==-1)dates.push(fmtDate(d));d.setDate(d.getDate()+1);}var siteId=document.getElementById('m-bulk-shift-site').value,startTime=document.getElementById('m-bulk-shift-start').value,endTime=document.getElementById('m-bulk-shift-end').value,breakMinutes=parseInt(document.getElementById('m-bulk-shift-break').value)||0,targetHours=parseFloat(document.getElementById('m-bulk-shift-target').value)||'';var count=0;for(var e=0;e<empIds.length;e++){for(var dd=0;dd<dates.length;dd++){var id=db.ref('shifts').push().key;fbSet('shifts/'+id,{id:id,employeeId:empIds[e],siteId:siteId,date:dates[dd],startTime:startTime,endTime:endTime,breakMinutes:breakMinutes,targetHours:targetHours});count++;}}closeModal();navigateAdmin('shifts');toast(count+' shift(s) created','success'); }
+function renderShifts() { 
+  var shifts=getShifts(),emps=getEmployees(),h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Shifts</h2></div><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shift</button></div>'; 
+  if(!shifts.length) h+='<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts.</p></div>';
+  else{ h+='<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">'; for(var i=0;i<shifts.length;i++){ var s=shifts[i],emp=getEmpById(s.employeeId); h+='<div class="card"><div class="flex justify-between items-start mb-2"><div><div class="font-semibold">'+s.date+'</div><div class="text-xs" style="color:var(--muted)">'+(emp?emp.firstName+' '+emp.lastName:'Unknown')+'</div></div><div class="text-right"><div class="font-bold mono text-sm">'+s.startTime+' - '+s.endTime+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(s.siteId)+'</div></div></div><div class="flex gap-2 mt-3 pt-3 border-t" style="border-color:var(--border)"><button class="btn btn-secondary btn-sm flex-1 justify-center" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteShift(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>'; } h+='</div>'; } return h+'</div>'; 
+}
+function openShiftModal(editId){ var shifts=getShifts(),emps=getEmployees(),sites=getSites(),s=editId?shifts.find(function(x){return x.id===editId;}):null; if(!emps.length||!sites.length){toast('Missing data','error');return;} var eo='';for(var i=0;i<emps.length;i++){eo+='<option value="'+emps[i].id+'" '+(s&&s.employeeId===emps[i].id?'selected':'')+'>'+emps[i].firstName+' '+emps[i].lastName+'</option>';} var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'" '+(s&&s.siteId===sites[i].id?'selected':'')+'>'+sites[i].name+'</option>';} openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Shift</h3><div class="grid gap-4"><div><label>Date</label><input id="m-shift-date" type="date" value="'+(s?s.date:todayStr())+'"></div><div><label>Employee</label><select id="m-shift-emp">'+eo+'</select></div><div><label>Site</label><select id="m-shift-site">'+so+'</select></div><div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-shift-start" type="time" value="'+(s?s.startTime:'08:00')+'"></div><div><label>End Time</label><input id="m-shift-end" type="time" value="'+(s?s.endTime:'17:00')+'"></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
+function saveShift(editId){ var d=document.getElementById('m-shift-date').value,emp=document.getElementById('m-shift-emp').value,site=document.getElementById('m-shift-site').value,st=document.getElementById('m-shift-start').value,en=document.getElementById('m-shift-end').value; if(!d||!emp||!st||!en){toast('Fields required','error');return;} if(editId)fbUpdate('shifts/'+editId,{date:d,employeeId:emp,siteId:site,startTime:st,endTime:en}); else{var id=db.ref('shifts').push().key;fbSet('shifts/'+id,{id:id,date:d,employeeId:emp,siteId:site,startTime:st,endTime:en});} closeModal();navigateAdmin('shifts');toast(editId?'Updated':'Added','success'); }
+function deleteShift(id){ var s=getShifts().find(function(x){return x.id===id;}); moveToBin('shifts',id,s);navigateAdmin('shifts');toast('Moved to recycle bin','info'); }
 
 /* APPROVALS */
-function renderApprovals() { var allRecs=getRecords(),pending=[],rejected=[],approved=[];for(var i=0;i<allRecs.length;i++){var r=allRecs[i];if(!r.needsApproval||r.status!=='completed')continue;if(!r.approved&&!r.rejected)pending.push(r);else if(r.rejected)rejected.push(r);else if(r.approved)approved.push(r);}var h='<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Approvals</h2><p class="text-sm" style="color:var(--muted)">Records outside working hours require approval</p></div>';h+='<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas fa-clock" style="color:var(--warning)"></i> Pending <span class="badge badge-amber">'+pending.length+'</span></h3>';if(pending.length){pending.sort(function(a,b){return new Date(b.clockOut)-new Date(a.clockOut);});h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Date</th><th>Time</th><th>Shift</th><th>Hours</th><th>Reason</th><th>Actions</th></tr></thead><tbody>';for(var i=0;i<pending.length;i++){var r=pending[i],emp=getEmpById(r.employeeId),shift=getShifts().find(function(s){return s.id===r.shiftId;});h+='<tr><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+fmtTime(new Date(r.clockIn))+' - '+fmtTime(new Date(r.clockOut))+'</td><td class="text-xs">'+(shift?shift.startTime+' - '+shift.endTime:'No shift')+'</td><td class="mono text-xs">'+fmtHrs(r.totalHours)+'</td><td class="text-xs" style="color:var(--warning);max-width:200px">'+(r.approvalReason||'')+'</td><td><div class="flex gap-1"><button class="btn btn-success btn-sm" onclick="approveRecord(\''+r.id+'\')"><i class="fas fa-check"></i></button><button class="btn btn-danger btn-sm" onclick="rejectRecord(\''+r.id+'\')"><i class="fas fa-xmark"></i></button></div></td></tr>';}h+='</tbody></table></div>';}else h+='<div class="card text-center py-8"><p class="text-sm" style="color:var(--muted)">No pending approvals</p></div>';h+='</div>';if(rejected.length){h+='<div class="mb-6"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-xmark" style="color:var(--danger)"></i> Rejected <span class="badge badge-red">'+rejected.length+'</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Date</th><th>Time</th><th>Reason</th><th></th></tr></thead><tbody>';for(var i=0;i<rejected.length;i++){var r=rejected[i],emp=getEmpById(r.employeeId);h+='<tr><td class="text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+fmtTime(new Date(r.clockIn))+' - '+fmtTime(new Date(r.clockOut))+'</td><td class="text-xs" style="color:var(--danger)">'+(r.rejectionReason||r.approvalReason||'')+'</td><td><button class="btn btn-success btn-sm" onclick="approveRecord(\''+r.id+'\')"><i class="fas fa-rotate-left"></i></button></td></tr>';}h+='</tbody></table></div></div>';}if(approved.length){h+='<div class="mb-6"><h3 class="text-sm font-semibold mb-3"><i class="fas fa-check-circle" style="color:var(--success)"></i> Approved <span class="badge badge-green">'+approved.length+'</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Employee</th><th>Date</th><th>Time</th><th>Hours</th></tr></thead><tbody>';for(var i=0;i<approved.length;i++){var r=approved[i],emp=getEmpById(r.employeeId);h+='<tr><td class="text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+fmtTime(new Date(r.clockIn))+' - '+fmtTime(new Date(r.clockOut))+'</td><td class="mono text-xs">'+fmtHrs(r.totalHours)+'</td></tr>';}h+='</tbody></table></div></div>';}return h+'</div>'; }
-function approveRecord(id){fbUpdate('records/'+id,{approved:true,rejected:false});toast('Approved','success');navigateAdmin('approvals');}
-function rejectRecord(id){openModal('<h3 class="font-bold text-lg mb-3">Reject Record</h3><div class="mb-4"><label>Reason (optional)</label><textarea id="m-reject-reason" rows="2" placeholder="Reason..."></textarea></div><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="doReject(\''+id+'\')"><i class="fas fa-xmark"></i> Reject</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');}
-function doReject(id){var reason=document.getElementById('m-reject-reason').value.trim()||'Rejected by admin';fbUpdate('records/'+id,{approved:false,rejected:true,rejectionReason:reason});closeModal();toast('Rejected','info');navigateAdmin('approvals');}
+function renderApprovals(){ var recs=getRecords().filter(function(r){return r.status==='completed'&&(r.needsApproval||r.earlyOT>0||r.lateOT>0)&&!r.approved&&!r.rejected;}); var h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Approvals</h2><p class="text-sm" style="color:var(--muted)">'+recs.length+' pending request(s)</p></div></div>'; if(!recs.length)h+='<div class="card text-center py-12"><i class="fas fa-check-circle text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No pending approvals</p></div>'; else{h+='<div class="grid gap-3">'; for(var i=0;i<recs.length;i++){ var r=recs[i],emp=getEmpById(r.employeeId); h+='<div class="card flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"><div><div class="font-semibold">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</div><div class="text-sm" style="color:var(--muted)">'+fmtDate(r.clockIn)+' &middot; '+fmtTime(r.clockIn)+' - '+fmtTime(r.clockOut)+'</div><div class="text-xs mt-1" style="color:var(--warning)"><i class="fas fa-exclamation-circle mr-1"></i>'+ (r.reason || 'Early/Late OT detected') +'</div></div><div class="flex gap-2"><button class="btn btn-success btn-sm" onclick="setApproval(\''+r.id+'\',true)"><i class="fas fa-check"></i></button><button class="btn btn-danger btn-sm" onclick="setApproval(\''+r.id+'\',false)"><i class="fas fa-times"></i></button></div></div>'; } h+='</div>';} return h+'</div>'; }
+function setApproval(id,app){ fbUpdate('records/'+id,{approved:app,rejected:!app}); toast(app?'Approved':'Rejected',app?'success':'error'); navigateAdmin('approvals'); }
 
-/* RECORDS */
-function renderRecords() { var recs=getRecords().slice().sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">'+recs.length+' total</p></div><div class="flex gap-2 items-center"><select id="rec-filter-emp" onchange="filterRecords()" style="width:auto;min-width:150px"><option value="">All Employees</option>';var emps=getEmployees();for(var i=0;i<emps.length;i++){h+='<option value="'+emps[i].id+'">'+emps[i].firstName+' '+emps[i].lastName+'</option>';}h+='</select><input id="rec-filter-date" type="date" onchange="filterRecords()" style="width:auto"></div></div><div class="card overflow-x-auto" style="padding:0" id="records-table-wrap">'+buildRecordsTable(recs)+'</div></div>';return h; }
-function buildRecordsTable(recs) { var h='<table><thead><tr><th>Employee</th><th>Date</th><th>In</th><th>Out</th><th>NT</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th><th>Approval</th></tr></thead><tbody>';if(!recs.length)h+='<tr><td colspan="10" class="text-center py-8" style="color:var(--muted)">No records</td></tr>';for(var i=0;i<recs.length;i++){var r=recs[i],emp=getEmpById(r.employeeId);var statusBadge=r.status==='clocked_in'?'<span class="badge badge-green">In</span>':'<span class="badge badge-blue">Done</span>';var approvalBadge='<span style="color:var(--muted);font-size:.7rem">N/A</span>';if(r.needsApproval){if(r.approved)approvalBadge='<span class="badge badge-green">Approved</span>';else if(r.rejected)approvalBadge='<span class="badge badge-red">Rejected</span>';else approvalBadge='<span class="badge badge-amber">Pending</span>';}h+='<tr><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs">'+(r.clockIn?r.clockIn.slice(0,10):'')+'</td><td class="mono text-xs">'+(r.clockIn?fmtTime(new Date(r.clockIn)):'')+'</td><td class="mono text-xs">'+(r.clockOut?fmtTime(new Date(r.clockOut)):'\u2014')+'</td><td class="mono text-xs">'+fmtHrs(r.regularHours||0)+'</td><td class="mono text-xs">'+fmtHrs(r.overtimeHours||0)+'</td><td class="mono text-xs">'+fmtHrs(r.doubleTimeHours||0)+'</td><td class="mono text-xs font-semibold">'+fmtHrs(r.totalHours||0)+'</td><td>'+statusBadge+'</td><td>'+approvalBadge+'</td></tr>';}h+='</tbody></table>';return h; }
-function filterRecords(){var empId=document.getElementById('rec-filter-emp').value,dateVal=document.getElementById('rec-filter-date').value;var recs=getRecords().filter(function(r){if(empId&&r.employeeId!==empId)return false;if(dateVal&&r.clockIn&&r.clockIn.slice(0,10)!==dateVal)return false;return true;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});document.getElementById('records-table-wrap').innerHTML=buildRecordsTable(recs);}
+/* RECORDS & EXPORT */
+function renderRecords(){ var recs=getRecords().sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);}); var h='<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Clock Records</h2></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>Employee</th><th>Site</th><th>In</th><th>Out</th><th>Total</th><th>Type</th></tr></thead><tbody>'; for(var i=0;i<recs.length;i++){ var r=recs[i],emp=getEmpById(r.employeeId); h+='<tr><td class="text-sm">'+fmtDate(r.clockIn)+'</td><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs" style="color:var(--muted)">'+getSiteName(r.siteId)+'</td><td class="text-xs mono">'+fmtTime(r.clockIn)+'</td><td class="text-xs mono">'+fmtTime(r.clockOut)+'</td><td class="text-xs mono font-bold">'+fmtHrs(r.totalHours)+'</td><td><span class="badge '+(r.dayType==='Sunday'?'badge-purple':r.dayType==='Holiday'?'badge-red':'badge-blue')+'">'+(r.dayType||'Day')+'</span></td></tr>'; } h+='</tbody></table></div></div>'; return h; }
+function renderExport(){ var emps=getEmployees(),h='<div class="fade-in"><h2 class="text-xl font-bold mb-6">Timesheet Export</h2><div class="card"><div class="mb-4"><label>Select Employee</label><select id="exp-emp"><option value="all">All Employees</option>'; for(var i=0;i<emps.length;i++){h+='<option value="'+emps[i].id+'">'+emps[i].firstName+' '+emps[i].lastName+'</option>';} h+='</select></div><div class="flex gap-3"><button class="btn btn-primary" onclick="doExport()"><i class="fas fa-file-csv"></i> Generate CSV</button></div></div></div>'; return h; }
+function doExport(){ var eid=document.getElementById('exp-emp').value,recs=getRecords().filter(function(r){return eid==='all'||r.employeeId===eid;}),csv='Date,EmployeeID,FirstName,LastName,ClockIn,ClockOut,TotalHours,Type\n'; recs.forEach(function(r){ var e=getEmpById(r.employeeId); csv+=fmtDate(r.clockIn)+','+(e?e.employeeId:'')+','+(e?e.firstName:'')+','+(e?e.lastName:'')+','+fmtTime(r.clockIn)+','+fmtTime(r.clockOut)+','+r.totalHours+','+(r.dayType||'Weekday')+'\n'; }); var blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download='timesheet_'+todayStr()+'.csv'; a.click(); toast('Exported','success'); }
 
-/* TIMESHEET EXPORT — uses per-employee target */
-function renderExport() {
-  var emps=getEmployees().filter(function(e){return e.active;});
-  if(!state.exportEmpId&&emps.length)state.exportEmpId=emps[0].id;
-  if(!state.exportWS)state.exportWS=getWeekStart(todayStr());
-  var ws=state.exportWS,weekDates=getWeekDates(ws),dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  var eo='';for(var i=0;i<emps.length;i++){eo+='<option value="'+emps[i].id+'" '+(state.exportEmpId===emps[i].id?'selected':'')+'>'+emps[i].firstName+' '+emps[i].lastName+' ('+emps[i].employeeId+')</option>';}
-  var emp=getEmpById(state.exportEmpId);
-  if(!emp)return '<div class="fade-in card text-center py-12"><p style="color:var(--muted)">Select an employee</p></div>';
-  var site=getSites().find(function(s){return s.id===emp.siteId;});
-  var empTC=getEmployeeTierConfig(emp.id);
-  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Timesheet Export</h2><p class="text-sm" style="color:var(--muted)">HH:MM format with approval status</p></div></div>';
-  h+='<div class="card mb-4"><div class="flex flex-wrap items-end gap-4"><div class="flex-1 min-w-[180px]"><label>Employee</label><select id="ts-emp" onchange="state.exportEmpId=this.value;navigateAdmin(\'export\')">'+eo+'</select></div><div><label>Week Starting</label><div class="flex items-center gap-2"><button class="btn btn-secondary btn-sm" onclick="shiftExportWeek(-1)"><i class="fas fa-chevron-left"></i></button><input id="ts-week" type="date" value="'+ws+'" onchange="state.exportWS=this.value;navigateAdmin(\'export\')" style="width:auto"><button class="btn btn-secondary btn-sm" onclick="shiftExportWeek(1)"><i class="fas fa-chevron-right"></i></button></div></div><div class="flex gap-2"><button class="btn btn-primary" onclick="downloadTimesheetCSV()"><i class="fas fa-download"></i> Export CSV</button><button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i> Print</button></div></div></div>';
-  h+='<div class="card mb-4"><div class="flex flex-wrap gap-4 mb-4"><div><span class="text-xs" style="color:var(--muted)">Employee</span><div class="font-bold">'+emp.firstName+' '+emp.lastName+'</div></div><div><span class="text-xs" style="color:var(--muted)">ID</span><div class="mono font-bold">'+emp.employeeId+'</div></div><div><span class="text-xs" style="color:var(--muted)">Site</span><div class="text-sm font-medium">'+(site?site.name:'\u2014')+'</div></div><div><span class="text-xs" style="color:var(--muted)">Period</span><div class="text-sm font-medium">'+new Date(weekDates[0]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' - '+new Date(weekDates[6]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+'</div></div></div>';
-  h+='<div class="overflow-x-auto"><table class="ts-table"><thead><tr><th class="row-label"></th>';
-  for(var i=0;i<7;i++){var dt=getDayType(weekDates[i]);h+='<th><div class="day-header">'+dayNames[i]+'</div><div style="font-weight:400;font-size:.65rem">'+new Date(weekDates[i]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'</div>'+(dt!=='Weekday'?'<div class="badge '+(dt==='Sunday'?'badge-purple':'badge-red')+'" style="font-size:.55rem;margin-top:2px">'+dt+'</div>':'')+'</th>';}
-  h+='<th style="background:rgba(232,168,56,.1);color:var(--accent)">Total</th></tr></thead><tbody>';
-  var allRecs=getRecords(),totals={nt:0,ot:0,dt:0,total:0};
-  var rowDefs=[{key:'timeIn',label:'Time In',isNum:false},{key:'timeOut',label:'Time Out',isNum:false},{key:'nt',label:'NT',isNum:true,acc:'nt'},{key:'ot',label:'OT 1.5x',isNum:true,acc:'ot'},{key:'dt',label:'DT 2x',isNum:true,acc:'dt'},{key:'total',label:'Total',isNum:true,acc:'total',isTotal:true},{key:'approval',label:'Approval',isNum:false},{key:'comments',label:'Comments',isNum:false}];
-  for(var ri=0;ri<rowDefs.length;ri++){var rl=rowDefs[ri];h+='<tr'+(rl.isTotal?' class="total-row"':'')+'><td class="row-label">'+rl.label+'</td>';for(var di=0;di<7;di++){var rec=null;for(var j=0;j<allRecs.length;j++){if(allRecs[j].employeeId===emp.id&&allRecs[j].status==='completed'&&allRecs[j].clockIn&&allRecs[j].clockIn.slice(0,10)===weekDates[di]){rec=allRecs[j];break;}}var cell='';if(rl.key==='timeIn')cell=rec?fmtTime(new Date(rec.clockIn)):'';else if(rl.key==='timeOut')cell=(rec&&rec.clockOut)?fmtTime(new Date(rec.clockOut)):'';else if(rl.key==='nt'){var v=rec?rec.regularHours||0:0;cell=fmtHrs(v);totals.nt+=v;}else if(rl.key==='ot'){var v=rec?rec.overtimeHours||0:0;cell=fmtHrs(v);totals.ot+=v;}else if(rl.key==='dt'){var v=rec?rec.doubleTimeHours||0:0;cell=fmtHrs(v);totals.dt+=v;}else if(rl.key==='total'){var v=rec?rec.totalHours||0:0;cell=fmtHrs(v);totals.total+=v;}else if(rl.key==='approval'){if(!rec)cell='<span style="color:var(--border)">-</span>';else if(!rec.needsApproval)cell='<span class="badge badge-green" style="font-size:.55rem">OK</span>';else if(rec.approved)cell='<span class="badge badge-green" style="font-size:.55rem">Approved</span>';else if(rec.rejected)cell='<span class="badge badge-red" style="font-size:.55rem">Rejected</span>';else cell='<span class="badge badge-amber" style="font-size:.55rem">Pending</span>';}else if(rl.key==='comments'){var comment='';if(rec&&rec.needsApproval&&!rec.approved&&!rec.rejected)comment='Awaiting approval';else if(rec&&rec.rejected)comment=rec.rejectionReason||'Rejected';else if(rec&&rec.approvalReason)comment=rec.approvalReason;cell='<span style="font-size:.65rem;color:var(--muted)" title="'+comment+'">'+comment+'</span>';}h+='<td'+(rl.isNum?' class="mono"':'')+'>'+cell+'</td>';}if(rl.key==='nt')h+='<td class="mono font-bold">'+fmtHrs(totals.nt)+'</td>';else if(rl.key==='ot')h+='<td class="mono font-bold">'+fmtHrs(totals.ot)+'</td>';else if(rl.key==='dt')h+='<td class="mono font-bold">'+fmtHrs(totals.dt)+'</td>';else if(rl.key==='total')h+='<td class="mono font-bold">'+fmtHrs(totals.total)+'</td>';else h+='<td></td>';h+='</tr>';}
-  var payNT=totals.nt,payOT=totals.ot*1.5,payDT=totals.dt*2,payTotal=payNT+payOT+payDT;
-  h+='<tr class="total-row"><td class="row-label" style="color:var(--accent)">Period Totals</td>';for(var i=0;i<7;i++)h+='<td></td>';h+='<td class="mono">'+fmtHrs(totals.total)+'</td></tr>';
-  h+='<tr class="pay-row"><td class="row-label" style="color:var(--success)">Pay Totals</td>';for(var i=0;i<7;i++)h+='<td></td>';h+='<td class="mono">'+fmtHrs(payTotal)+'</td></tr>';
-  h+='<tr class="pay-row"><td class="row-label" style="color:var(--success);font-size:.65rem">NT / OT / DT</td>';for(var i=0;i<7;i++)h+='<td></td>';h+='<td class="mono" style="font-size:.7rem">'+fmtHrs(payNT)+' / '+fmtHrs(payOT)+' / '+fmtHrs(payDT)+'</td></tr>';
-  h+='</tbody></table></div></div>';
-  var remaining=Math.max(0,empTC.otAfter-totals.total);
-  h+='<div class="grid grid-cols-1 sm:grid-cols-3 gap-4"><div class="card"><div class="text-xs" style="color:var(--muted)">Weekly Target</div><div class="mono text-lg font-bold">'+fmtHrs(empTC.otAfter)+'</div></div><div class="card"><div class="text-xs" style="color:var(--muted)">Worked This Week</div><div class="mono text-lg font-bold" style="color:'+(totals.total>=empTC.otAfter?'var(--warning)':'var(--success)')+'">'+fmtHrs(totals.total)+'</div></div><div class="card"><div class="text-xs" style="color:var(--muted)">Before OT</div><div class="mono text-lg font-bold">'+fmtHrs(remaining)+'</div></div></div>';
-  return h+'</div>';
-}
-function shiftExportWeek(dir){var d=new Date(state.exportWS+'T12:00:00');d.setDate(d.getDate()+dir*7);state.exportWS=fmtDate(d);navigateAdmin('export');}
-function downloadTimesheetCSV() {
-  var emp=getEmpById(state.exportEmpId);if(!emp){toast('Select employee','error');return;}
-  var ws=state.exportWS,weekDates=getWeekDates(ws),dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],site=getSites().find(function(s){return s.id===emp.siteId;}),empTC=getEmployeeTierConfig(emp.id);
-  var lines=[];lines.push('EMPLOYEE TIMESHEET');lines.push('Name:,'+emp.firstName+' '+emp.lastName);lines.push('ID:,'+emp.employeeId);lines.push('Site:,'+(site?site.name:''));lines.push('Period:,'+new Date(weekDates[0]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' - '+new Date(weekDates[6]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}));lines.push('');
-  var header=',';for(var i=0;i<7;i++){header+=dayNames[i]+' '+new Date(weekDates[i]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})+',';}header+='Total';lines.push(header);
-  var rows=['Time In','Time Out','NT','OT 1.5x','DT 2x','Total','Approval','Comments'],totals={nt:0,ot:0,dt:0,total:0},allRecs=getRecords();
-  for(var ri=0;ri<rows.length;ri++){var rowLabel=rows[ri],line=rowLabel+',';for(var di=0;di<7;di++){var rec=null;for(var j=0;j<allRecs.length;j++){if(allRecs[j].employeeId===emp.id&&allRecs[j].status==='completed'&&allRecs[j].clockIn&&allRecs[j].clockIn.slice(0,10)===weekDates[di]){rec=allRecs[j];break;}}var val='';if(rowLabel==='Time In')val=rec?fmtTime(new Date(rec.clockIn)):'';else if(rowLabel==='Time Out')val=(rec&&rec.clockOut)?fmtTime(new Date(rec.clockOut)):'';else if(rowLabel==='NT'){var v=rec?rec.regularHours||0:0;val=fmtHrs(v);totals.nt+=v;}else if(rowLabel==='OT 1.5x'){var v=rec?rec.overtimeHours||0:0;val=fmtHrs(v);totals.ot+=v;}else if(rowLabel==='DT 2x'){var v=rec?rec.doubleTimeHours||0:0;val=fmtHrs(v);totals.dt+=v;}else if(rowLabel==='Total'){var v=rec?rec.totalHours||0:0;val=fmtHrs(v);totals.total+=v;}else if(rowLabel==='Approval'){if(!rec)val='-';else if(!rec.needsApproval)val='OK';else if(rec.approved)val='Approved';else if(rec.rejected)val='Rejected';else val='Pending';}else if(rowLabel==='Comments'){if(!rec)val='';else if(rec.needsApproval&&!rec.approved&&!rec.rejected)val='Awaiting approval';else if(rec.rejected)val=rec.rejectionReason||'Rejected';else val='';}line+=val+',';}if(rowLabel==='NT')line+=fmtHrs(totals.nt);else if(rowLabel==='OT 1.5x')line+=fmtHrs(totals.ot);else if(rowLabel==='DT 2x')line+=fmtHrs(totals.dt);else if(rowLabel==='Total')line+=fmtHrs(totals.total);lines.push(line);}
-  lines.push('');lines.push('Period Totals,,,'+fmtHrs(totals.nt)+','+fmtHrs(totals.ot)+','+fmtHrs(totals.dt)+','+fmtHrs(totals.total));
-  var payNT=totals.nt,payOT=totals.ot*1.5,payDT=totals.dt*2;lines.push('Pay Totals (weighted),,,'+fmtHrs(payNT)+','+fmtHrs(payOT)+','+fmtHrs(payDT)+','+fmtHrs(payNT+payOT+payDT));lines.push('');lines.push('Weekly Target: '+fmtHrs(empTC.otAfter));
-  var blob=new Blob([lines.join('\n')],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Timesheet_'+emp.employeeId+'_'+ws+'.csv';a.click();URL.revokeObjectURL(url);toast('CSV downloaded','success');
-}
+/* SETTINGS */
+function renderSettings(){ var s=getSettings(),h='<div class="fade-in"><h2 class="text-xl font-bold mb-6">Settings</h2><div class="card mb-4"><div class="grid gap-4"><div><label>Default Weekly Target (Hours)</label><input id="set-target" type="number" value="'+(s.weeklyTarget||45)+'"></div><div><label>Default Overtime After (Hours)</label><input id="set-ot" type="number" value="'+(s.overtimeAfter!=null?s.overtimeAfter:45)+'"></div><div><label>Default Break (Minutes)</label><input id="set-break" type="number" value="'+(s.defaultBreak||30)+'"></div><div><label>Grace Period (Minutes)</label><input id="set-grace" type="number" value="'+(s.graceMinutes||10)+'"></div></div><div class="mt-4"><button class="btn btn-primary" onclick="saveSettings()">Save Settings</button></div></div><div class="card"><div class="flex justify-between items-center mb-4"><div class="font-bold">Holidays</div><button class="btn btn-secondary btn-sm" onclick="openHolidayModal()"><i class="fas fa-plus"></i> Add</button></div><div class="flex flex-wrap gap-2">'; var hol=getHolidays(); for(var i=0;i<hol.length;i++){h+='<span class="badge badge-amber flex items-center gap-1">'+hol[i]+' <i class="fas fa-times cursor-pointer" onclick="removeHoliday(\''+hol[i]+'\')"></i></span>';} if(!hol.length)h+='<span style="color:var(--muted);font-size:0.8rem">None configured</span>'; h+='</div></div></div>'; return h; }
+function saveSettings(){ var u={weeklyTarget:parseFloat(document.getElementById('set-target').value),overtimeAfter:parseFloat(document.getElementById('set-ot').value),defaultBreak:parseInt(document.getElementById('set-break').value),graceMinutes:parseInt(document.getElementById('set-grace').value),holidays:getHolidays()}; fbSet('settings',u); toast('Settings saved','success'); }
+function openHolidayModal(){ openModal('<h3 class="font-bold text-lg mb-4">Add Holiday</h3><div class="grid gap-4"><div><label>Date</label><input id="m-hol-date" type="date"></div><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="addHoliday()">Add</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
+function addHoliday(){ var d=document.getElementById('m-hol-date').value; if(!d){toast('Date required','error');return;} var h=getHolidays(); h.push(d); fbSet('settings/holidays',h); closeModal(); navigateAdmin('settings'); }
+function removeHoliday(d){ var h=getHolidays().filter(function(x){return x!==d;}); fbSet('settings/holidays',h); navigateAdmin('settings'); }
 
-/* SETTINGS — now labeled as "Global Default" */
-function renderSettings() {
-  var s=getSettings();
-  var h='<div class="fade-in"><h2 class="text-xl font-bold mb-6">Settings</h2><div class="grid gap-4 max-w-xl">';
-  h+='<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-clock mr-2" style="color:var(--accent)"></i>Global Default Hours & Tiers</h3><p class="text-xs mb-4" style="color:var(--warning)"><i class="fas fa-info-circle mr-1"></i>These apply to all employees unless overridden individually per employee.</p><div class="grid gap-4"><div class="grid grid-cols-2 gap-3"><div><label>Default Weekly Target (hours)</label><input id="s-target" type="number" step="0.5" value="'+(s.weeklyTarget||45)+'"></div><div><label>Default OT After (hours)</label><input id="s-ot" type="number" step="0.5" value="'+(s.overtimeAfter!=null?s.overtimeAfter:45)+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Default Break (min)</label><input id="s-break" type="number" value="'+(s.defaultBreak||30)+'"></div><div><label>Grace Period (min)</label><input id="s-grace" type="number" value="'+(s.graceMinutes!=null?s.graceMinutes:10)+'"><p class="text-xs mt-1" style="color:var(--muted)">Clock in/out within this many minutes of shift start/end won\'t require approval</p></div></div></div></div>';
-  h+='<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-calendar-xmark mr-2" style="color:var(--danger)"></i>Public Holidays</h3><div><label>YYYY-MM-DD, one per line</label><textarea id="s-holidays" rows="8" style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;resize:vertical">'+getHolidays().join('\n')+'</textarea></div></div>';
-  h+='<div class="card"><h3 class="font-semibold text-sm mb-4"><i class="fas fa-shield-halved mr-2" style="color:var(--info)"></i>Admin Credentials</h3><div class="grid gap-4"><div><label>Username</label><input id="s-admin-user" value="'+(D.admin.username||'')+'"></div><div><label>New Password (leave blank to keep)</label><input id="s-admin-pass" type="password" placeholder="Enter new password"></div></div></div>';
-  h+='<button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button></div></div>';return h;
-}
-function saveSettings() { var target=parseFloat(document.getElementById('s-target').value)||45,ot=parseFloat(document.getElementById('s-ot').value)||target,brk=parseInt(document.getElementById('s-break').value)||30,grace=parseInt(document.getElementById('s-grace').value)||10;var holidays=document.getElementById('s-holidays').value.trim().split('\n').map(function(h){return h.trim();}).filter(function(h){return /^\d{4}-\d{2}-\d{2}$/.test(h);});fbSet('settings',{weeklyTarget:target,overtimeAfter:ot,defaultBreak:brk,graceMinutes:grace,holidays:holidays});var newUser=document.getElementById('s-admin-user').value.trim(),newPass=document.getElementById('s-admin-pass').value,updates={username:newUser};if(newPass)updates.password=newPass;fbUpdate('admin',updates);toast('Settings saved','success'); }
-
-/* EMPLOYEE CLOCK PAGE */
-function renderClockPage() {
-  var emp=state.currentEmployee,site=getSites().find(function(s){return s.id===emp.siteId;}),now=new Date();
-  var h='<div class="fade-in"><div class="emp-hero mb-6"><div class="emp-avatar">'+emp.firstName[0]+emp.lastName[0]+'</div>';
-  h+='<div class="text-lg font-bold">'+emp.firstName+' '+emp.lastName+'</div><div class="text-sm" style="color:var(--muted)">'+emp.employeeId+' &middot; '+(site?site.name:'')+'</div>';
-  h+='<div class="big-time mt-4" id="emp-live-clock">'+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div><div class="big-date" id="emp-live-date">'+now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>';
-  var todayShift=null,allShifts=getShifts();for(var i=0;i<allShifts.length;i++){if(allShifts[i].employeeId===emp.id&&allShifts[i].date===todayStr()){todayShift=allShifts[i];break;}}
-  if(todayShift){h+='<div class="card mb-4"><div class="text-xs font-semibold mb-2" style="color:var(--muted)">TODAY\'S SHIFT</div><div class="flex items-center gap-4 flex-wrap"><span class="mono text-sm" style="color:var(--accent)">'+todayShift.startTime+' - '+todayShift.endTime+'</span><span class="badge badge-blue">'+(todayShift.targetHours||'auto')+'h</span>'+(todayShift.breakMinutes?'<span class="text-xs" style="color:var(--muted)">'+todayShift.breakMinutes+'m break</span>':'')+'</div></div>';}
-  else{h+='<div class="card mb-4" style="border-color:rgba(248,113,113,.3)"><div class="flex items-center gap-2"><i class="fas fa-triangle-exclamation" style="color:var(--warning)"></i><span class="text-sm">No shift scheduled today \u2014 clocking in will require approval</span></div></div>';}
-  if(state.gpsStatus==='checked'&&site){var gpsOk=state.gpsDistance!=null&&state.gpsDistance<=site.radius;h+='<div class="card mb-4"><div class="flex items-center gap-2"><i class="fas '+(gpsOk?'fa-location-dot':'fa-location-crosshairs')+'" style="color:'+(gpsOk?'var(--success)':'var(--warning)')+'"></i><span class="text-xs" style="color:var(--muted)">GPS: '+(gpsOk?'On site ('+Math.round(state.gpsDistance)+'m)':'Off site ('+(state.gpsDistance!=null?Math.round(state.gpsDistance)+'m':'N/A')+')')+'</span></div></div>';}
-  h+='<div class="flex justify-center mb-6">';
-  if(state.clockState==='idle'){h+='<div class="clock-face clock-in-face" onclick="doClockIn()"><div class="cf-icon"><i class="fas fa-fingerprint"></i></div><div class="cf-label">CLOCK IN</div><div class="cf-sub">Tap to start</div></div>';}
-  else{var elapsedSec=Math.floor((Date.now()-new Date(state.activeRecord.clockIn).getTime())/1000);h+='<div class="clock-face clock-out-face" onclick="doClockOut()"><div class="cf-icon"><i class="fas fa-fingerprint"></i></div><div class="cf-label">CLOCK OUT</div><div class="elapsed-display" id="emp-elapsed">'+fmtHrs(Math.floor(elapsedSec/60)/60)+'</div></div>';}
-  h+='</div>';
-  var allRecs=getRecords(),pendingCount=0,rejectedCount=0;for(var i=0;i<allRecs.length;i++){var r=allRecs[i];if(r.employeeId===emp.id&&r.status==='completed'){if(r.needsApproval&&!r.approved&&!r.rejected)pendingCount++;if(r.rejected)rejectedCount++;}}
-  if(pendingCount)h+='<div class="card mb-4" style="border-color:rgba(251,191,36,.3)"><div class="flex items-center gap-2"><i class="fas fa-clock" style="color:var(--warning)"></i><span class="text-sm"><strong>'+pendingCount+'</strong> record(s) awaiting admin approval</span></div></div>';
-  if(rejectedCount)h+='<div class="card mb-4" style="border-color:rgba(248,113,113,.3)"><div class="flex items-center gap-2"><i class="fas fa-circle-xmark" style="color:var(--danger)"></i><span class="text-sm"><strong>'+rejectedCount+'</strong> record(s) rejected by admin</span></div></div>';
-  return h+'</div>';
-}
-function initClockPage() { if(state.clockTimeInterval)clearInterval(state.clockTimeInterval);var update=function(){var ce=document.getElementById('emp-live-clock');if(ce)ce.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});var de=document.getElementById('emp-live-date');if(de)de.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});var ee=document.getElementById('emp-elapsed');if(ee&&state.activeRecord){var elapsedSec=Math.floor((Date.now()-new Date(state.activeRecord.clockIn).getTime())/1000);ee.textContent=fmtHrs(Math.floor(elapsedSec/60)/60);}if(!document.getElementById('emp-live-clock'))clearInterval(state.clockTimeInterval);};update();state.clockTimeInterval=setInterval(update,1000);if(navigator.geolocation){var site=getSites().find(function(s){return s.id===state.currentEmployee.siteId;});if(site){navigator.geolocation.getCurrentPosition(function(p){state.gpsLat=p.coords.latitude;state.gpsLng=p.coords.longitude;state.gpsDistance=haversine(p.coords.latitude,p.coords.longitude,site.lat,site.lng);state.gpsStatus='checked';navigateEmp('clock');},function(){state.gpsStatus='error';},{enableHighAccuracy:true,timeout:10000});}} }
-function doClockIn() { var emp=state.currentEmployee,todayShift=null,allShifts=getShifts();for(var i=0;i<allShifts.length;i++){if(allShifts[i].employeeId===emp.id&&allShifts[i].date===todayStr()){todayShift=allShifts[i];break;}}var id=db.ref('records').push().key;var record={id:id,employeeId:emp.id,siteId:emp.siteId,shiftId:todayShift?todayShift.id:'',clockIn:new Date().toISOString(),clockOut:null,status:'clocked_in',regularHours:0,overtimeHours:0,doubleTimeHours:0,totalHours:0,dayType:getDayType(todayStr()),needsApproval:false,approved:false,rejected:false,approvalReason:'',rejectionReason:''};if(!todayShift){record.needsApproval=true;record.approvalReason='No shift scheduled for this day';}fbSet('records/'+id,record);state.clockState='clocked_in';state.activeRecord=record;toast('Clocked in'+(record.needsApproval?' (requires approval)':''),'success');navigateEmp('clock'); }
-function doClockOut() {
-  if(!state.activeRecord)return;var record=state.activeRecord,clockOut=new Date().toISOString();
-  var shift=null,allShifts=getShifts();for(var i=0;i<allShifts.length;i++){if(allShifts[i].id===record.shiftId){shift=allShifts[i];break;}}
-  var breakMin=shift?(shift.breakMinutes||0):(getSettings().defaultBreak||0);
-  /* Use per-employee tier config */
-  var tc=getEmployeeTierConfig(record.employeeId);
-  var dayType=getDayType(clockOut.slice(0,10)),weekWorked=getEmployeeWeekWorkedHours(record.employeeId,clockOut.slice(0,10));
-  var hours=calcHours(record.clockIn,clockOut,breakMin,weekWorked,dayType,tc);
-  var updates={clockOut:clockOut,status:'completed',regularHours:hours.regularHours,overtimeHours:hours.overtimeHours,doubleTimeHours:hours.doubleTimeHours,totalHours:hours.totalHours,dayType:dayType};
-  var tempRec={};for(var k in record)tempRec[k]=record[k];for(var k in updates)tempRec[k]=updates[k];
-  var approval=checkNeedsApproval(tempRec);updates.needsApproval=approval.needsApproval;updates.approvalReason=approval.reason;updates.approved=false;updates.rejected=false;
-  fbUpdate('records/'+record.id,updates);state.clockState='idle';state.activeRecord=null;
-  toast('Clocked out \u2014 '+fmtHrs(hours.totalHours)+(approval.needsApproval?' (requires approval)':''),'success');navigateEmp('clock');
-}
-
-/* EMPLOYEE HISTORY */
-function renderEmpHistory() { var emp=state.currentEmployee,recs=getRecords().filter(function(r){return r.employeeId===emp.id&&r.status==='completed';}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});var h='<div class="fade-in"><h2 class="text-xl font-bold mb-4">My History</h2>';if(!recs.length){h+='<div class="card text-center py-12"><i class="fas fa-history text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No records yet</p></div>';return h+'</div>';}h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>NT</th><th>OT 1.5x</th><th>DT 2x</th><th>Total</th><th>Status</th></tr></thead><tbody>';for(var i=0;i<recs.length;i++){var r=recs[i],approvalBadge='';if(r.needsApproval){if(r.approved)approvalBadge='<span class="badge badge-green" style="font-size:.55rem">Approved</span>';else if(r.rejected)approvalBadge='<span class="badge badge-red" style="font-size:.55rem">Rejected</span>';else approvalBadge='<span class="badge badge-amber" style="font-size:.55rem">Pending</span>';}h+='<tr><td class="text-xs">'+r.clockIn.slice(0,10)+'</td><td class="mono text-xs">'+fmtTime(new Date(r.clockIn))+'</td><td class="mono text-xs">'+(r.clockOut?fmtTime(new Date(r.clockOut)):'')+'</td><td class="mono text-xs">'+fmtHrs(r.regularHours||0)+'</td><td class="mono text-xs">'+fmtHrs(r.overtimeHours||0)+'</td><td class="mono text-xs">'+fmtHrs(r.doubleTimeHours||0)+'</td><td class="mono text-xs font-semibold">'+fmtHrs(r.totalHours||0)+'</td><td>'+approvalBadge+'</td></tr>';}h+='</tbody></table></div>';return h+'</div>'; }
-
-initFirebase(EMBEDDED_FB);
+/* EMPLOYEE CLOCK LOGIC */
+function renderClockPage(){ var emp=state.currentEmployee,s=state.clockState; var h='<div class="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center"><div class="clock-face '+ (s==='clocked_in'?'clock-out-face':'clock-in-face') +'" onclick="handleClockAction()"><i class="fas '+ (s==='clocked_in'?'fa-person-walking-arrow-right':'fa-fingerprint') +' cf-icon"></i><div class="cf-label">'+ (s==='clocked_in'?'CLOCK OUT':'CLOCK IN') +'</div><div class="cf-sub" id="clock-sub-label">Tap to action</div></div>'; if(s==='clocked_in'){ var start=new Date(state.activeRecord.clockIn), diff=Math.floor((Date.now()-start.getTime())/60000); h+='<div class="elapsed-display mt-6">'+fmtHrs(diff/60)+'</div><div class="text-sm mt-2" style="color:var(--muted)">Elapsed Time</div><div class="mt-8 card inline-block px-6 py-3"><div class="text-xs" style="color:var(--muted)">Shift Start</div><div class="font-bold">'+fmtTime(start)+'</div></div>'; } return h+'</div>'; }
+function initClockPage(){ if(state.clockState==='clocked_in'){ state.liveTimerInterval=setInterval(function(){ var start=new Date(state.activeRecord.clockIn), diff=Math.floor((Date.now()-start.getTime())/60000); var el=document.querySelector('.elapsed-display'); if(el)el.textContent=fmtHrs(diff/60); },60000); } }
+function handleClockAction(){ if(state.clockState==='idle'){ startClock(); }else{ stopClock(); } }
+function startClock(){ if(!navigator.geolocation){toast('GPS required','error');return;} toast('Locating...','info'); navigator.geolocation.getCurrentPosition(function(p){ var lat=p.coords.latitude,lng=p.coords.longitude; var today=todayStr(); var shift=getShifts().find(function(s){return s.employeeId===state.currentEmployee.id&&s.date===today;}); var siteId=shift?shift.siteId:state.currentEmployee.siteId; var site=getSites().find(function(s){return s.id===siteId;}); var dist=site?haversine(lat,lng,site.lat,site.lng):0; if(site&&dist>site.radius){toast('Outside geofence ('+Math.round(dist)+'m)','error');return;} var id=db.ref('records').push().key; fbSet('records/'+id,{id:id,employeeId:state.currentEmployee.id,siteId:siteId,shiftId:shift?shift.id:null,clockIn:new Date().toISOString(),status:'clocked_in',dayType:getDayType(today)}); state.activeRecord={id:id,employeeId:state.currentEmployee.id,clockIn:new Date().toISOString()}; state.clockState='clocked_in'; navigateEmp('clock'); toast('Clocked In','success'); },function(e){toast('GPS Error: '+e.message,'error');},{enableHighAccuracy:true}); }
+function stopClock(){ var r=state.activeRecord; if(!r)return; var shift=getShifts().find(function(s){return s.id===r.shiftId;}); var co=new Date(); var bm=(shift&&shift.breakMinutes)?shift.breakMinutes:getSettings().defaultBreak||0; var weekWorked=getEmployeeWeekWorkedHours(r.employeeId, r.clockIn); var tierCfg=getEmployeeTierConfig(r.employeeId); var hrs=calcHours(r.clockIn, co.toISOString(), bm, weekWorked, r.dayType, tierCfg); var u={clockOut:co.toISOString(),status:'completed',totalHours:hrs.totalHours,regularHours:hrs.regularHours,overtimeHours:hrs.overtimeHours,doubleTimeHours:hrs.doubleTimeHours}; var na=checkNeedsApproval(Object.assign({},r,u)); if(na.needsApproval){u.needsApproval=true;u.reason=na.reason;} fbUpdate('records/'+r.id,u); state.clockState='idle'; state.activeRecord=null; if(state.liveTimerInterval)clearInterval(state.liveTimerInterval); navigateEmp('clock'); toast('Clocked Out. Total: '+fmtHrs(hrs.totalHours),'success'); }
+function renderEmpHistory(){ var recs=getRecords().filter(function(r){return r.employeeId===state.currentEmployee.id;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);}); var h='<div class="fade-in"><h2 class="text-lg font-bold mb-4">My History</h2><div class="space-y-3">'; for(var i=0;i<recs.length;i++){ var r=recs[i]; h+='<div class="card"><div class="flex justify-between items-center"><div><div class="font-bold">'+fmtDate(r.clockIn)+'</div><div class="text-xs" style="color:var(--muted)">'+fmtTime(r.clockIn)+' - '+fmtTime(r.clockOut)+'</div></div><div class="text-right"><div class="font-bold mono text-lg">'+fmtHrs(r.totalHours)+'</div><div class="text-xs" style="color:var(--muted)">'+(r.dayType||'Workday')+'</div></div></div></div>'; } if(!recs.length)h+='<p class="text-sm text-center" style="color:var(--muted)">No records yet.</p>'; return h+'</div>'; }
 </script>
 </body>
 </html>
