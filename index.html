@@ -1,174 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SitePro Clock In</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-:root{--bg:#0c0e16;--bg2:#131620;--card:#1a1e2e;--card2:#212638;--border:#2a3048;--fg:#e2e4ea;--muted:#6b7094;--accent:#e8a838;--accent2:#d4922a;--success:#34d399;--danger:#f87171;--info:#38bdf8;--warning:#fbbf24}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-.mono{font-family:'JetBrains Mono',monospace}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;transition:border-color .2s}
-.card:hover{border-color:color-mix(in srgb,var(--accent) 30%,var(--border))}
-.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:8px;font-weight:500;font-size:.875rem;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
-.btn-primary{background:var(--accent);color:#0c0e16}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
-.btn-secondary{background:var(--card2);color:var(--fg);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent)}
-.btn-danger{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.3)}.btn-danger:hover{background:rgba(248,113,113,.25)}
-.btn-success{background:rgba(52,211,153,.15);color:var(--success);border:1px solid rgba(52,211,153,.3)}.btn-success:hover{background:rgba(52,211,153,.25)}
-.btn-sm{padding:.4rem .8rem;font-size:.8rem}
-input,select,textarea{background:var(--bg2);border:1px solid var(--border);color:var(--fg);padding:.6rem .8rem;border-radius:8px;font-family:inherit;font-size:.875rem;width:100%;transition:border-color .2s}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
-select option{background:var(--card);color:var(--fg)}
-label{font-size:.8rem;color:var(--muted);font-weight:500;display:block;margin-bottom:.3rem}
-.sidebar{width:250px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);position:fixed;left:0;top:0;z-index:40;transition:transform .3s}
-.sidebar-link{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.25rem;color:var(--muted);font-size:.875rem;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
-.sidebar-link:hover{color:var(--fg);background:rgba(232,168,56,.05)}
-.sidebar-link.active{color:var(--accent);background:rgba(232,168,56,.08);border-left-color:var(--accent)}
-.main-content{margin-left:250px;min-height:100vh;padding:1.5rem 2rem}
-.toast-container{position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem}
-.toast{padding:.8rem 1.2rem;border-radius:8px;font-size:.85rem;display:flex;align-items:center;gap:.6rem;animation:slideIn .3s ease;min-width:280px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.toast-success{background:#065f46;border:1px solid #34d399;color:#a7f3d0}
-.toast-error{background:#7f1d1d;border:1px solid #f87171;color:#fecaca}
-.toast-info{background:#0c4a6e;border:1px solid #38bdf8;color:#bae6fd}
-@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse-ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.4);opacity:0}}
-@keyframes breathe{0%,100%{box-shadow:0 0 30px rgba(52,211,153,.15)}50%{box-shadow:0 0 60px rgba(52,211,153,.3)}}
-@keyframes breathe-out{0%,100%{box-shadow:0 0 30px rgba(248,113,113,.15)}50%{box-shadow:0 0 60px rgba(248,113,113,.3)}}
-.fade-in{animation:fadeIn .3s ease}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem}
-.modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;padding:1.5rem}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:.6rem .8rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}
-td{padding:.6rem .8rem;font-size:.85rem;border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent)}
-tr:hover td{background:rgba(232,168,56,.03)}
-.badge{display:inline-flex;align-items:center;padding:.15rem .5rem;border-radius:20px;font-size:.7rem;font-weight:600}
-.badge-green{background:rgba(52,211,153,.15);color:var(--success)}
-.badge-red{background:rgba(248,113,113,.15);color:var(--danger)}
-.badge-amber{background:rgba(232,168,56,.15);color:var(--accent)}
-.badge-blue{background:rgba(56,189,248,.15);color:var(--info)}
-.badge-purple{background:rgba(168,85,247,.15);color:#c084fc}
-.bg-pattern{background-image:radial-gradient(circle at 1px 1px,rgba(232,168,56,.04) 1px,transparent 0);background-size:40px 40px}
-.conn-dot{width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle}
-.conn-dot.on{background:var(--success);box-shadow:0 0 6px var(--success)}
-.conn-dot.off{background:var(--danger);box-shadow:0 0 6px var(--danger)}
-.conn-dot.loading{background:var(--warning);animation:pulse-ring 1s infinite}
-.tab-btn{padding:.5rem 1rem;font-size:.85rem;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tab-btn:hover{color:var(--fg)}
-.clock-face{position:relative;width:280px;height:280px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s ease;user-select:none}
-.clock-face.clock-in-face{background:radial-gradient(circle at 40% 35%,rgba(52,211,153,.12),var(--card) 70%);border:3px solid var(--success);animation:breathe 3s ease-in-out infinite}
-.clock-face.clock-in-face:hover{transform:scale(1.04)}
-.clock-face.clock-in-face:active{transform:scale(.97)}
-.clock-face.clock-out-face{background:radial-gradient(circle at 40% 35%,rgba(248,113,113,.12),var(--card) 70%);border:3px solid var(--danger);animation:breathe-out 2s ease-in-out infinite}
-.clock-face.clock-out-face:hover{transform:scale(1.04)}
-.clock-face.clock-out-face:active{transform:scale(.97)}
-.clock-face .cf-icon{font-size:2.5rem;margin-bottom:.25rem}
-.clock-face .cf-label{font-size:1rem;font-weight:700;letter-spacing:.05em}
-.clock-face .cf-sub{font-size:.7rem;color:var(--muted);font-weight:400;margin-top:.15rem}
-.clock-face::after{content:'';position:absolute;inset:-12px;border-radius:50%;border:2px solid;opacity:0;animation:pulse-ring 2.5s ease-out infinite;pointer-events:none}
-.clock-in-face::after{border-color:var(--success)}
-.clock-out-face::after{border-color:var(--danger)}
-.big-time{font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;letter-spacing:-.02em;line-height:1}
-.big-date{font-size:.85rem;color:var(--muted);margin-top:.25rem}
-.emp-hero{background:linear-gradient(180deg,rgba(232,168,56,.04) 0%,transparent 60%);border-radius:16px;padding:2rem 1.5rem 1.5rem;text-align:center;position:relative;overflow:hidden}
-.emp-hero .emp-avatar{width:64px;height:64px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin-bottom:.75rem;border:2px solid var(--accent);color:var(--accent);background:var(--card)}
-.elapsed-display{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;letter-spacing:.04em;color:var(--success);line-height:1}
-.ts-table{border-collapse:collapse;width:100%}
-.ts-table th,.ts-table td{border:1px solid var(--border);padding:.45rem .6rem;font-size:.78rem;text-align:center;white-space:nowrap}
-.ts-table th{background:var(--bg2);color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:.7rem}
-.ts-table .row-label{background:var(--bg2);color:var(--muted);font-weight:600;text-align:left;min-width:80px;font-size:.75rem}
-.ts-table .total-row{background:rgba(232,168,56,.06);font-weight:700}
-.ts-table .pay-row{background:rgba(52,211,153,.06);font-weight:700;color:var(--success)}
-.ts-table .day-header{color:var(--accent);font-weight:700}
-.cb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.35rem;max-height:200px;overflow-y:auto;padding:.25rem}
-.cb-grid label{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--fg);cursor:pointer;padding:.25rem .4rem;border-radius:6px;transition:background .15s;margin:0}
-.cb-grid label:hover{background:rgba(232,168,56,.08)}
-.cb-grid input[type=checkbox]{width:auto;accent-color:var(--accent)}
-.dow-row{display:flex;flex-wrap:wrap;gap:.4rem}
-.dow-row label{display:inline-flex;align-items:center;gap:.3rem;font-size:.8rem;cursor:pointer;padding:.3rem .6rem;border:1px solid var(--border);border-radius:6px;margin:0}
-.dow-row input[type=checkbox]{width:auto;accent-color:var(--accent)}
-.override-hint{font-size:.7rem;color:var(--accent);margin-top:2px;font-style:italic}
-@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:1rem}.clock-face{width:220px;height:220px}.clock-face .cf-icon{font-size:2rem}.big-time{font-size:2.5rem}.elapsed-display{font-size:2rem}}
-@media print{.sidebar,.toast-container,header,nav{display:none!important}.main-content{margin-left:0!important;padding:1rem!important}.card{break-inside:avoid;border:1px solid #ccc}}
-</style>
-</head>
-<body class="bg-pattern">
-<div id="toast-container" class="toast-container"></div>
-<div id="loading-screen" class="min-h-screen flex items-center justify-center">
-  <div class="text-center"><div class="inline-block w-10 h-10 rounded-full animate-spin mb-3" style="border:3px solid var(--accent);border-top-color:transparent"></div><p class="text-sm" style="color:var(--muted)">Syncing...</p></div>
-</div>
-<div id="login-screen" class="hidden min-h-screen flex items-center justify-center p-4">
-  <div class="card w-full max-w-md fade-in" style="border-color:color-mix(in srgb,var(--accent) 20%,var(--border))">
-    <div class="text-center mb-6">
-      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xl" style="color:#0c0e16"></i></div>
-      <h1 class="text-2xl font-bold">SitePro Clock In</h1>
-      <p class="text-sm mt-1 flex items-center justify-center gap-2" style="color:var(--muted)">Workforce Time Tracking <span class="conn-dot loading" id="login-conn-dot"></span></p>
-    </div>
-    <div class="flex mb-6 border-b" style="border-color:var(--border)">
-      <button class="tab-btn flex-1" onclick="switchLoginTab('admin')"><i class="fas fa-shield-halved mr-1"></i> Admin</button>
-      <button class="tab-btn active flex-1" onclick="switchLoginTab('employee')"><i class="fas fa-user mr-1"></i> Employee</button>
-    </div>
-    <div id="login-admin" class="hidden">
-      <div class="mb-4"><label>Username</label><input id="admin-user" type="text" placeholder="admin" autocomplete="off"></div>
-      <div class="mb-5"><label>Password</label><input id="admin-pass" type="password" placeholder="Enter password"></div>
-      <button class="btn btn-primary w-full justify-center" onclick="adminLogin()"><i class="fas fa-right-to-bracket"></i> Sign In</button>
-    </div>
-    <div id="login-employee">
-      <div class="mb-4"><label>Employee ID</label><input id="emp-id" type="text" placeholder="e.g. EMP001" autocomplete="off"></div>
-      <div class="mb-5"><label>PIN</label><input id="emp-pin" type="password" placeholder="4-digit PIN" maxlength="4"></div>
-      <button class="btn btn-primary w-full justify-center" onclick="employeeLogin()"><i class="fas fa-right-to-bracket"></i> Clock In Portal</button>
-    </div>
-  </div>
-</div>
-<div id="admin-layout" class="hidden">
-  <aside class="sidebar" id="sidebar">
-    <div class="p-5 border-b" style="border-color:var(--border)"><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-sm" style="color:#0c0e16"></i></div><div><div class="font-bold text-sm">SitePro Clock In</div><div class="text-xs flex items-center gap-1.5" style="color:var(--muted)"><span class="conn-dot on" id="admin-conn-dot"></span><span id="admin-conn-label">Synced</span></div></div></div></div>
-    <nav class="py-3" id="admin-nav">
-      <div class="px-4 py-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Main</div>
-      <a class="sidebar-link active" data-page="dashboard"><i class="fas fa-gauge-high w-5 text-center"></i> Dashboard</a>
-      <a class="sidebar-link" data-page="sites"><i class="fas fa-location-dot w-5 text-center"></i> Sites</a>
-      <a class="sidebar-link" data-page="employees"><i class="fas fa-users w-5 text-center"></i> Employees</a>
-      <a class="sidebar-link" data-page="shifts"><i class="fas fa-calendar-days w-5 text-center"></i> Shifts</a>
-      <a class="sidebar-link" data-page="approvals"><i class="fas fa-clipboard-check w-5 text-center"></i> Approvals <span id="approval-badge" class="hidden badge badge-red ml-auto" style="font-size:.6rem">0</span></a>
-      <div class="px-4 py-2 mt-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Data</div>
-      <a class="sidebar-link" data-page="timesheets"><i class="fas fa-table-list w-5 text-center"></i> Timesheets</a>
-      <a class="sidebar-link" data-page="records"><i class="fas fa-clock-rotate-left w-5 text-center"></i> Clock Records</a>
-      <a class="sidebar-link" data-page="export"><i class="fas fa-file-export w-5 text-center"></i> Export</a>
-      <a class="sidebar-link" data-page="recyclebin"><i class="fas fa-recycle w-5 text-center"></i> Recycle Bin</a>
-      <div class="px-4 py-2 mt-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">System</div>
-      <a class="sidebar-link" data-page="settings"><i class="fas fa-gear w-5 text-center"></i> Settings</a>
-    </nav>
-    <div class="absolute bottom-0 left-0 right-0 p-4 border-t" style="border-color:var(--border)"><button class="btn btn-secondary btn-sm w-full justify-center" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</button></div>
-  </aside>
-  <div class="main-content" id="admin-content"></div>
-  <button class="fixed top-4 left-4 z-50 btn btn-secondary btn-sm md:hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-</div>
-<div id="employee-layout" class="hidden">
-  <div class="min-h-screen flex flex-col">
-    <header class="p-4 flex items-center justify-center border-b" style="border-color:var(--border);background:var(--bg2)">
-      <div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xs" style="color:#0c0e16"></i></div><span class="font-bold text-sm">SitePro</span><span class="conn-dot on" id="emp-conn-dot"></span></div>
-      <div class="ml-auto flex items-center gap-3"><span id="emp-header-name" class="text-sm hidden sm:inline" style="color:var(--muted)"></span><button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-right-from-bracket"></i></button></div>
-    </header>
-    <div class="flex-1 flex">
-      <nav class="w-16 sm:w-48 border-r flex flex-col pt-4" style="border-color:var(--border);background:var(--bg2)" id="emp-nav">
-        <a class="sidebar-link active" data-epage="clock" style="padding:.7rem .5rem;justify-content:center;flex-direction:column;gap:2px"><i class="fas fa-fingerprint text-lg"></i><span class="text-xs hidden sm:inline mt-1">Clock</span></a>
-        <a class="sidebar-link" data-epage="history" style="padding:.7rem .5rem;justify-content:center;flex-direction:column;gap:2px"><i class="fas fa-history text-lg"></i><span class="text-xs hidden sm:inline mt-1">History</span></a>
-      </nav>
-      <main class="flex-1 p-4 sm:p-6" id="emp-content"></main>
-    </div>
-  </div>
-</div>
-<div id="modal-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()"><div class="modal-box fade-in" id="modal-box"></div></div>
-
 <script>
 var EMBEDDED_FB = {
   apiKey:"AIzaSyAkHU3eWCWTUt3Ks0Vxq3PkgcATtin0Zaw",
@@ -182,10 +11,26 @@ var EMBEDDED_FB = {
 
 var db = null, fbConnected = false, dataLoaded = 0, initialLoadDone = false;
 var D = { sites:[], employees:[], shifts:[], records:[], settings:{}, admin:{}, recycleBin:{} };
+var loadTimeout = null; // Timeout safety variable
 
 function initFirebase(config) {
-  firebase.initializeApp(config); db = firebase.database();
-  db.ref('.info/connected').on('value', function(s) { fbConnected = (s.val() === true); updateConnDots(); });
+  firebase.initializeApp(config); 
+  db = firebase.database();
+  
+  // Safety net: Force show login after 8 seconds if data doesn't load
+  loadTimeout = setTimeout(function() {
+    if (!initialLoadDone) {
+      console.warn("Loading timeout. Forcing login screen.");
+      toast("Connection slow, check console", "info");
+      checkAllLoaded(true); // Force completion
+    }
+  }, 8000);
+
+  db.ref('.info/connected').on('value', function(s) { 
+    fbConnected = (s.val() === true); 
+    updateConnDots(); 
+  });
+
   db.ref('sites').on('value', function(s) { D.sites = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
   db.ref('employees').on('value', function(s) { D.employees = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
   db.ref('shifts').on('value', function(s) { D.shifts = s.val() ? Object.values(s.val()) : []; dataLoaded++; checkAllLoaded(); });
@@ -195,36 +40,53 @@ function initFirebase(config) {
   db.ref('recycleBin').on('value', function(s) { D.recycleBin = s.val() || {}; dataLoaded++; checkAllLoaded(); });
 }
 
-function checkAllLoaded() {
-  if (dataLoaded >= 7 && !initialLoadDone) {
+function checkAllLoaded(force) {
+  // Force logic or standard logic (waiting for 7 listeners)
+  if (force || (dataLoaded >= 7 && !initialLoadDone)) {
+    if(loadTimeout) clearTimeout(loadTimeout); // Stop the timeout timer
     initialLoadDone = true;
     document.getElementById('loading-screen').classList.add('hidden');
-    if (!D.admin || !D.admin.username) seedFirebase();
-    cleanExpiredBin(); showScreen('login-screen');
+    
+    // Check if Admin exists, if not, try to seed data
+    if (!D.admin || !D.admin.username) {
+      console.log("No admin found. Seeding data...");
+      seedFirebase();
+    } else {
+      cleanExpiredBin(); 
+      showScreen('login-screen');
+    }
   }
 }
 
-function updateConnDots() {
-  var cls = fbConnected ? 'conn-dot on' : 'conn-dot off';
-  var dots = document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot');
-  for (var i = 0; i < dots.length; i++) dots[i].className = cls;
-  var el = document.getElementById('admin-conn-label');
-  if (el) el.textContent = fbConnected ? 'Synced' : 'Offline';
+function fbSet(p, d) { 
+  if (db) {
+    db.ref(p).set(d).catch(function(e) { 
+      console.error("Firebase Error:", e);
+      toast('Sync error (Check Permissions): ' + e.message, 'error'); 
+    }); 
+  }
+}
+function fbUpdate(p, d) { 
+  if (db) {
+    db.ref(p).update(d).catch(function(e) { 
+      console.error("Firebase Error:", e);
+      toast('Sync error: ' + e.message, 'error'); 
+    }); 
+  } 
+}
+function fbRemove(p) { 
+  if (db) {
+    db.ref(p).remove().catch(function(e) { 
+      console.error("Firebase Error:", e);
+      toast('Sync error: ' + e.message, 'error'); 
+    }); 
+  } 
 }
 
-function fbSet(p, d) { if (db) db.ref(p).set(d).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
-function fbUpdate(p, d) { if (db) db.ref(p).update(d).catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
-function fbRemove(p) { if (db) db.ref(p).remove().catch(function(e) { toast('Sync error: ' + e.message, 'error'); }); }
-
-function getSites() { return D.sites || []; }
-function getEmployees() { return D.employees || []; }
-function getShifts() { return D.shifts || []; }
-function getRecords() { return D.records || []; }
-function getSettings() { return D.settings || {}; }
-function getHolidays() { return (D.settings && D.settings.holidays) ? D.settings.holidays : []; }
-function getBinItems() { return D.recycleBin || {}; }
-
 function seedFirebase() {
+  // Show a toast so user knows it's trying to setup
+  toast('Setting up database...', 'info');
+
   fbSet('admin', { username:'admin', password:'admin123' });
   fbSet('settings', {
     weeklyTarget:45, overtimeAfter:45, defaultBreak:30, graceMinutes:10,
@@ -238,7 +100,26 @@ function seedFirebase() {
   fbSet('employees/' + e1, { id:e1, firstName:'James', lastName:'Carter', employeeId:'EMP001', pin:'1234', siteId:s1, active:true });
   fbSet('employees/' + e2, { id:e2, firstName:'Sarah', lastName:'Mitchell', employeeId:'EMP002', pin:'5678', siteId:s1, active:true, weeklyTarget:40, overtimeAfter:40 });
   fbSet('employees/' + e3, { id:e3, firstName:'Daniel', lastName:'Nguyen', employeeId:'EMP003', pin:'4321', siteId:s2, active:true });
+
+  // Wait a moment for the writes to trigger listeners, then show login
+  setTimeout(function() {
+    cleanExpiredBin();
+    showScreen('login-screen');
+    toast('Setup Complete', 'success');
+  }, 1500);
 }
+
+// ... Rest of your code (getSites, getEmployees, etc.) ...
+function getSites() { return D.sites || []; }
+function getEmployees() { return D.employees || []; }
+function getShifts() { return D.shifts || []; }
+function getRecords() { return D.records || []; }
+function getSettings() { return D.settings || {}; }
+function getHolidays() { return (D.settings && D.settings.holidays) ? D.settings.holidays : []; }
+function getBinItems() { return D.recycleBin || {}; }
+
+// ... Ensure you paste the REST of the functions below ...
+// (fmtDate, timeToMinutes, renderDashboard, renderTimesheets, etc...)
 
 var state = {
   loggedIn:false, role:null, currentPage:'dashboard', empPage:'clock',
@@ -388,7 +269,6 @@ function renderTimesheets() {
   
   h += '<div id="ts-results" class="space-y-4"></div></div>';
   
-  // Auto generate on load
   setTimeout(function() { generateTimesheets(); }, 50);
   return h;
 }
@@ -414,7 +294,6 @@ function generateTimesheets() {
 
   var weeks = {};
   
-  // Group records by Week Start and Employee
   recs.forEach(function(r) {
     if (r.status !== 'completed' || !r.clockIn || !r.clockOut) return;
     var d = new Date(r.clockIn);
@@ -447,11 +326,9 @@ function generateTimesheets() {
     var emp = getEmpById(w.empId);
     if (!emp) return;
     
-    // Calculate detailed breakdown for the week
-    var totals = { nt:0, earlyOT:0, lateOT:0, dt:0, earlyPending:0, latePending:0, records:[] };
+    var totals = { nt:0, earlyOT:0, lateOT:0, dt:0, earlyPending:0, latePending:0 };
     
     w.records.forEach(function(rec) {
-      // Get Shift Details for Early/Late calc
       var shift = getShifts().find(function(s){return s.id === rec.shiftId;});
       var earlyMins = 0, lateMins = 0;
       
@@ -461,33 +338,19 @@ function generateTimesheets() {
         var sStart = timeToMinutes(shift.startTime);
         var sEnd = timeToMinutes(shift.endTime);
         
-        // Calculate Early (before start)
         if (ciMin < sStart) earlyMins = sStart - ciMin;
-        // Calculate Late (after end)
         if (coMin > sEnd) lateMins = coMin - sEnd;
       }
 
       var dayType = getDayType(fmtDate(rec.clockIn));
       var totalHrs = rec.totalHours || 0;
       
-      // Logic for allocation
-      // If Sunday/Holiday, all hours go to Double Time
       if (dayType === 'Sunday' || dayType === 'Holiday') {
         totals.dt += totalHrs;
       } else {
-        // Weekday
-        // Check if record has explicit overrides, otherwise calc live
-        // We assume that weekly OT logic takes precedence for general OT,
-        // but Early/Late are specific buckets.
-        // Simplified: Allocate NT first. Any excess is Weekly OT.
-        // BUT user specifically asked for Early/Late approval.
-        
-        // We will treat Early/Late as OT buckets.
         var earlyHrs = earlyMins / 60;
         var lateHrs = lateMins / 60;
         
-        // Determine Approval status (stored in record or calculated live)
-        // We look for fields earlyApproved: bool, lateApproved: bool
         var isEarlyApproved = rec.earlyApproved === true;
         var isLateApproved = rec.lateApproved === true;
         
@@ -497,29 +360,21 @@ function generateTimesheets() {
         if (!isEarlyApproved && earlyHrs > 0) totals.earlyPending += earlyHrs;
         if (!isLateApproved && lateHrs > 0) totals.latePending += lateHrs;
         
-        // The remaining time (Shift duration + lunch) is Normal Time (NT)
-        // Note: In a complex payroll, Weekly OT (40+hrs) might overwrite this. 
-        // For this feature, we focus on the Early/Late breakdown requested.
         totals.nt += (totalHrs - earlyHrs - lateHrs); 
       }
-      
-      totals.records.push({ id: rec.id, earlyApproved: rec.earlyApproved, lateApproved: rec.lateApproved });
     });
 
-    // Render Card for this Employee/Week
     html += '<div class="card"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b pb-2" style="border-color:var(--border)">';
     html += '<div><div class="font-bold text-lg">'+emp.firstName+' '+emp.lastName+'</div>';
     html += '<div class="text-sm" style="color:var(--muted)">Week of '+w.weekStart+'</div></div>';
     html += '<div class="flex gap-2 text-right mt-2 sm:mt-0">';
     
-    // Totals Display
     html += '<div class="text-xs"><div class="muted">Normal</div><div class="font-bold mono text-sm">'+fmtHrs(totals.nt)+'</div></div>';
     html += '<div class="text-xs"><div class="muted">Early OT</div><div class="font-bold mono text-sm '+(totals.earlyPending>0?'text-amber-400':'text-green-400')+'">'+fmtHrs(totals.earlyOT)+'</div></div>';
     html += '<div class="text-xs"><div class="muted">Late OT</div><div class="font-bold mono text-sm '+(totals.latePending>0?'text-amber-400':'text-green-400')+'">'+fmtHrs(totals.lateOT)+'</div></div>';
     html += '<div class="text-xs"><div class="muted">Double</div><div class="font-bold mono text-sm text-purple-400">'+fmtHrs(totals.dt)+'</div></div>';
     html += '</div></div>';
 
-    // Approval Actions
     if (totals.earlyPending > 0 || totals.latePending > 0) {
       html += '<div class="bg-yellow-900/20 border border-yellow-500/30 rounded p-3 mb-3 flex items-center justify-between">';
       html += '<span class="text-sm font-medium text-yellow-200"><i class="fas fa-exclamation-triangle mr-2"></i> Pending Overtime Approval</span>';
@@ -542,7 +397,6 @@ function generateTimesheets() {
 }
 
 function approveWeekOT(empId, weekStart, type) {
-  // Find all records for this employee in this week
   var recs = getRecords();
   var weekEnd = new Date(weekStart + 'T12:00:00');
   weekEnd.setDate(weekEnd.getDate() + 6);
@@ -555,7 +409,6 @@ function approveWeekOT(empId, weekStart, type) {
     if (r.employeeId !== empId) return;
     var rDate = fmtDate(r.clockIn);
     if (rDate >= weekStart && rDate <= weekEndStr && r.status === 'completed') {
-      // Calculate if this record actually HAS the type of OT we are approving
       var shift = getShifts().find(function(s){return s.id === r.shiftId;});
       if (!shift) return;
       
@@ -575,9 +428,9 @@ function approveWeekOT(empId, weekStart, type) {
   });
 
   if (count > 0) {
-    fbUpdate('', updates); // Pass empty string for path, updates object has full paths
+    fbUpdate('', updates); 
     toast('Approved ' + count + ' record(s)', 'success');
-    generateTimesheets(); // Refresh view
+    generateTimesheets(); 
   } else {
     toast('No applicable overtime found.', 'info');
   }
@@ -659,5 +512,3 @@ function startClock(){ if(!navigator.geolocation){toast('GPS required','error');
 function stopClock(){ var r=state.activeRecord; if(!r)return; var shift=getShifts().find(function(s){return s.id===r.shiftId;}); var co=new Date(); var bm=(shift&&shift.breakMinutes)?shift.breakMinutes:getSettings().defaultBreak||0; var weekWorked=getEmployeeWeekWorkedHours(r.employeeId, r.clockIn); var tierCfg=getEmployeeTierConfig(r.employeeId); var hrs=calcHours(r.clockIn, co.toISOString(), bm, weekWorked, r.dayType, tierCfg); var u={clockOut:co.toISOString(),status:'completed',totalHours:hrs.totalHours,regularHours:hrs.regularHours,overtimeHours:hrs.overtimeHours,doubleTimeHours:hrs.doubleTimeHours}; var na=checkNeedsApproval(Object.assign({},r,u)); if(na.needsApproval){u.needsApproval=true;u.reason=na.reason;} fbUpdate('records/'+r.id,u); state.clockState='idle'; state.activeRecord=null; if(state.liveTimerInterval)clearInterval(state.liveTimerInterval); navigateEmp('clock'); toast('Clocked Out. Total: '+fmtHrs(hrs.totalHours),'success'); }
 function renderEmpHistory(){ var recs=getRecords().filter(function(r){return r.employeeId===state.currentEmployee.id;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);}); var h='<div class="fade-in"><h2 class="text-lg font-bold mb-4">My History</h2><div class="space-y-3">'; for(var i=0;i<recs.length;i++){ var r=recs[i]; h+='<div class="card"><div class="flex justify-between items-center"><div><div class="font-bold">'+fmtDate(r.clockIn)+'</div><div class="text-xs" style="color:var(--muted)">'+fmtTime(r.clockIn)+' - '+fmtTime(r.clockOut)+'</div></div><div class="text-right"><div class="font-bold mono text-lg">'+fmtHrs(r.totalHours)+'</div><div class="text-xs" style="color:var(--muted)">'+(r.dayType||'Workday')+'</div></div></div></div>'; } if(!recs.length)h+='<p class="text-sm text-center" style="color:var(--muted)">No records yet.</p>'; return h+'</div>'; }
 </script>
-</body>
-</html>
