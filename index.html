@@ -195,7 +195,8 @@ function initFirebase(config) {
 }
 
 function checkAllLoaded() {
-  if (dataLoaded >= 7 && !initialLoadDone) {
+  // FIXED: Wait for all 8 listeners to ensure full data load
+  if (dataLoaded >= 8 && !initialLoadDone) { 
     initialLoadDone = true;
     document.getElementById('loading-screen').classList.add('hidden');
     if (!D.admin || !D.admin.username) seedFirebase();
@@ -687,6 +688,11 @@ function renderEmpHistory() {
 /* SETTINGS */
 function renderSettings() { var s = getSettings(); return '<div class="fade-in max-w-xl mx-auto"><div class="card"><h2 class="text-xl font-bold mb-4">Global Settings</h2><div class="grid gap-4"><div><label>Weekly Target (Hours)</label><input id="set-wt" type="number" value="'+(s.weeklyTarget||45)+'"></div><div><label>Overtime After (Hours)</label><input id="set-ot" type="number" value="'+(s.overtimeAfter!=null?s.overtimeAfter:45)+'"></div><div><label>Default Break (Minutes)</label><input id="set-bm" type="number" value="'+(s.defaultBreak||30)+'"></div><div><label>Grace Period (Minutes)</label><input id="set-gm" type="number" value="'+(s.graceMinutes||10)+'"></div><div class="flex gap-3 mt-4"><button class="btn btn-primary" onclick="saveSettings()">Save</button></div></div></div></div>'; }
 function saveSettings() { var wt=parseFloat(document.getElementById('set-wt').value),ot=parseFloat(document.getElementById('set-ot').value),bm=parseInt(document.getElementById('set-bm').value),gm=parseInt(document.getElementById('set-gm').value); fbUpdate('settings',{ weeklyTarget:wt, overtimeAfter:ot, defaultBreak:bm, graceMinutes:gm }); toast('Settings saved','success'); }
+
+// --- FIXED: Initialize App ---
+document.addEventListener('DOMContentLoaded', function() {
+  initFirebase(EMBEDDED_FB);
+});
 
 </script>
 </body>
