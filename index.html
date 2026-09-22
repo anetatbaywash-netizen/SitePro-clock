@@ -128,6 +128,7 @@ tr:hover td{background:rgba(232,168,56,.03)}
       <a class="sidebar-link" data-page="timesheets"><i class="fas fa-table-list w-5 text-center"></i> Timesheets</a>
       <a class="sidebar-link" data-page="records"><i class="fas fa-clock-rotate-left w-5 text-center"></i> Clock Records</a>
       <a class="sidebar-link" data-page="export"><i class="fas fa-file-export w-5 text-center"></i> Export</a>
+      <a class="sidebar-link" data-page="recyclebin"><i class="fas fa-recycle w-5 text-center"></i> Recycle Bin <span id="bin-badge" class="hidden badge badge-red ml-auto" style="font-size:.6rem">0</span></a>
       <a class="sidebar-link" data-page="settings"><i class="fas fa-gear w-5 text-center"></i> Settings</a>
     </nav>
     <div class="absolute bottom-0 left-0 right-0 p-4 border-t" style="border-color:var(--border)"><button class="btn btn-secondary btn-sm w-full justify-center" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</button></div>
@@ -185,7 +186,7 @@ function initFirebase(config) {
     db.ref('records').on('value',function(s){D.records=s.val()?Object.values(s.val()):[];dataLoaded++;updateApprovalBadge();});
     db.ref('settings').on('value',function(s){D.settings=s.val()||{};dataLoaded++;});
     db.ref('admin').on('value',function(s){D.admin=s.val()||{};dataLoaded++;});
-    db.ref('recycleBin').on('value',function(s){D.recycleBin=s.val()||{};dataLoaded++;});
+    db.ref('recycleBin').on('value',function(s){D.recycleBin=s.val()||{};dataLoaded++;updateBinBadge();});
 
     setTimeout(function(){checkAllLoaded(false);},1500);
     setTimeout(function(){
@@ -289,7 +290,61 @@ function getEmployeeWeekWorkedHours(empId, curDate) { var ws = getWeekStart(curD
 function calcHours(ci, co, bm, weekWorked, dayType, tierCfg) { var totalMs = new Date(co) - new Date(ci), totalMin = Math.max(0, totalMs / 60000 - bm), totalHrs = Math.round(totalMin / 6) / 10; if (dayType === 'Sunday' || dayType === 'Holiday') return { regularHours:0, overtimeHours:0, doubleTimeHours:totalHrs, totalHours:totalHrs }; var start = weekWorked, end = weekWorked + totalHrs, regular = 0, overtime = 0; if (start < tierCfg.otAfter) regular += Math.min(end, tierCfg.otAfter) - start; if (end > tierCfg.otAfter) overtime += end - Math.max(start, tierCfg.otAfter); return { regularHours:regular, overtimeHours:overtime, doubleTimeHours:0, totalHours:totalHrs }; }
 function getGraceMinutes() { return (D.settings && D.settings.graceMinutes != null) ? D.settings.graceMinutes : 10; }
 function checkNeedsApproval(record) { var shift = getShifts().find(function(s) { return s.id === record.shiftId; }); if (!shift) return { needsApproval:true, reason:'No shift scheduled for this day' }; var grace = getGraceMinutes(), ciMin = timeToMinutes(fmtTime(new Date(record.clockIn))), shiftStartMin = timeToMinutes(shift.startTime), shiftEndMin = timeToMinutes(shift.endTime), reasons = []; if (ciMin < shiftStartMin - grace) { var diff = shiftStartMin - ciMin; reasons.push('Clocked in ' + Math.floor(diff/60) + 'h ' + (diff%60) + 'm before shift'); } if (record.clockOut) { var coMin = timeToMinutes(fmtTime(new Date(record.clockOut))); if (coMin > shiftEndMin + grace) { var diff2 = coMin - shiftEndMin; reasons.push('Clocked out ' + Math.floor(diff2/60) + 'h ' + (diff2%60) + 'm after shift'); } } if (reasons.length) return { needsApproval:true, reason:reasons.join('; ') }; return { needsApproval:false, reason:'' }; }
-function updateApprovalBadge() { var pending = getRecords().filter(function(r) { return r.needsApproval && !r.approved && !r.rejected && r.status === 'completed'; }).length; var badge = document.getElementById('approval-badge'); if (badge) { if (pending > 0) { badge.classList.remove('hidden'); badge.textContent = pending; } else badge.classList.add('hidden'); } }
+function getRecordOTBreakdown(r) {
+  var shift = getShifts().find(function(s){ return s.id === r.shiftId; });
+  var earlyMinutes = 0, lateMinutes = 0;
+  if (shift && r.clockIn && r.clockOut) {
+    var ciMin = timeToMinutes(fmtTime(new Date(r.clockIn)));
+    var coMin = timeToMinutes(fmtTime(new Date(r.clockOut)));
+    var sStart = timeToMinutes(shift.startTime);
+    var sEnd = timeToMinutes(shift.endTime);
+    if (ciMin < sStart) earlyMinutes = sStart - ciMin;
+    if (coMin > sEnd) lateMinutes = coMin - sEnd;
+  }
+  var dayType = r.dayType || getDayType(fmtDate(r.clockIn));
+  if (dayType === 'Sunday' || dayType === 'Holiday') return { earlyHours:0, lateHours:0 };
+  return { earlyHours:earlyMinutes/60, lateHours:lateMinutes/60 };
+}
+
+function getOTStatus(r, type) {
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
+  if (r[approvedKey] === true) return 'approved';
+  if (r[rejectedKey] === true) return 'rejected';
+  return 'pending';
+}
+
+function getPendingApprovalCount() {
+  var count = 0;
+  getRecords().forEach(function(r) {
+    if (r.status !== 'completed') return;
+    if (r.needsApproval && !r.approved && !r.rejected) count++;
+    var ot = getRecordOTBreakdown(r);
+    if (ot.earlyHours > 0 && getOTStatus(r,'early') === 'pending') count++;
+    if (ot.lateHours > 0 && getOTStatus(r,'late') === 'pending') count++;
+  });
+  return count;
+}
+
+function updateApprovalBadge() {
+  var pending = getPendingApprovalCount();
+  var badge = document.getElementById('approval-badge');
+  if (badge) {
+    if (pending > 0) {
+      badge.classList.remove('hidden');
+      badge.textContent = pending;
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
+}
+function updateBinBadge() {
+  var bin=getBinItems(), count=0, types=['sites','employees','shifts','records'];
+  for(var i=0;i<types.length;i++){ if(bin[types[i]]) count += Object.keys(bin[types[i]]).length; }
+  var badge=document.getElementById('bin-badge');
+  if(badge){ if(count>0){ badge.classList.remove('hidden'); badge.textContent=count; } else badge.classList.add('hidden'); }
+}
+
 var BIN_TTL = 30*24*60*60*1000;
 function moveToBin(type, id, data) { var binId = db.ref('recycleBin/' + type).push().key; fbSet('recycleBin/' + type + '/' + binId, { originalId:id, data:data, deletedAt:new Date().toISOString() }); fbRemove(type + '/' + id); }
 function restoreFromBin(type, binId) { var item = D.recycleBin[type] && D.recycleBin[type][binId]; if (!item) return; fbSet(type + '/' + (item.originalId || item.data.id), item.data); fbRemove('recycleBin/' + type + '/' + binId); toast('Restored', 'success'); navigateAdmin('recyclebin'); }
@@ -347,11 +402,10 @@ document.getElementById('emp-nav').addEventListener('click', function(e) { var l
 /* --- DASHBOARD --- */
 var dashCI = null;
 function startDashClock() { if (dashCI) clearInterval(dashCI); var u = function() { var e = document.getElementById('dash-live-clock'); if (e) e.textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); else clearInterval(dashCI); }; u(); dashCI = setInterval(u, 1000); }
-function renderDashboard() { var emps=getEmployees(),sites=getSites(),shifts=getShifts(),recs=getRecords(),today=todayStr(),todayShifts=shifts.filter(function(s){return s.date===today;}),clockedIn=recs.filter(function(r){return r.status==='clocked_in';}),pendingApp=recs.filter(function(r){return r.needsApproval&&!r.approved&&!r.rejected&&r.status==='completed';}).length; var bin=getBinItems(),binCount=0,btypes=['sites','employees','shifts','records'];for(var i=0;i<btypes.length;i++){if(bin[btypes[i]])binCount+=Object.keys(bin[btypes[i]]).length;} var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-2"><div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">'+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div></div>'; h+='<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">'; h+='<div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">'+emps.filter(function(e){return e.active;}).length+'</div></div>'; h+='<div class="card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">'+sites.length+'</div></div>'; h+='<div class="card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY</div><div class="text-2xl font-bold">'+todayShifts.length+'</div></div>'; h+='<div class="card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:'+(clockedIn.length?'var(--success)':'var(--muted)')+'">'+clockedIn.length+'</div></div>'; h+='<div class="card" style="border-left:3px solid '+(pendingApp?'var(--danger)':'var(--border)')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-clipboard-check mr-1"></i>APPROVALS</div><div class="text-2xl font-bold" style="color:'+(pendingApp?'var(--danger)':'var(--muted)')+'">'+pendingApp+'</div></div>'; h+='<div class="card" style="border-left:3px solid '+(binCount?'var(--danger)':'var(--border)')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-recycle mr-1"></i>BIN</div><div class="text-2xl font-bold" style="color:'+(binCount?'var(--danger)':'var(--muted)')+'">'+binCount+'</div></div></div>'; h+='<div class="grid grid-cols-1 lg:grid-cols-2 gap-4"><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now</h3>'; if(clockedIn.length){for(var i=0;i<clockedIn.length;i++){var r=clockedIn[i],emp=getEmpById(r.employeeId),start=new Date(r.clockIn),el2=Math.floor((Date.now()-start.getTime())/60000);h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(r.siteId)+' &middot; Since '+fmtTime(start)+'</div></div><div class="text-right"><div class="mono text-sm font-semibold" style="color:var(--success)">'+fmtHrs(el2/60)+'</div><span class="badge badge-green">Active</span></div></div>';}} else h+='<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>'; h+='</div><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today\'s Shifts</h3>'; var td=getDayType(today);h+='<span class="badge '+(td==='Sunday'?'badge-purple':td==='Holiday'?'badge-red':'badge-blue')+' mb-3">'+td+'</span>'; if(todayShifts.length){for(var i=0;i<Math.min(todayShifts.length,6);i++){var s=todayShifts[i],emp=getEmpById(s.employeeId),rec=null;for(var j=0;j<recs.length;j++){if(recs[j].shiftId===s.id){rec=recs[j];break;}}var st='<span class="badge badge-amber">Pending</span>';if(rec&&rec.status==='clocked_in')st='<span class="badge badge-green">In</span>';else if(rec&&rec.status==='completed')st='<span class="badge badge-blue">Done</span>';h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'\u2014')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(s.siteId)+' &middot; '+s.startTime+'-'+s.endTime+'</div></div>'+st+'</div>';}} else h+='<p class="text-sm" style="color:var(--muted)">No shifts today.</p>'; h+='</div></div></div>';return h; }
+function renderDashboard() { var emps=getEmployees(),sites=getSites(),shifts=getShifts(),recs=getRecords(),today=todayStr(),todayShifts=shifts.filter(function(s){return s.date===today;}),clockedIn=recs.filter(function(r){return r.status==='clocked_in';}),pendingApp=getPendingApprovalCount(); var bin=getBinItems(),binCount=0,btypes=['sites','employees','shifts','records'];for(var i=0;i<btypes.length;i++){if(bin[btypes[i]])binCount+=Object.keys(bin[btypes[i]]).length;} var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-2"><div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">'+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div></div>'; h+='<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">'; h+='<div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">'+emps.filter(function(e){return e.active;}).length+'</div></div>'; h+='<div class="card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">'+sites.length+'</div></div>'; h+='<div class="card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY</div><div class="text-2xl font-bold">'+todayShifts.length+'</div></div>'; h+='<div class="card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:'+(clockedIn.length?'var(--success)':'var(--muted)')+'">'+clockedIn.length+'</div></div>'; h+='<div class="card" style="border-left:3px solid '+(pendingApp?'var(--danger)':'var(--border)')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-clipboard-check mr-1"></i>APPROVALS</div><div class="text-2xl font-bold" style="color:'+(pendingApp?'var(--danger)':'var(--muted)')+'">'+pendingApp+'</div></div>'; h+='<div class="card cursor-pointer hover:border-amber-400" onclick="navigateAdmin(\'recyclebin\')" title="Open Recycle Bin" style="border-left:3px solid '+(binCount?'var(--danger)':'var(--border)')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-recycle mr-1"></i>BIN</div><div class="text-2xl font-bold" style="color:'+(binCount?'var(--danger)':'var(--muted)')+'">'+binCount+'</div><div class="text-xs mt-1" style="color:var(--muted)">Click to open</div></div></div>'; h+='<div class="grid grid-cols-1 lg:grid-cols-2 gap-4"><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now</h3>'; if(clockedIn.length){for(var i=0;i<clockedIn.length;i++){var r=clockedIn[i],emp=getEmpById(r.employeeId),start=new Date(r.clockIn),el2=Math.floor((Date.now()-start.getTime())/60000);h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(r.siteId)+' &middot; Since '+fmtTime(start)+'</div></div><div class="text-right"><div class="mono text-sm font-semibold" style="color:var(--success)">'+fmtHrs(el2/60)+'</div><span class="badge badge-green">Active</span></div></div>';}} else h+='<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>'; h+='</div><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today\'s Shifts</h3>'; var td=getDayType(today);h+='<span class="badge '+(td==='Sunday'?'badge-purple':td==='Holiday'?'badge-red':'badge-blue')+' mb-3">'+td+'</span>'; if(todayShifts.length){for(var i=0;i<Math.min(todayShifts.length,6);i++){var s=todayShifts[i],emp=getEmpById(s.employeeId),rec=null;for(var j=0;j<recs.length;j++){if(recs[j].shiftId===s.id){rec=recs[j];break;}}var st='<span class="badge badge-amber">Pending</span>';if(rec&&rec.status==='clocked_in')st='<span class="badge badge-green">In</span>';else if(rec&&rec.status==='completed')st='<span class="badge badge-blue">Done</span>';h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'\u2014')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(s.siteId)+' &middot; '+s.startTime+'-'+s.endTime+'</div></div>'+st+'</div>';}} else h+='<p class="text-sm" style="color:var(--muted)">No shifts today.</p>'; h+='</div></div></div>';return h; }
 
 /* --- TIMESHEETS LOGIC (NEW) --- */
 function renderTimesheets() {
-  var emps = getEmployees();
   var startStr = localStorage.getItem('ts_start') || fmtDate(new Date(Date.now() - 30*24*60*60*1000));
   var endStr = localStorage.getItem('ts_end') || fmtDate(new Date());
 
@@ -360,49 +414,45 @@ function renderTimesheets() {
   h += '<div class="flex flex-wrap items-center gap-2 card p-2"><div><label class="text-xs mb-1">Start Date</label><input type="date" id="ts-start" value="'+startStr+'" class="text-xs"></div>';
   h += '<div><label class="text-xs mb-1">End Date</label><input type="date" id="ts-end" value="'+endStr+'" class="text-xs"></div>';
   h += '<button class="btn btn-primary btn-sm mt-4" onclick="generateTimesheets()"><i class="fas fa-filter"></i> Filter</button></div></div>';
-  
   h += '<div id="ts-results" class="space-y-4"></div></div>';
-  
-  setTimeout(function() { generateTimesheets(); }, 50);
+
+  setTimeout(function(){ generateTimesheets(); }, 50);
   return h;
 }
 
 function generateTimesheets() {
-  var startStr = document.getElementById('ts-start').value;
-  var endStr = document.getElementById('ts-end').value;
+  var startEl = document.getElementById('ts-start');
+  var endEl = document.getElementById('ts-end');
+  var container = document.getElementById('ts-results');
+  if (!startEl || !endEl || !container) return;
+
+  var startStr = startEl.value;
+  var endStr = endEl.value;
   localStorage.setItem('ts_start', startStr);
   localStorage.setItem('ts_end', endStr);
 
-  var startDate = new Date(startStr);
-  var endDate = new Date(endStr);
-  var recs = getRecords();
-  var emps = getEmployees();
-  var container = document.getElementById('ts-results');
-  
-  if (!container) return;
-  
+  var startDate = new Date(startStr + 'T00:00:00');
+  var endDate = new Date(endStr + 'T23:59:59');
+
   if (startDate > endDate) {
     container.innerHTML = '<p class="text-sm text-red-400">Invalid date range.</p>';
     return;
   }
 
+  var recs = getRecords();
   var weeks = {};
-  
+
   recs.forEach(function(r) {
     if (r.status !== 'completed' || !r.clockIn || !r.clockOut) return;
+
     var d = new Date(r.clockIn);
     if (d < startDate || d > endDate) return;
-    
+
     var ws = getWeekStart(fmtDate(d));
     var key = ws + '_' + r.employeeId;
-    
+
     if (!weeks[key]) {
-      weeks[key] = {
-        weekStart: ws,
-        empId: r.employeeId,
-        records: [],
-        totals: { nt:0, earlyOT:0, lateOT:0, dt:0, earlyPending:0, latePending:0 }
-      };
+      weeks[key] = { weekStart:ws, empId:r.employeeId, records:[] };
     }
     weeks[key].records.push(r);
   });
@@ -410,127 +460,160 @@ function generateTimesheets() {
   var sortedKeys = Object.keys(weeks).sort();
   if (sortedKeys.length === 0) {
     container.innerHTML = '<div class="card text-center py-8 text-sm" style="color:var(--muted)">No records found for selected period.</div>';
+    updateApprovalBadge();
     return;
   }
 
   var html = '';
-  
+
   sortedKeys.forEach(function(k) {
     var w = weeks[k];
     var emp = getEmpById(w.empId);
     if (!emp) return;
-    
-    var totals = { nt:0, earlyOT:0, lateOT:0, dt:0, earlyPending:0, latePending:0 };
-    
-    w.records.forEach(function(rec) {
-      var shift = getShifts().find(function(s){return s.id === rec.shiftId;});
-      var earlyMins = 0, lateMins = 0;
-      
-      if (shift && rec.clockIn && rec.clockOut) {
-        var ciMin = timeToMinutes(fmtTime(new Date(rec.clockIn)));
-        var coMin = timeToMinutes(fmtTime(new Date(rec.clockOut)));
-        var sStart = timeToMinutes(shift.startTime);
-        var sEnd = timeToMinutes(shift.endTime);
-        
-        if (ciMin < sStart) earlyMins = sStart - ciMin;
-        if (coMin > sEnd) lateMins = coMin - sEnd;
-      }
 
-      var dayType = getDayType(fmtDate(rec.clockIn));
-      var totalHrs = rec.totalHours || 0;
-      
+    var totals = {
+      nt:0, earlyOT:0, lateOT:0, dt:0,
+      earlyPending:0, latePending:0,
+      earlyApproved:0, lateApproved:0,
+      earlyRejected:0, lateRejected:0
+    };
+
+    w.records.forEach(function(rec) {
+      var ot = getRecordOTBreakdown(rec);
+      var dayType = rec.dayType || getDayType(fmtDate(rec.clockIn));
+      var totalHrs = parseFloat(rec.totalHours || 0);
+
       if (dayType === 'Sunday' || dayType === 'Holiday') {
         totals.dt += totalHrs;
-      } else {
-        var earlyHrs = earlyMins / 60;
-        var lateHrs = lateMins / 60;
-        
-        var isEarlyApproved = rec.earlyApproved === true;
-        var isLateApproved = rec.lateApproved === true;
-        
-        totals.earlyOT += earlyHrs;
-        totals.lateOT += lateHrs;
-        
-        if (!isEarlyApproved && earlyHrs > 0) totals.earlyPending += earlyHrs;
-        if (!isLateApproved && lateHrs > 0) totals.latePending += lateHrs;
-        
-        totals.nt += (totalHrs - earlyHrs - lateHrs); 
+        return;
       }
+
+      var earlyHrs = ot.earlyHours;
+      var lateHrs = ot.lateHours;
+      totals.earlyOT += earlyHrs;
+      totals.lateOT += lateHrs;
+
+      var earlyStatus = getOTStatus(rec,'early');
+      var lateStatus = getOTStatus(rec,'late');
+
+      if (earlyStatus === 'pending') totals.earlyPending += earlyHrs;
+      else if (earlyStatus === 'approved') totals.earlyApproved += earlyHrs;
+      else totals.earlyRejected += earlyHrs;
+
+      if (lateStatus === 'pending') totals.latePending += lateHrs;
+      else if (lateStatus === 'approved') totals.lateApproved += lateHrs;
+      else totals.lateRejected += lateHrs;
+
+      totals.nt += Math.max(0, totalHrs - earlyHrs - lateHrs);
     });
 
-    html += '<div class="card"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b pb-2" style="border-color:var(--border)">';
+    html += '<div class="card">';
+    html += '<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b pb-2" style="border-color:var(--border)">';
     html += '<div><div class="font-bold text-lg">'+emp.firstName+' '+emp.lastName+'</div>';
     html += '<div class="text-sm" style="color:var(--muted)">Week of '+w.weekStart+'</div></div>';
-    html += '<div class="flex gap-2 text-right mt-2 sm:mt-0">';
-    
-    html += '<div class="text-xs"><div class="muted">Normal</div><div class="font-bold mono text-sm">'+fmtHrs(totals.nt)+'</div></div>';
-    html += '<div class="text-xs"><div class="muted">Early OT</div><div class="font-bold mono text-sm '+(totals.earlyPending>0?'text-amber-400':'text-green-400')+'">'+fmtHrs(totals.earlyOT)+'</div></div>';
-    html += '<div class="text-xs"><div class="muted">Late OT</div><div class="font-bold mono text-sm '+(totals.latePending>0?'text-amber-400':'text-green-400')+'">'+fmtHrs(totals.lateOT)+'</div></div>';
-    html += '<div class="text-xs"><div class="muted">Double</div><div class="font-bold mono text-sm text-purple-400">'+fmtHrs(totals.dt)+'</div></div>';
+    html += '<div class="flex gap-3 text-right mt-2 sm:mt-0">';
+    html += '<div class="text-xs"><div style="color:var(--muted)">Normal</div><div class="font-bold mono text-sm">'+fmtHrs(totals.nt)+'</div></div>';
+    html += '<div class="text-xs"><div style="color:var(--muted)">Early OT</div><div class="font-bold mono text-sm '+(totals.earlyPending>0?'text-amber-400':totals.earlyRejected>0?'text-red-400':'text-green-400')+'">'+fmtHrs(totals.earlyOT)+'</div></div>';
+    html += '<div class="text-xs"><div style="color:var(--muted)">Late OT</div><div class="font-bold mono text-sm '+(totals.latePending>0?'text-amber-400':totals.lateRejected>0?'text-red-400':'text-green-400')+'">'+fmtHrs(totals.lateOT)+'</div></div>';
+    html += '<div class="text-xs"><div style="color:var(--muted)">Double</div><div class="font-bold mono text-sm text-purple-400">'+fmtHrs(totals.dt)+'</div></div>';
     html += '</div></div>';
 
-    if (totals.earlyPending > 0 || totals.latePending > 0) {
-      html += '<div class="bg-yellow-900/20 border border-yellow-500/30 rounded p-3 mb-3 flex items-center justify-between">';
-      html += '<span class="text-sm font-medium text-yellow-200"><i class="fas fa-exclamation-triangle mr-2"></i> Pending Overtime Approval</span>';
-      html += '<div class="flex gap-2">';
+    if (totals.earlyOT > 0) {
+      html += '<div class="mb-3 p-3 rounded border" style="border-color:var(--border);background:var(--bg2)">';
+      html += '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">';
+      html += '<div class="text-sm"><span class="font-semibold">Early OT:</span> '+fmtHrs(totals.earlyOT);
+      if (totals.earlyPending > 0) html += ' <span class="badge badge-amber ml-2">Pending '+fmtHrs(totals.earlyPending)+'</span>';
+      if (totals.earlyApproved > 0) html += ' <span class="badge badge-green ml-2">Approved '+fmtHrs(totals.earlyApproved)+'</span>';
+      if (totals.earlyRejected > 0) html += ' <span class="badge badge-red ml-2">Rejected '+fmtHrs(totals.earlyRejected)+'</span>';
+      html += '</div><div class="flex gap-2">';
       if (totals.earlyPending > 0) {
-        html += '<button class="btn btn-success btn-xs" onclick="approveWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'early\')"><i class="fas fa-check"></i> Approve Early</button>';
+        html += '<button class="btn btn-success btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',true)"><i class="fas fa-check"></i> Approve Early</button>';
+        html += '<button class="btn btn-danger btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',false)"><i class="fas fa-times"></i> Reject Early</button>';
       }
-      if (totals.latePending > 0) {
-        html += '<button class="btn btn-success btn-xs" onclick="approveWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'late\')"><i class="fas fa-check"></i> Approve Late</button>';
-      }
-      html += '</div></div>';
-    } else {
-       html += '<div class="mb-3 text-sm text-green-400 flex items-center gap-2"><i class="fas fa-check-circle"></i> All OT Approved</div>';
+      html += '</div></div></div>';
     }
-    
+
+    if (totals.lateOT > 0) {
+      html += '<div class="mb-3 p-3 rounded border" style="border-color:var(--border);background:var(--bg2)">';
+      html += '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">';
+      html += '<div class="text-sm"><span class="font-semibold">Late OT:</span> '+fmtHrs(totals.lateOT);
+      if (totals.latePending > 0) html += ' <span class="badge badge-amber ml-2">Pending '+fmtHrs(totals.latePending)+'</span>';
+      if (totals.lateApproved > 0) html += ' <span class="badge badge-green ml-2">Approved '+fmtHrs(totals.lateApproved)+'</span>';
+      if (totals.lateRejected > 0) html += ' <span class="badge badge-red ml-2">Rejected '+fmtHrs(totals.lateRejected)+'</span>';
+      html += '</div><div class="flex gap-2">';
+      if (totals.latePending > 0) {
+        html += '<button class="btn btn-success btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',true)"><i class="fas fa-check"></i> Approve Late</button>';
+        html += '<button class="btn btn-danger btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',false)"><i class="fas fa-times"></i> Reject Late</button>';
+      }
+      html += '</div></div></div>';
+    }
+
+    if (totals.earlyPending === 0 && totals.latePending === 0) {
+      html += '<div class="mb-1 text-sm text-green-400 flex items-center gap-2"><i class="fas fa-check-circle"></i> No overtime approvals pending for this week.</div>';
+    }
+
+    if (totals.earlyRejected > 0 || totals.lateRejected > 0) {
+      html += '<div class="mt-2 text-xs text-red-400">Rejected OT remains visible in the Approvals section for audit history.</div>';
+    }
+
     html += '</div>';
   });
 
   container.innerHTML = html;
+  updateApprovalBadge();
 }
 
-function approveWeekOT(empId, weekStart, type) {
+function setWeekOTDecision(empId, weekStart, type, approved) {
   var recs = getRecords();
   var weekEnd = new Date(weekStart + 'T12:00:00');
   weekEnd.setDate(weekEnd.getDate() + 6);
   var weekEndStr = fmtDate(weekEnd);
-  
+
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
   var updates = {};
-  var count = 0;
+  var affected = [];
 
   recs.forEach(function(r) {
-    if (r.employeeId !== empId) return;
+    if (r.employeeId !== empId || r.status !== 'completed' || !r.clockIn || !r.clockOut) return;
     var rDate = fmtDate(r.clockIn);
-    if (rDate >= weekStart && rDate <= weekEndStr && r.status === 'completed') {
-      var shift = getShifts().find(function(s){return s.id === r.shiftId;});
-      if (!shift) return;
-      
-      var ciMin = timeToMinutes(fmtTime(new Date(r.clockIn)));
-      var coMin = timeToMinutes(fmtTime(new Date(r.clockOut)));
-      var sStart = timeToMinutes(shift.startTime);
-      var sEnd = timeToMinutes(shift.endTime);
-      
-      if (type === 'early' && ciMin < sStart) {
-        updates['records/' + r.id + '/earlyApproved'] = true;
-        count++;
-      } else if (type === 'late' && coMin > sEnd) {
-        updates['records/' + r.id + '/lateApproved'] = true;
-        count++;
-      }
-    }
+    if (rDate < weekStart || rDate > weekEndStr) return;
+
+    var ot = getRecordOTBreakdown(r);
+    var hours = type === 'early' ? ot.earlyHours : ot.lateHours;
+    if (hours <= 0) return;
+
+    updates['records/' + r.id + '/' + approvedKey] = approved;
+    updates['records/' + r.id + '/' + rejectedKey] = !approved;
+    affected.push(r.id);
   });
 
-  if (count > 0) {
-    fbUpdate('', updates); 
-    toast('Approved ' + count + ' record(s)', 'success');
-    generateTimesheets(); 
-  } else {
-    toast('No applicable overtime found.', 'info');
+  if (!affected.length) {
+    toast('No '+type+' overtime records found for this week.', 'info');
+    return;
   }
+
+  db.ref().update(updates).then(function() {
+    affected.forEach(function(id) {
+      var local = getRecords().find(function(r){ return r.id === id; });
+      if (local) {
+        local[approvedKey] = approved;
+        local[rejectedKey] = !approved;
+      }
+    });
+
+    updateApprovalBadge();
+    toast((approved ? 'Approved ' : 'Rejected ') + type + ' overtime for ' + affected.length + ' record(s)', approved ? 'success' : 'error');
+    generateTimesheets();
+    if (state.currentPage === 'approvals') navigateAdmin('approvals');
+  }).catch(function(err) {
+    console.error('OT approval update failed:', err);
+    toast('Could not save overtime decision: ' + (err.message || err), 'error');
+  });
 }
 
 /* --- SITES --- */
+
 function renderSites() { var sites=getSites(),h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-4">';for(var i=0;i<sites.length;i++){var s=sites[i];h+='<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">'+s.name+'</div><div class="text-sm" style="color:var(--muted)">'+s.address+'</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>'+s.lat.toFixed(5)+', '+s.lng.toFixed(5)+'</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>'+s.radius+'m</span><a href="https://www.google.com/maps?q='+s.lat+','+s.lng+'" target="_blank" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>';}if(!sites.length)h+='<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites.</p></div>';return h+'</div></div>'; }
 function openSiteModal(editId) { var s=editId?getSites().find(function(x){return x.id===editId;}):null; openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Site</h3><div class="grid gap-4"><div><label>Site Name</label><input id="m-site-name" value="'+(s?s.name:'')+'"></div><div><label>Address</label><input id="m-site-addr" value="'+(s?s.address:'')+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="'+(s?s.lat:'')+'"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="'+(s?s.lng:'')+'"></div></div><div><label>GPS Radius: <span id="m-radius-val">'+(s?s.radius:100)+'</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="'+(s?s.radius:100)+'" oninput="document.getElementById(\'m-radius-val\').textContent=this.value" style="padding:0;background:transparent;border:none"></div><button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Location</button><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
 function getMyLocation() { if(!navigator.geolocation){toast('Not supported','error');return;} toast('Getting location...','info'); navigator.geolocation.getCurrentPosition(function(p){document.getElementById('m-site-lat').value=p.coords.latitude.toFixed(5);document.getElementById('m-site-lng').value=p.coords.longitude.toFixed(5);toast('Done','success');},function(e){toast('Error: '+e.message,'error');},{enableHighAccuracy:true}); }
@@ -600,10 +683,131 @@ function saveShift(editId){ var d=document.getElementById('m-shift-date').value,
 function deleteShift(id){ var s=getShifts().find(function(x){return x.id===id;}); moveToBin('shifts',id,s);navigateAdmin('shifts');toast('Moved to recycle bin','info'); }
 
 /* --- APPROVALS --- */
-function renderApprovals(){ var recs=getRecords().filter(function(r){return r.status==='completed'&&(r.needsApproval||r.earlyOT>0||r.lateOT>0)&&!r.approved&&!r.rejected;}); var h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Approvals</h2><p class="text-sm" style="color:var(--muted)">'+recs.length+' pending request(s)</p></div></div>'; if(!recs.length)h+='<div class="card text-center py-12"><i class="fas fa-check-circle text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No pending approvals</p></div>'; else{h+='<div class="grid gap-3">'; for(var i=0;i<recs.length;i++){ var r=recs[i],emp=getEmpById(r.employeeId); h+='<div class="card flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"><div><div class="font-semibold">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</div><div class="text-sm" style="color:var(--muted)">'+fmtDate(r.clockIn)+' &middot; '+fmtTime(r.clockIn)+' - '+fmtTime(r.clockOut)+'</div><div class="text-xs mt-1" style="color:var(--warning)"><i class="fas fa-exclamation-circle mr-1"></i>'+ (r.reason || 'Early/Late OT detected') +'</div></div><div class="flex gap-2"><button class="btn btn-success btn-sm" onclick="setApproval(\''+r.id+'\',true)"><i class="fas fa-check"></i></button><button class="btn btn-danger btn-sm" onclick="setApproval(\''+r.id+'\',false)"><i class="fas fa-times"></i></button></div></div>'; } h+='</div>';} return h+'</div>'; }
-function setApproval(id,app){ fbUpdate('records/'+id,{approved:app,rejected:!app}); toast(app?'Approved':'Rejected',app?'success':'error'); navigateAdmin('approvals'); }
+function renderApprovals(){
+  var pending = [];
+  var approved = [];
+  var rejected = [];
 
-/* --- RECORDS & EXPORT --- */
+  getRecords().forEach(function(r) {
+    if (r.status !== 'completed') return;
+
+    var emp = getEmpById(r.employeeId);
+    var name = emp ? emp.firstName + ' ' + emp.lastName : '?';
+    var date = fmtDate(r.clockIn);
+    var time = fmtTime(r.clockIn) + ' - ' + fmtTime(r.clockOut);
+
+    if (r.needsApproval && !r.approved && !r.rejected) {
+      pending.push({id:r.id,kind:'record',name:name,date:date,time:time,reason:r.reason || 'Clock record requires approval'});
+    }
+
+    if (r.approved === true) {
+      approved.push({id:r.id,kind:'record',name:name,date:date,time:time,reason:'Clock record approved'});
+    } else if (r.rejected === true) {
+      rejected.push({id:r.id,kind:'record',name:name,date:date,time:time,reason:'Clock record rejected'});
+    }
+
+    var ot = getRecordOTBreakdown(r);
+
+    if (ot.earlyHours > 0) {
+      var early = {id:r.id,kind:'early',name:name,date:date,time:time,hours:ot.earlyHours};
+      var es = getOTStatus(r,'early');
+      if (es === 'pending') pending.push(early);
+      else if (es === 'approved') approved.push(early);
+      else rejected.push(early);
+    }
+
+    if (ot.lateHours > 0) {
+      var late = {id:r.id,kind:'late',name:name,date:date,time:time,hours:ot.lateHours};
+      var ls = getOTStatus(r,'late');
+      if (ls === 'pending') pending.push(late);
+      else if (ls === 'approved') approved.push(late);
+      else rejected.push(late);
+    }
+  });
+
+  function renderItem(item, status) {
+    var label = item.kind === 'early' ? 'Early OT' : item.kind === 'late' ? 'Late OT' : 'Clock Record';
+    var detail = item.hours != null ? fmtHrs(item.hours) : (item.reason || '');
+    var actions = '';
+
+    if (status === 'pending') {
+      if (item.kind === 'early' || item.kind === 'late') {
+        actions = '<button class="btn btn-success btn-sm" onclick="setSingleOTDecision(\''+item.id+'\',\''+item.kind+'\',true)"><i class="fas fa-check"></i> Approve</button>' +
+                  '<button class="btn btn-danger btn-sm" onclick="setSingleOTDecision(\''+item.id+'\',\''+item.kind+'\',false)"><i class="fas fa-times"></i> Reject</button>';
+      } else {
+        actions = '<button class="btn btn-success btn-sm" onclick="setApproval(\''+item.id+'\',true)"><i class="fas fa-check"></i> Approve</button>' +
+                  '<button class="btn btn-danger btn-sm" onclick="setApproval(\''+item.id+'\',false)"><i class="fas fa-times"></i> Reject</button>';
+      }
+    } else {
+      actions = '<span class="badge '+(status==='approved'?'badge-green':'badge-red')+'">'+(status==='approved'?'Approved':'Rejected')+'</span>';
+    }
+
+    return '<div class="card flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">' +
+      '<div><div class="font-semibold">'+item.name+'</div>' +
+      '<div class="text-sm" style="color:var(--muted)">'+item.date+' &middot; '+item.time+'</div>' +
+      '<div class="text-xs mt-1" style="color:var(--warning)"><i class="fas fa-clock mr-1"></i>'+label+(detail?' &middot; '+detail:'')+'</div></div>' +
+      '<div class="flex gap-2 items-center flex-wrap">'+actions+'</div></div>';
+  }
+
+  function section(title, count, items, status, colorClass) {
+    var s = '<div class="mb-6"><div class="flex items-center justify-between mb-3"><h3 class="font-semibold">'+title+' <span class="badge '+colorClass+'">'+count+'</span></h3></div>';
+    if (!items.length) {
+      s += '<div class="card text-center py-6 text-sm" style="color:var(--muted)">None</div>';
+    } else {
+      s += '<div class="grid gap-3">';
+      for (var i=0;i<items.length;i++) s += renderItem(items[i], status);
+      s += '</div>';
+    }
+    return s + '</div>';
+  }
+
+  return '<div class="fade-in">' +
+    '<div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Approvals</h2>' +
+    '<p class="text-sm" style="color:var(--muted)">Pending: '+pending.length+' &middot; Approved: '+approved.length+' &middot; Rejected: '+rejected.length+'</p></div></div>' +
+    section('Pending Approvals',pending.length,pending,'pending','badge-amber') +
+    section('Approved',approved.length,approved,'approved','badge-green') +
+    section('Rejected',rejected.length,rejected,'rejected','badge-red') +
+    '</div>';
+}
+
+function setSingleOTDecision(id,type,approved){
+  var rec = getRecords().find(function(r){ return r.id === id; });
+  if (!rec) { toast('Record not found','error'); return; }
+
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
+  var updates = {};
+  updates[approvedKey] = approved;
+  updates[rejectedKey] = !approved;
+
+  db.ref('records/'+id).update(updates).then(function(){
+    rec[approvedKey] = approved;
+    rec[rejectedKey] = !approved;
+    updateApprovalBadge();
+    toast((approved?'Approved ':'Rejected ')+type+' overtime',approved?'success':'error');
+    navigateAdmin('approvals');
+  }).catch(function(err){
+    console.error('OT decision failed:',err);
+    toast('Could not save decision: '+(err.message || err),'error');
+  });
+}
+
+function setApproval(id,app){
+  db.ref('records/'+id).update({approved:app,rejected:!app}).then(function(){
+    var local = getRecords().find(function(r){ return r.id === id; });
+    if (local) {
+      local.approved = app;
+      local.rejected = !app;
+    }
+    updateApprovalBadge();
+    toast(app?'Approved':'Rejected',app?'success':'error');
+    navigateAdmin('approvals');
+  }).catch(function(err){
+    console.error('Record approval failed:',err);
+    toast('Could not save approval: '+(err.message || err),'error');
+  });
+}
+
 function renderRecords(){ var recs=getRecords().sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);}); var h='<div class="fade-in"><div class="mb-6"><h2 class="text-xl font-bold">Clock Records</h2></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>Employee</th><th>Site</th><th>In</th><th>Out</th><th>Total</th><th>Type</th></tr></thead><tbody>'; for(var i=0;i<recs.length;i++){ var r=recs[i],emp=getEmpById(r.employeeId); h+='<tr><td class="text-sm">'+fmtDate(r.clockIn)+'</td><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs" style="color:var(--muted)">'+getSiteName(r.siteId)+'</td><td class="text-xs mono">'+fmtTime(r.clockIn)+'</td><td class="text-xs mono">'+fmtTime(r.clockOut)+'</td><td class="text-xs mono font-bold">'+fmtHrs(r.totalHours)+'</td><td><span class="badge '+(r.dayType==='Sunday'?'badge-purple':r.dayType==='Holiday'?'badge-red':'badge-blue')+'">'+(r.dayType||'Day')+'</span></td></tr>'; } h+='</tbody></table></div></div>'; return h; }
 function renderExport(){ var emps=getEmployees(),h='<div class="fade-in"><h2 class="text-xl font-bold mb-6">Timesheet Export</h2><div class="card"><div class="mb-4"><label>Select Employee</label><select id="exp-emp"><option value="all">All Employees</option>'; for(var i=0;i<emps.length;i++){h+='<option value="'+emps[i].id+'">'+emps[i].firstName+' '+emps[i].lastName+'</option>';} h+='</select></div><div class="flex gap-3"><button class="btn btn-primary" onclick="doExport()"><i class="fas fa-file-csv"></i> Generate CSV</button></div></div></div>'; return h; }
 function doExport(){ var eid=document.getElementById('exp-emp').value,recs=getRecords().filter(function(r){return eid==='all'||r.employeeId===eid;}),csv='Date,EmployeeID,FirstName,LastName,ClockIn,ClockOut,TotalHours,Type\n'; recs.forEach(function(r){ var e=getEmpById(r.employeeId); csv+=fmtDate(r.clockIn)+','+(e?e.employeeId:'')+','+(e?e.firstName:'')+','+(e?e.lastName:'')+','+fmtTime(r.clockIn)+','+fmtTime(r.clockOut)+','+r.totalHours+','+(r.dayType||'Weekday')+'\n'; }); var blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download='timesheet_'+todayStr()+'.csv'; a.click(); toast('Exported','success'); }
