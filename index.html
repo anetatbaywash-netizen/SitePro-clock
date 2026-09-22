@@ -78,6 +78,11 @@ tr:hover td{background:rgba(232,168,56,.03)}
 .clock-in-face::after{border-color:var(--success)}
 .clock-out-face::after{border-color:var(--danger)}
 .big-time{font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;letter-spacing:-.02em;line-height:1}
+.big-date{font-size:1rem;color:var(--muted);margin-top:.25rem}
+.emp-clock-info{width:min(100%,560px);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.emp-clock-name{font-size:1.35rem;font-weight:700}
+.emp-clock-id{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--accent);margin-top:.15rem}
+.emp-clock-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;margin-top:.75rem}
 .elapsed-display{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;letter-spacing:.04em;color:var(--success);line-height:1}
 .cb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.35rem;max-height:200px;overflow-y:auto;padding:.25rem}
 .cb-grid label{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--fg);cursor:pointer;padding:.25rem .4rem;border-radius:6px;transition:background .15s;margin:0}
@@ -882,7 +887,29 @@ function addHoliday(){ var d=document.getElementById('m-hol-date').value; if(!d)
 function removeHoliday(d){ var h=getHolidays().filter(function(x){return x!==d;}); fbSet('settings/holidays',h); navigateAdmin('settings'); }
 
 /* --- EMPLOYEE CLOCK LOGIC --- */
-function renderClockPage(){ var emp=state.currentEmployee,s=state.clockState; var now=new Date(); var h='<div class="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center">'; h+='<div class="mb-6"><div class="big-time" id="clock-live-time">'+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div><div class="big-date" id="clock-live-date">'+now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>'; h+='<div class="clock-face '+ (s==='clocked_in'?'clock-out-face':'clock-in-face') +'" onclick="handleClockAction()"><i class="fas '+ (s==='clocked_in'?'fa-person-walking-arrow-right':'fa-fingerprint') +' cf-icon"></i><div class="cf-label">'+ (s==='clocked_in'?'CLOCK OUT':'CLOCK IN') +'</div><div class="cf-sub" id="clock-sub-label">Tap to action</div></div>'; if(s==='clocked_in'){ var start=new Date(state.activeRecord.clockIn), diff=Math.floor((Date.now()-start.getTime())/60000); h+='<div class="elapsed-display mt-6">'+fmtHrs(diff/60)+'</div><div class="text-sm mt-2" style="color:var(--muted)">Elapsed Time</div><div class="mt-8 card inline-block px-6 py-3"><div class="text-xs" style="color:var(--muted)">Shift Start</div><div class="font-bold">'+fmtTime(start)+'</div></div>'; } return h+'</div>'; }
+function renderClockPage(){
+  var emp=state.currentEmployee,s=state.clockState,now=new Date();
+  var siteNames=[];
+  if(emp){
+    getEmpSiteIds(emp).forEach(function(id){ var site=getSites().find(function(x){return x.id===id;}); if(site)siteNames.push(site.name); });
+  }
+  var h='<div class="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center">';
+  h+='<div class="emp-clock-info">';
+  h+='<div class="emp-clock-name">'+((emp.firstName||'')+' '+(emp.lastName||'')).trim()+'</div>';
+  h+='<div class="emp-clock-id">Employee ID: '+(emp.employeeId||'—')+'</div>';
+  h+='<div class="emp-clock-meta">';
+  if(siteNames.length) h+='<span class="badge badge-blue"><i class="fas fa-location-dot mr-1"></i>'+siteNames.join(' • ')+'</span>';
+  h+='<span class="badge '+(s==='clocked_in'?'badge-green':'badge-amber')+'"><i class="fas '+(s==='clocked_in'?'fa-circle-check':'fa-circle-pause')+' mr-1"></i>'+(s==='clocked_in'?'Currently Clocked In':'Not Clocked In')+'</span>';
+  h+='</div></div>';
+  h+='<div class="mb-6"><div class="big-time" id="clock-live-time">'+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div><div class="big-date" id="clock-live-date">'+now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>';
+  h+='<div class="clock-face '+ (s==='clocked_in'?'clock-out-face':'clock-in-face') +'" onclick="handleClockAction()"><i class="fas '+ (s==='clocked_in'?'fa-person-walking-arrow-right':'fa-fingerprint') +' cf-icon"></i><div class="cf-label">'+ (s==='clocked_in'?'CLOCK OUT':'CLOCK IN') +'</div><div class="cf-sub" id="clock-sub-label">Tap to action</div></div>';
+  if(s==='clocked_in'){
+    var start=new Date(state.activeRecord.clockIn), diff=Math.floor((Date.now()-start.getTime())/60000);
+    h+='<div class="elapsed-display mt-6">'+fmtHrs(diff/60)+'</div><div class="text-sm mt-2" style="color:var(--muted)">Elapsed Time</div>';
+    h+='<div class="mt-8 card inline-block px-6 py-3"><div class="text-xs" style="color:var(--muted)">Clocked In At</div><div class="font-bold">'+fmtTime(start)+'</div></div>';
+  }
+  return h+'</div>';
+}
 function initClockPage(){ if(state.clockTimeInterval)clearInterval(state.clockTimeInterval); state.clockTimeInterval=setInterval(function(){ var t=document.getElementById('clock-live-time'),d=document.getElementById('clock-live-date'); if(!t||!d){clearInterval(state.clockTimeInterval);return;} var now=new Date(); t.textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); d.textContent=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); },1000); if(state.clockState==='clocked_in'){ if(state.liveTimerInterval)clearInterval(state.liveTimerInterval); state.liveTimerInterval=setInterval(function(){ var start=new Date(state.activeRecord.clockIn), diff=Math.floor((Date.now()-start.getTime())/60000); var el=document.querySelector('.elapsed-display'); if(el)el.textContent=fmtHrs(diff/60); },60000); } }
 function handleClockAction(){ if(state.clockState==='idle'){ startClock(); }else{ stopClock(); } }
 function startClock(){
