@@ -585,6 +585,12 @@ function generateTimesheets() {
         html += '<button class="btn btn-success btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',true)"><i class="fas fa-check"></i> Approve Early</button>';
         html += '<button class="btn btn-danger btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',false)"><i class="fas fa-times"></i> Reject Early</button>';
       }
+      if (totals.earlyApproved > 0) {
+        html += '<button class="btn btn-secondary btn-sm" onclick="reinstateWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',\'approved\')"><i class="fas fa-rotate-left"></i> Reinstate</button>';
+      }
+      if (totals.earlyRejected > 0) {
+        html += '<button class="btn btn-secondary btn-sm" onclick="reinstateWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',\'rejected\')"><i class="fas fa-rotate-left"></i> Reinstate</button>';
+      }
       html += '</div></div></div>';
     }
 
@@ -599,6 +605,12 @@ function generateTimesheets() {
       if (totals.latePending > 0) {
         html += '<button class="btn btn-success btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',true)"><i class="fas fa-check"></i> Approve Late</button>';
         html += '<button class="btn btn-danger btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',false)"><i class="fas fa-times"></i> Reject Late</button>';
+      }
+      if (totals.lateApproved > 0) {
+        html += '<button class="btn btn-secondary btn-sm" onclick="reinstateWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',\'approved\')"><i class="fas fa-rotate-left"></i> Reinstate</button>';
+      }
+      if (totals.lateRejected > 0) {
+        html += '<button class="btn btn-secondary btn-sm" onclick="reinstateWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',\'rejected\')"><i class="fas fa-rotate-left"></i> Reinstate</button>';
       }
       html += '</div></div></div>';
     }
@@ -616,6 +628,77 @@ function generateTimesheets() {
 
   container.innerHTML = html;
   updateApprovalBadge();
+}
+
+function reinstateWeekOT(empId, weekStart, type, previousStatus) {
+  var recs = getRecords();
+  var weekEnd = new Date(weekStart + 'T12:00:00');
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  var weekEndStr = fmtDate(weekEnd);
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
+  var updates = {};
+  var affected = [];
+
+  recs.forEach(function(r) {
+    if (r.employeeId !== empId || r.status !== 'completed' || !r.clockIn || !r.clockOut) return;
+    var rDate = fmtDate(r.clockIn);
+    if (rDate < weekStart || rDate > weekEndStr) return;
+
+    var ot = getRecordOTBreakdown(r);
+    var hours = type === 'early' ? ot.earlyHours : ot.lateHours;
+    if (hours <= 0) return;
+
+    var isMatch = previousStatus === 'approved' ? r[approvedKey] === true : r[rejectedKey] === true;
+    if (!isMatch) return;
+
+    updates['records/' + r.id + '/' + approvedKey] = false;
+    updates['records/' + r.id + '/' + rejectedKey] = false;
+    affected.push(r.id);
+  });
+
+  if (!affected.length) {
+    toast('No ' + type + ' overtime found to reinstate.', 'info');
+    return;
+  }
+
+  if (!confirm('Reinstate ' + type + ' overtime for ' + affected.length + ' record(s) and return it to Pending?')) return;
+
+  db.ref().update(updates).then(function() {
+    affected.forEach(function(id) {
+      var local = getRecords().find(function(r){ return r.id === id; });
+      if (local) {
+        local[approvedKey] = false;
+        local[rejectedKey] = false;
+      }
+    });
+    updateApprovalBadge();
+    toast(type.charAt(0).toUpperCase() + type.slice(1) + ' overtime reinstated as Pending', 'success');
+    generateTimesheets();
+    navigateAdmin('approvals');
+  }).catch(function(err) {
+    console.error('OT reinstate failed:', err);
+    toast('Could not reinstate overtime: ' + (err.message || err), 'error');
+  });
+}
+
+function reinstateSingleOTDecision(id, type) {
+  var rec = getRecords().find(function(r){ return r.id === id; });
+  if (!rec) { toast('Record not found','error'); return; }
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
+  if (rec[approvedKey] !== true && rec[rejectedKey] !== true) { toast('This request is already pending.','info'); return; }
+  if (!confirm('Reinstate this ' + type + ' overtime request as Pending?')) return;
+  db.ref('records/' + id).update((function(){ var u={}; u[approvedKey]=false; u[rejectedKey]=false; return u; })()).then(function(){
+    rec[approvedKey] = false;
+    rec[rejectedKey] = false;
+    updateApprovalBadge();
+    toast(type.charAt(0).toUpperCase() + type.slice(1) + ' overtime reinstated as Pending','success');
+    navigateAdmin('approvals');
+  }).catch(function(err){
+    console.error('OT reinstate failed:',err);
+    toast('Could not reinstate overtime: '+(err.message || err),'error');
+  });
 }
 
 function setWeekOTDecision(empId, weekStart, type, approved) {
@@ -795,6 +878,9 @@ function renderApprovals(){
       }
     } else {
       actions = '<span class="badge '+(status==='approved'?'badge-green':'badge-red')+'">'+(status==='approved'?'Approved':'Rejected')+'</span>';
+      if (item.kind === 'early' || item.kind === 'late') {
+        actions += '<button class="btn btn-secondary btn-sm" onclick="reinstateSingleOTDecision(\''+item.id+'\',\''+item.kind+'\')"><i class="fas fa-rotate-left"></i> Reinstate</button>';
+      }
     }
 
     return '<div class="card flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">' +
