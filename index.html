@@ -561,6 +561,28 @@ function handleClockAction(){ if(state.clockState==='idle'){ startClock(); }else
 function startClock(){ if(!navigator.geolocation){toast('GPS required','error');return;} toast('Locating...','info'); navigator.geolocation.getCurrentPosition(function(p){ var lat=p.coords.latitude,lng=p.coords.longitude; var today=todayStr(); var shift=getShifts().find(function(s){return s.employeeId===state.currentEmployee.id&&s.date===today;}); var siteId=shift?shift.siteId:state.currentEmployee.siteId; var site=getSites().find(function(s){return s.id===siteId;}); var dist=site?haversine(lat,lng,site.lat,site.lng):0; if(site&&dist>site.radius){toast('Outside geofence ('+Math.round(dist)+'m)','error');return;} var id=db.ref('records').push().key; fbSet('records/'+id,{id:id,employeeId:state.currentEmployee.id,siteId:siteId,shiftId:shift?shift.id:null,clockIn:new Date().toISOString(),status:'clocked_in',dayType:getDayType(today)}); state.activeRecord={id:id,employeeId:state.currentEmployee.id,clockIn:new Date().toISOString()}; state.clockState='clocked_in'; navigateEmp('clock'); toast('Clocked In','success'); },function(e){toast('GPS Error: '+e.message,'error');},{enableHighAccuracy:true}); }
 function stopClock(){ var r=state.activeRecord; if(!r)return; var shift=getShifts().find(function(s){return s.id===r.shiftId;}); var co=new Date(); var bm=(shift&&shift.breakMinutes)?shift.breakMinutes:getSettings().defaultBreak||0; var weekWorked=getEmployeeWeekWorkedHours(r.employeeId, r.clockIn); var tierCfg=getEmployeeTierConfig(r.employeeId); var hrs=calcHours(r.clockIn, co.toISOString(), bm, weekWorked, r.dayType, tierCfg); var u={clockOut:co.toISOString(),status:'completed',totalHours:hrs.totalHours,regularHours:hrs.regularHours,overtimeHours:hrs.overtimeHours,doubleTimeHours:hrs.doubleTimeHours}; var na=checkNeedsApproval(Object.assign({},r,u)); if(na.needsApproval){u.needsApproval=true;u.reason=na.reason;} fbUpdate('records/'+r.id,u); state.clockState='idle'; state.activeRecord=null; if(state.liveTimerInterval)clearInterval(state.liveTimerInterval); navigateEmp('clock'); toast('Clocked Out. Total: '+fmtHrs(hrs.totalHours),'success'); }
 function renderEmpHistory(){ var recs=getRecords().filter(function(r){return r.employeeId===state.currentEmployee.id;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);}); var h='<div class="fade-in"><h2 class="text-lg font-bold mb-4">My History</h2><div class="space-y-3">'; for(var i=0;i<recs.length;i++){ var r=recs[i]; h+='<div class="card"><div class="flex justify-between items-center"><div><div class="font-bold">'+fmtDate(r.clockIn)+'</div><div class="text-xs" style="color:var(--muted)">'+fmtTime(r.clockIn)+' - '+fmtTime(r.clockOut)+'</div></div><div class="text-right"><div class="font-bold mono text-lg">'+fmtHrs(r.totalHours)+'</div><div class="text-xs" style="color:var(--muted)">'+(r.dayType||'Workday')+'</div></div></div></div>'; } if(!recs.length)h+='<p class="text-sm text-center" style="color:var(--muted)">No records yet.</p>'; return h+'</div>'; }
+
+
+/* --- APP STARTUP --- */
+// Start Firebase after all functions are defined.
+// Without this call the app remains permanently on the initial "Syncing..." screen.
+(function startApp() {
+  try {
+    if (typeof firebase === 'undefined') {
+      throw new Error('Firebase SDK did not load. Check your internet connection or Firebase script URLs.');
+    }
+    initFirebase(EMBEDDED_FB);
+  } catch (error) {
+    console.error('Application startup failed:', error);
+    var loading = document.getElementById('loading-screen');
+    if (loading) {
+      loading.innerHTML = '<div class="text-center p-6">'
+        + '<div class="text-red-400 font-semibold mb-2">Unable to start the app</div>'
+        + '<div class="text-sm" style="color:var(--muted)">' + (error.message || error) + '</div>'
+        + '</div>';
+    }
+  }
+})();
 </script>
 </body>
 </html>
