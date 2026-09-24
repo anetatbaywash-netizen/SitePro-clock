@@ -825,9 +825,187 @@ function processBulk(){
 function deleteEmployee(id) { var e=getEmployees().find(function(x){return x.id===id;}); if(getRecords().filter(function(r){return r.employeeId===id;}).length){toast('Has records','error');return;} moveToBin('employees',id,e);navigateAdmin('employees');toast('Moved to recycle bin','info'); }
 
 /* --- SHIFTS --- */
-function renderShifts() { var shifts=getShifts(),emps=getEmployees(),h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Shifts</h2></div><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shift</button></div>'; if(!shifts.length) h+='<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts.</p></div>'; else{ h+='<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">'; for(var i=0;i<shifts.length;i++){ var s=shifts[i],emp=getEmpById(s.employeeId); h+='<div class="card"><div class="flex justify-between items-start mb-2"><div><div class="font-semibold">'+s.date+'</div><div class="text-xs" style="color:var(--muted)">'+(emp?emp.firstName+' '+emp.lastName:'Unknown')+'</div></div><div class="text-right"><div class="font-bold mono text-sm">'+s.startTime+' - '+s.endTime+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(s.siteId)+'</div></div></div><div class="flex gap-2 mt-3 pt-3 border-t" style="border-color:var(--border)"><button class="btn btn-secondary btn-sm flex-1 justify-center" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteShift(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>'; } h+='</div>'; } return h+'</div>'; }
-function openShiftModal(editId){ var shifts=getShifts(),emps=getEmployees(),sites=getSites(),s=editId?shifts.find(function(x){return x.id===editId;}):null; if(!emps.length||!sites.length){toast('Missing data','error');return;} var eo='';for(var i=0;i<emps.length;i++){eo+='<option value="'+emps[i].id+'" '+(s&&s.employeeId===emps[i].id?'selected':'')+'>'+emps[i].firstName+' '+emps[i].lastName+'</option>';} var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'" '+(s&&s.siteId===sites[i].id?'selected':'')+'>'+sites[i].name+'</option>';} openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Shift</h3><div class="grid gap-4"><div><label>Date</label><input id="m-shift-date" type="date" value="'+(s?s.date:todayStr())+'"></div><div><label>Employee</label><select id="m-shift-emp">'+eo+'</select></div><div><label>Site</label><select id="m-shift-site">'+so+'</select></div><div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-shift-start" type="time" value="'+(s?s.startTime:'08:00')+'"></div><div><label>End Time</label><input id="m-shift-end" type="time" value="'+(s?s.endTime:'17:00')+'"></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
-function saveShift(editId){ var d=document.getElementById('m-shift-date').value,emp=document.getElementById('m-shift-emp').value,site=document.getElementById('m-shift-site').value,st=document.getElementById('m-shift-start').value,en=document.getElementById('m-shift-end').value; if(!d||!emp||!st||!en){toast('Fields required','error');return;} if(editId)fbUpdate('shifts/'+editId,{date:d,employeeId:emp,siteId:site,startTime:st,endTime:en}); else{var id=db.ref('shifts').push().key;fbSet('shifts/'+id,{id:id,date:d,employeeId:emp,siteId:site,startTime:st,endTime:en});} closeModal();navigateAdmin('shifts');toast(editId?'Updated':'Added','success'); }
+function renderShifts() {
+  var shifts=getShifts(), emps=getEmployees();
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Shifts</h2><p class="text-sm" style="color:var(--muted)">Create a single shift or generate shifts across a date range and selected days.</p></div><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shifts</button></div>';
+
+  if(!shifts.length) {
+    h+='<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts.</p></div>';
+  } else {
+    h+='<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+    for(var i=0;i<shifts.length;i++){
+      var s=shifts[i], emp=getEmpById(s.employeeId);
+      var seriesText = s.seriesId ? '<span class="badge badge-blue ml-2">Scheduled</span>' : '';
+      h+='<div class="card"><div class="flex justify-between items-start mb-2"><div><div class="font-semibold">'+s.date+seriesText+'</div><div class="text-xs" style="color:var(--muted)">'+(emp?emp.firstName+' '+emp.lastName:'Unknown')+'</div></div><div class="text-right"><div class="font-bold mono text-sm">'+s.startTime+' - '+s.endTime+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(s.siteId)+'</div></div></div><div class="flex gap-2 mt-3 pt-3 border-t" style="border-color:var(--border)"><button class="btn btn-secondary btn-sm flex-1 justify-center" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen"></i> Edit</button><button class="btn btn-danger btn-sm" onclick="deleteShift(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>';
+    }
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+
+function openShiftModal(editId){
+  var shifts=getShifts(), emps=getEmployees(), sites=getSites();
+  var s=editId?shifts.find(function(x){return x.id===editId;}):null;
+
+  if(!emps.length||!sites.length){toast('Add employees and sites first','error');return;}
+
+  var eo='';
+  for(var i=0;i<emps.length;i++){
+    eo+='<option value="'+emps[i].id+'" '+(s&&s.employeeId===emps[i].id?'selected':'')+'>'+emps[i].firstName+' '+emps[i].lastName+' ('+emps[i].employeeId+')</option>';
+  }
+
+  var so='';
+  for(var j=0;j<sites.length;j++){
+    var selectedSite=s ? s.siteId===sites[j].id : (j===0);
+    var allowed=s ? getEmpSiteIds(getEmpById(s.employeeId)) : [];
+    var disabledForEmployee = s && allowed.length && allowed.indexOf(sites[j].id)===-1;
+    if(!disabledForEmployee) {
+      so+='<option value="'+sites[j].id+'" '+(selectedSite?'selected':'')+'>'+sites[j].name+'</option>';
+    }
+  }
+
+  if(s){
+    openModal(
+      '<h3 class="font-bold text-lg mb-4">Edit Shift</h3>'+
+      '<div class="grid gap-4">'+
+        '<div class="card" style="background:var(--bg2);border-color:var(--border)"><div class="text-xs" style="color:var(--muted)">Editing one shift</div></div>'+
+        '<div><label>Date</label><input id="m-shift-date" type="date" value="'+s.date+'"></div>'+
+        '<div><label>Employee</label><select id="m-shift-emp" onchange="updateEditShiftSites()">'+eo+'</select></div>'+
+        '<div><label>Site</label><select id="m-shift-site">'+so+'</select></div>'+
+        '<div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-shift-start" type="time" value="'+s.startTime+'"></div><div><label>End Time</label><input id="m-shift-end" type="time" value="'+s.endTime+'"></div></div>'+
+        '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+editId+'\')"><i class="fas fa-save"></i> Update</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>'+
+      '</div>'
+    );
+  } else {
+    openModal(
+      '<h3 class="font-bold text-lg mb-4">Add Shifts</h3>'+
+      '<div class="grid gap-4">'+
+        '<div class="card" style="background:var(--bg2);border-color:var(--border)"><div class="font-semibold text-sm mb-1">Schedule multiple days</div><div class="text-xs" style="color:var(--muted)">Choose a date range and the weekdays that should receive this shift. One shift will be created for each selected day.</div></div>'+
+        '<div><label>Employee</label><select id="m-shift-emp" onchange="updateRecurringShiftSites()">'+eo+'</select></div>'+
+        '<div><label>Site</label><select id="m-shift-site">'+so+'</select></div>'+
+        '<div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div><label>From Date</label><input id="m-shift-from" type="date" value="'+todayStr()+'"></div><div><label>To Date</label><input id="m-shift-to" type="date" value="'+todayStr()+'"></div></div>'+
+        '<div><label>Days of Week</label><div class="dow-row" id="m-shift-days">'+
+          '<label><input type="checkbox" value="1" checked> Mon</label>'+ 
+          '<label><input type="checkbox" value="2" checked> Tue</label>'+ 
+          '<label><input type="checkbox" value="3" checked> Wed</label>'+ 
+          '<label><input type="checkbox" value="4" checked> Thu</label>'+ 
+          '<label><input type="checkbox" value="5" checked> Fri</label>'+ 
+          '<label><input type="checkbox" value="6"> Sat</label>'+ 
+          '<label><input type="checkbox" value="0"> Sun</label>'+ 
+        '</div><div class="override-hint">Example: Mon–Fri from 24 Sep to 30 Sep creates one shift on each selected weekday.</div></div>'+ 
+        '<div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-shift-start" type="time" value="08:00"></div><div><label>End Time</label><input id="m-shift-end" type="time" value="17:00"></div></div>'+ 
+        '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\'\')"><i class="fas fa-calendar-plus"></i> Create Shifts</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>'+ 
+      '</div>'
+    );
+  }
+}
+
+function updateRecurringShiftSites(){
+  var empId=document.getElementById('m-shift-emp').value;
+  var emp=getEmpById(empId);
+  var allowed=getEmpSiteIds(emp);
+  var sites=getSites();
+  var so='';
+  for(var i=0;i<sites.length;i++){
+    if(!allowed.length || allowed.indexOf(sites[i].id)!==-1){
+      so+='<option value="'+sites[i].id+'">'+sites[i].name+'</option>';
+    }
+  }
+  document.getElementById('m-shift-site').innerHTML=so;
+}
+
+function updateEditShiftSites(){
+  var empId=document.getElementById('m-shift-emp').value;
+  var emp=getEmpById(empId);
+  var allowed=getEmpSiteIds(emp);
+  var sites=getSites();
+  var currentSite=document.getElementById('m-shift-site').value;
+  var so='';
+  for(var i=0;i<sites.length;i++){
+    if(!allowed.length || allowed.indexOf(sites[i].id)!==-1){
+      so+='<option value="'+sites[i].id+'" '+(sites[i].id===currentSite?'selected':'')+'>'+sites[i].name+'</option>';
+    }
+  }
+  document.getElementById('m-shift-site').innerHTML=so;
+}
+
+function saveShift(editId){
+  var emp=document.getElementById('m-shift-emp').value;
+  var site=document.getElementById('m-shift-site').value;
+  var st=document.getElementById('m-shift-start').value;
+  var en=document.getElementById('m-shift-end').value;
+
+  if(!emp||!site||!st||!en){toast('Employee, site and times are required','error');return;}
+  if(timeToMinutes(en)<=timeToMinutes(st)){toast('End time must be after start time','error');return;}
+
+  if(editId){
+    var d=document.getElementById('m-shift-date').value;
+    if(!d){toast('Date is required','error');return;}
+    fbUpdate('shifts/'+editId,{date:d,employeeId:emp,siteId:site,startTime:st,endTime:en}).then(function(){
+      closeModal();navigateAdmin('shifts');toast('Shift updated','success');
+    }).catch(function(e){toast('Could not update shift: '+e.message,'error');});
+    return;
+  }
+
+  var from=document.getElementById('m-shift-from').value;
+  var to=document.getElementById('m-shift-to').value;
+  var checks=document.querySelectorAll('#m-shift-days input[type=checkbox]:checked');
+  var days=[];
+  for(var i=0;i<checks.length;i++) days.push(parseInt(checks[i].value,10));
+
+  if(!from||!to){toast('From and To dates are required','error');return;}
+  if(from>to){toast('To Date must be on or after From Date','error');return;}
+  if(!days.length){toast('Select at least one day of the week','error');return;}
+
+  var current=new Date(from+'T12:00:00');
+  var endDate=new Date(to+'T12:00:00');
+  var updates={};
+  var created=0, skipped=0;
+  var seriesId=db.ref('shifts').push().key;
+
+  while(current<=endDate){
+    var ds=fmtDate(current);
+    var dow=current.getDay();
+
+    if(days.indexOf(dow)!==-1){
+      var exists=getShifts().some(function(x){
+        return x.employeeId===emp && x.date===ds;
+      });
+
+      if(exists){
+        skipped++;
+      } else {
+        var id=db.ref('shifts').push().key;
+        updates['shifts/'+id]={
+          id:id,
+          date:ds,
+          employeeId:emp,
+          siteId:site,
+          startTime:st,
+          endTime:en,
+          seriesId:seriesId
+        };
+        created++;
+      }
+    }
+
+    current.setDate(current.getDate()+1);
+  }
+
+  if(!created){
+    toast(skipped ? 'No new shifts created. '+skipped+' date(s) already have a shift.' : 'No matching dates found','info');
+    return;
+  }
+
+  db.ref().update(updates).then(function(){
+    closeModal();
+    navigateAdmin('shifts');
+    toast('Created '+created+' shift(s)'+(skipped?' · '+skipped+' skipped':''),'success');
+  }).catch(function(e){
+    console.error('Bulk shift creation failed:',e);
+    toast('Could not create shifts: '+e.message,'error');
+  });
+}
 function deleteShift(id){ var s=getShifts().find(function(x){return x.id===id;}); moveToBin('shifts',id,s);navigateAdmin('shifts');toast('Moved to recycle bin','info'); }
 
 /* --- APPROVALS --- */
