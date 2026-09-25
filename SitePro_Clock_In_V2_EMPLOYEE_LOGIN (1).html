@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SitePro Clock In</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#0c0e16;--bg2:#131620;--card:#1a1e2e;--card2:#212638;--border:#2a3048;--fg:#e2e4ea;--muted:#6b7094;--accent:#e8a838;--accent2:#d4922a;--success:#34d399;--danger:#f87171;--info:#38bdf8;--warning:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.mono{font-family:'JetBrains Mono',monospace}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;transition:border-color .2s}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 30%,var(--border))}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:8px;font-weight:500;font-size:.875rem;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+.btn-primary{background:var(--accent);color:#0c0e16}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-secondary{background:var(--card2);color:var(--fg);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent)}
+.btn-danger{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.3)}.btn-danger:hover{background:rgba(248,113,113,.25)}
+.btn-success{background:rgba(52,211,153,.15);color:var(--success);border:1px solid rgba(52,211,153,.3)}.btn-success:hover{background:rgba(52,211,153,.25)}
+.btn-sm{padding:.4rem .8rem;font-size:.8rem}
+input,select,textarea{background:var(--bg2);border:1px solid var(--border);color:var(--fg);padding:.6rem .8rem;border-radius:8px;font-family:inherit;font-size:.875rem;width:100%;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+select option{background:var(--card);color:var(--fg)}
+label{font-size:.8rem;color:var(--muted);font-weight:500;display:block;margin-bottom:.3rem}
+.sidebar{width:250px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);position:fixed;left:0;top:0;z-index:40;transition:transform .3s}
+.sidebar-link{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.25rem;color:var(--muted);font-size:.875rem;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
+.sidebar-link:hover{color:var(--fg);background:rgba(232,168,56,.05)}
+.sidebar-link.active{color:var(--accent);background:rgba(232,168,56,.08);border-left-color:var(--accent)}
+.main-content{margin-left:250px;min-height:100vh;padding:1.5rem 2rem}
+.toast-container{position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem}
+.toast{padding:.8rem 1.2rem;border-radius:8px;font-size:.85rem;display:flex;align-items:center;gap:.6rem;animation:slideIn .3s ease;min-width:280px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast-success{background:#065f46;border:1px solid #34d399;color:#a7f3d0}
+.toast-error{background:#7f1d1d;border:1px solid #f87171;color:#fecaca}
+.toast-info{background:#0c4a6e;border:1px solid #38bdf8;color:#bae6fd}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.4);opacity:0}}
+@keyframes breathe{0%,100%{box-shadow:0 0 30px rgba(52,211,153,.15)}50%{box-shadow:0 0 60px rgba(52,211,153,.3)}}
+@keyframes breathe-out{0%,100%{box-shadow:0 0 30px rgba(248,113,113,.15)}50%{box-shadow:0 0 60px rgba(248,113,113,.3)}}
+.fade-in{animation:fadeIn .3s ease}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;padding:1.5rem}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:.6rem .8rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}
+td{padding:.6rem .8rem;font-size:.85rem;border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent)}
+tr:hover td{background:rgba(232,168,56,.03)}
+.badge{display:inline-flex;align-items:center;padding:.15rem .5rem;border-radius:20px;font-size:.7rem;font-weight:600}
+.badge-green{background:rgba(52,211,153,.15);color:var(--success)}
+.badge-red{background:rgba(248,113,113,.15);color:var(--danger)}
+.badge-amber{background:rgba(232,168,56,.15);color:var(--accent)}
+.badge-blue{background:rgba(56,189,248,.15);color:var(--info)}
+.badge-purple{background:rgba(168,85,247,.15);color:#c084fc}
+.bg-pattern{background-image:radial-gradient(circle at 1px 1px,rgba(232,168,56,.04) 1px,transparent 0);background-size:40px 40px}
+.conn-dot{width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle}
+.conn-dot.on{background:var(--success);box-shadow:0 0 6px var(--success)}
+.conn-dot.off{background:var(--danger);box-shadow:0 0 6px var(--danger)}
+.conn-dot.loading{background:var(--warning);animation:pulse-ring 1s infinite}
+.tab-btn{padding:.5rem 1rem;font-size:.85rem;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-btn:hover{color:var(--fg)}
+.clock-face{position:relative;width:280px;height:280px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s ease;user-select:none}
+.clock-face.clock-in-face{background:radial-gradient(circle at 40% 35%,rgba(52,211,153,.12),var(--card) 70%);border:3px solid var(--success);animation:breathe 3s ease-in-out infinite}
+.clock-face.clock-in-face:hover{transform:scale(1.04)}
+.clock-face.clock-in-face:active{transform:scale(.97)}
+.clock-face.clock-out-face{background:radial-gradient(circle at 40% 35%,rgba(248,113,113,.12),var(--card) 70%);border:3px solid var(--danger);animation:breathe-out 2s ease-in-out infinite}
+.clock-face.clock-out-face:hover{transform:scale(1.04)}
+.clock-face.clock-out-face:active{transform:scale(.97)}
+.clock-face .cf-icon{font-size:2.5rem;margin-bottom:.25rem}
+.clock-face .cf-label{font-size:1rem;font-weight:700;letter-spacing:.05em}
+.clock-face .cf-sub{font-size:.7rem;color:var(--muted);font-weight:400;margin-top:.15rem}
+.clock-face::after{content:'';position:absolute;inset:-12px;border-radius:50%;border:2px solid;opacity:0;animation:pulse-ring 2.5s ease-out infinite;pointer-events:none}
+.clock-in-face::after{border-color:var(--success)}
+.clock-out-face::after{border-color:var(--danger)}
+.big-time{font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;letter-spacing:-.02em;line-height:1}
+.big-date{font-size:1rem;color:var(--muted);margin-top:.25rem}
+.emp-clock-info{width:min(100%,620px);background:linear-gradient(180deg,rgba(232,168,56,.08),var(--card));border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));border-radius:16px;padding:1.15rem 1.5rem;margin-bottom:1.35rem;box-shadow:0 12px 34px rgba(0,0,0,.22)}
+.emp-clock-name{font-size:1.6rem;line-height:1.2;font-weight:700;color:var(--fg)}
+.emp-clock-id{font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:600;color:var(--accent);margin-top:.3rem}
+.emp-clock-meta{display:flex;justify-content:center;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.75rem}
+.emp-clock-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;margin-top:.75rem}
+.elapsed-display{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;letter-spacing:.04em;color:var(--success);line-height:1}
+.cb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.35rem;max-height:200px;overflow-y:auto;padding:.25rem}
+.cb-grid label{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--fg);cursor:pointer;padding:.25rem .4rem;border-radius:6px;transition:background .15s;margin:0}
+.cb-grid label:hover{background:rgba(232,168,56,.08)}
+.cb-grid input[type=checkbox]{width:auto;accent-color:var(--accent)}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:1rem}.clock-face{width:220px;height:220px}.clock-face .cf-icon{font-size:2rem}.big-time{font-size:2.5rem}.elapsed-display{font-size:2rem}}
+</style>
+</head>
+<body class="bg-pattern">
+<div id="toast-container" class="toast-container"></div>
+<div id="loading-screen" class="min-h-screen flex items-center justify-center">
+  <div class="text-center"><div class="inline-block w-10 h-10 rounded-full animate-spin mb-3" style="border:3px solid var(--accent);border-top-color:transparent"></div><p class="text-sm" style="color:var(--muted)">Syncing...</p></div>
+</div>
+<div id="login-screen" class="hidden min-h-screen flex items-center justify-center p-4">
+  <div class="card w-full max-w-md fade-in" style="border-color:color-mix(in srgb,var(--accent) 20%,var(--border))">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xl" style="color:#0c0e16"></i></div>
+      <h1 class="text-2xl font-bold">SitePro Clock In</h1>
+      <p class="text-sm mt-1 flex items-center justify-center gap-2" style="color:var(--muted)">Workforce Time Tracking <span class="conn-dot loading" id="login-conn-dot"></span></p>
+    </div>
+    <div class="flex mb-6 border-b" style="border-color:var(--border)">
+      <button class="tab-btn flex-1" onclick="switchLoginTab('admin')"><i class="fas fa-shield-halved mr-1"></i> Owner / Admin</button>
+      <button class="tab-btn active flex-1" onclick="switchLoginTab('employee')"><i class="fas fa-user mr-1"></i> Employee</button>
+    </div>
+    <div id="login-admin" class="hidden">
+      <div class="mb-4"><label>Email</label><input id="admin-user" type="email" placeholder="you@company.com" autocomplete="username"></div>
+      <div class="mb-5"><label>Password</label><input id="admin-pass" type="password" placeholder="Enter password" autocomplete="current-password"></div>
+      <button class="btn btn-primary w-full justify-center" onclick="adminLogin()"><i class="fas fa-right-to-bracket"></i> Sign In</button>
+    </div>
+    <div id="login-employee">
+      <div class="mb-4"><label>Company Number</label><input id="emp-id" type="text" placeholder="e.g. BC012" autocomplete="username" autocapitalize="characters"></div>
+      <div class="mb-5"><label>PIN</label><input id="emp-pin" type="password" placeholder="6-digit PIN" minlength="6" maxlength="20" autocomplete="current-password"></div>
+      <button class="btn btn-primary w-full justify-center" onclick="employeeLogin()"><i class="fas fa-right-to-bracket"></i> Clock In</button>
+    </div>
+  </div>
+</div>
+<div id="admin-layout" class="hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="p-5 border-b" style="border-color:var(--border)"><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-sm" style="color:#0c0e16"></i></div><div><div class="font-bold text-sm">SitePro Clock In</div><div id="company-name-label" class="text-[10px] truncate" style="color:var(--muted)"></div><div class="text-xs flex items-center gap-1.5" style="color:var(--muted)"><span class="conn-dot on" id="admin-conn-dot"></span><span id="admin-conn-label">Synced</span></div></div></div></div>
+    <nav class="py-3" id="admin-nav">
+      <div class="px-4 py-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Main</div>
+      <a class="sidebar-link active" data-page="dashboard"><i class="fas fa-gauge-high w-5 text-center"></i> Dashboard</a>
+      <a class="sidebar-link" data-page="sites"><i class="fas fa-location-dot w-5 text-center"></i> Sites</a>
+      <a class="sidebar-link" data-page="employees"><i class="fas fa-users w-5 text-center"></i> Employees</a>
+      <a class="sidebar-link" data-page="shifts"><i class="fas fa-calendar-days w-5 text-center"></i> Shifts</a>
+      <a class="sidebar-link" data-page="approvals"><i class="fas fa-clipboard-check w-5 text-center"></i> Approvals <span id="approval-badge" class="hidden badge badge-red ml-auto" style="font-size:.6rem">0</span></a>
+      <div class="px-4 py-2 mt-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Data</div>
+      <a class="sidebar-link" data-page="timesheets"><i class="fas fa-table-list w-5 text-center"></i> Timesheets</a>
+      <a class="sidebar-link" data-page="records"><i class="fas fa-clock-rotate-left w-5 text-center"></i> Clock Records</a>
+      <a class="sidebar-link" data-page="export"><i class="fas fa-file-export w-5 text-center"></i> Export</a>
+      <a class="sidebar-link" data-page="recyclebin"><i class="fas fa-recycle w-5 text-center"></i> Recycle Bin <span id="bin-badge" class="hidden badge badge-red ml-auto" style="font-size:.6rem">0</span></a>
+      <a class="sidebar-link" data-page="settings"><i class="fas fa-gear w-5 text-center"></i> Settings</a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t" style="border-color:var(--border)"><button class="btn btn-secondary btn-sm w-full justify-center" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</button></div>
+  </aside>
+  <div class="main-content" id="admin-content"></div>
+  <button class="fixed top-4 left-4 z-50 btn btn-secondary btn-sm md:hidden" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+</div>
+<div id="employee-layout" class="hidden">
+  <div class="min-h-screen flex flex-col">
+    <header class="p-4 flex items-center justify-center border-b" style="border-color:var(--border);background:var(--bg2)">
+      <div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),#d4922a)"><i class="fas fa-clock text-xs" style="color:#0c0e16"></i></div><span class="font-bold text-sm">SitePro</span><span class="conn-dot on" id="emp-conn-dot"></span></div>
+      <div class="ml-auto flex items-center gap-3"><span id="emp-header-name" class="text-sm hidden sm:inline" style="color:var(--muted)"></span><button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-right-from-bracket"></i></button></div>
+    </header>
+    <div class="flex-1 flex">
+      <nav class="w-16 sm:w-48 border-r flex flex-col pt-4" style="border-color:var(--border);background:var(--bg2)" id="emp-nav">
+        <a class="sidebar-link active" data-epage="clock" style="padding:.7rem .5rem;justify-content:center;flex-direction:column;gap:2px"><i class="fas fa-fingerprint text-lg"></i><span class="text-xs hidden sm:inline mt-1">Clock</span></a>
+        <a class="sidebar-link" data-epage="history" style="padding:.7rem .5rem;justify-content:center;flex-direction:column;gap:2px"><i class="fas fa-history text-lg"></i><span class="text-xs hidden sm:inline mt-1">History</span></a>
+      </nav>
+      <main class="flex-1 p-4 sm:p-6" id="emp-content"></main>
+    </div>
+  </div>
+</div>
+<div id="modal-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()"><div class="modal-box fade-in" id="modal-box"></div></div>
+
+<script>
+
+var EMBEDDED_FB = {
+  apiKey:"AIzaSyBHZcPbWCGF8_or3q4zqQU8N9wmgwEr2Iao",
+  authDomain:"sitepro-v2-dev.firebaseapp.com",
+  databaseURL:"https://sitepro-v2-dev-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"sitepro-v2-dev",
+  storageBucket:"sitepro-v2-dev.firebasestorage.app",
+  messagingSenderId:"717870116110",
+  appId:"1:717870116110:web:70dfc05deb6f70492dbb5f"
+};
+
+var db = null, auth = null, fbConnected = false, dataLoaded = 0, initialLoadDone = false;
+var currentUser = null;
+var COMPANY_ID = 'company_001';
+var employeeSecondaryApp = null;
+var EMPLOYEE_LOGIN_DOMAIN = 'login.siteproclock.com';
+
+function normalizeEmployeeLoginId(employeeId){
+  return String(employeeId || '').trim().toUpperCase().replace(/[.#$\[\]\/]/g,'_');
+}
+function employeeAuthEmail(employeeId){
+  return normalizeEmployeeLoginId(employeeId).toLowerCase() + '@' + String(COMPANY_ID).toLowerCase() + '.' + EMPLOYEE_LOGIN_DOMAIN;
+}
+function employeeLoginIndexRef(employeeId){
+  return db.ref('employeeLoginIndex/' + normalizeEmployeeLoginId(employeeId));
+}
+var D = { sites:[], employees:[], shifts:[], records:[], settings:{}, admin:{}, recycleBin:{}, companyProfile:{}, userProfile:{} };
+
+/* --- V2 AUTHENTICATION / MULTI-COMPANY INITIALIZATION --- */
+function companyPath(p){ return 'companies/' + COMPANY_ID + (p ? '/' + String(p).replace(/^\/+/, '') : ''); }
+function cRef(p){ return db.ref(companyPath(p || '')); }
+function companyUpdate(updates){
+  var prefixed={};
+  Object.keys(updates||{}).forEach(function(k){ prefixed[companyPath(k)]=updates[k]; });
+  return db.ref().update(prefixed);
+}
+var companyListenerRefs=[];
+function detachCompanyListeners(){ for(var i=0;i<companyListenerRefs.length;i++){ try{ companyListenerRefs[i].ref.off('value',companyListenerRefs[i].handler); }catch(e){} } companyListenerRefs=[]; }
+function resetCompanyData(){ D.sites=[];D.employees=[];D.shifts=[];D.records=[];D.settings={};D.admin={};D.recycleBin={};D.companyProfile={};D.userProfile={}; }
+function attachCompanyListener(path,handler){ var ref=cRef(path); ref.on('value',handler); companyListenerRefs.push({ref:ref,handler:handler}); }
+function attachCompanyListeners(){
+  detachCompanyListeners(); dataLoaded=0;
+  attachCompanyListener('profile',function(s){D.companyProfile=s.val()||{};dataLoaded++;});
+  attachCompanyListener('sites',function(s){D.sites=s.val()?Object.values(s.val()):[];dataLoaded++;});
+  attachCompanyListener('employees',function(s){D.employees=s.val()?Object.values(s.val()):[];dataLoaded++;});
+  attachCompanyListener('shifts',function(s){D.shifts=s.val()?Object.values(s.val()):[];dataLoaded++;});
+  attachCompanyListener('records',function(s){D.records=s.val()?Object.values(s.val()):[];dataLoaded++;updateApprovalBadge();});
+  attachCompanyListener('settings',function(s){D.settings=s.val()||{};dataLoaded++;});
+  attachCompanyListener('recycleBin',function(s){D.recycleBin=s.val()||{};dataLoaded++;updateBinBadge();});
+}
+function initFirebase(config){
+  try{
+    if(typeof firebase==='undefined') throw new Error('Firebase SDK did not load.');
+    if(firebase.apps && firebase.apps.length){ try{ firebase.app(); }catch(e){ firebase.initializeApp(config); } } else firebase.initializeApp(config);
+    db=firebase.database(); auth=firebase.auth();
+    db.ref('.info/connected').on('value',function(s){ fbConnected=s.val()===true; updateConnDots(); });
+    auth.onAuthStateChanged(function(user){
+      currentUser=user||null;
+      if(user){ beginCompanySession(user); }
+      else { detachCompanyListeners(); resetCompanyData(); state.loggedIn=false;state.role=null;state.currentEmployee=null;showScreen('login-screen'); }
+    });
+  }catch(error){
+    console.error('Firebase startup error:',error);
+    var ls=document.getElementById('loading-screen'); if(ls)ls.innerHTML='<div class="text-center p-6"><div class="text-red-400 font-semibold mb-2">Firebase failed to start</div><div class="text-sm" style="color:var(--muted)">'+(error.message||error)+'</div></div>';
+  }
+}
+function ensureCompanyBootstrap(user){
+  var userRef=cRef('users/'+user.uid);
+  return userRef.once('value').then(function(s){
+    var profile=s.val();
+    if(profile){ D.userProfile=profile; if(profile.companyId)COMPANY_ID=profile.companyId; return cRef('profile').once('value').then(function(cp){D.companyProfile=cp.val()||{};return profile;}); }
+    return cRef('profile').once('value').then(function(cp){
+      var company=cp.val(); if(company && company.companyId)throw new Error('This Firebase user is not linked to a SitePro company yet.');
+      var now=new Date(),end=new Date(now.getTime()+30*24*60*60*1000);
+      var companyProfile={companyId:COMPANY_ID,name:'Baywash Chemicals',status:'trial',plan:'trial',subscriptionStatus:'trial',trialStart:now.toISOString(),trialEnd:end.toISOString(),createdAt:now.toISOString(),ownerUid:user.uid};
+      var userProfile={uid:user.uid,email:user.email||'',companyId:COMPANY_ID,role:'owner',createdAt:now.toISOString(),active:true};
+      var defaults={weeklyTarget:45,overtimeAfter:45,defaultBreak:30,graceMinutes:10,holidays:['2026-01-01','2026-03-21','2026-04-03','2026-04-06','2026-05-01','2026-05-04','2026-05-14','2026-05-25','2026-08-26','2026-12-10','2026-12-25','2026-12-26']};
+      var updates={};updates[companyPath('profile')]=companyProfile;updates[companyPath('users/'+user.uid)]=userProfile;updates[companyPath('settings')]=defaults;updates[companyPath('recycleBin')]={};
+      return companyUpdate(updates).then(function(){D.companyProfile=companyProfile;D.userProfile=userProfile;return userProfile;});
+    });
+  });
+}
+function beginCompanySession(user){
+  ensureCompanyBootstrap(user).then(function(profile){
+    D.userProfile=profile;attachCompanyListeners();state.loggedIn=true;state.role=profile.role||'employee';
+    if(state.role==='employee'){
+      var emp=getEmpById(profile.employeeId);
+      if(!emp){ return cRef('employees').once('value').then(function(s){D.employees=s.val()?Object.values(s.val()):[];var ee=getEmpById(profile.employeeId);if(!ee)throw new Error('Your employee account is not linked to an employee record.');return ee;}); }
+      return Promise.resolve(emp);
+    }
+    return Promise.resolve(null);
+  }).then(function(emp){
+    document.getElementById('loading-screen').classList.add('hidden');
+    if(state.role==='employee'){state.currentEmployee=emp;state.empPage='clock';showEmployee();toast('Welcome, '+emp.firstName,'success');}
+    else {state.currentPage='dashboard';showAdmin();toast('Welcome to SitePro','success');}
+  }).catch(function(err){
+    console.error('Company session error:',err);document.getElementById('loading-screen').classList.add('hidden');
+    if(currentUser && err.message && (err.message.indexOf('not linked')!==-1 || err.message.indexOf('not linked to an employee')!==-1))auth.signOut();
+    toast(err.message||'Could not load your SitePro company','error');
+  });
+}
+/* --- END V2 AUTHENTICATION / MULTI-COMPANY INITIALIZATION --- */
+
+/* --- HELPERS --- */
+function fbSet(p,d){ if(db){ return cRef(p).set(d); } return Promise.reject(new Error('Database not ready')); }
+function fbUpdate(p,d){ if(db){ return cRef(p).update(d); } return Promise.reject(new Error('Database not ready')); }
+function fbRemove(p){ if(db){ return cRef(p).remove(); } return Promise.reject(new Error('Database not ready')); }
+function getSites() { return D.sites || []; }
+function getEmployees() { return D.employees || []; }
+function getShifts() { return D.shifts || []; }
+function getRecords() { return D.records || []; }
+function getSettings() { return D.settings || {}; }
+function getHolidays() { return (D.settings && D.settings.holidays) ? D.settings.holidays : []; }
+function getBinItems() { return D.recycleBin || {}; }
+var state = {
+  loggedIn:false, role:null, currentPage:'dashboard', empPage:'clock',
+  currentEmployee:null, clockState:'idle', activeRecord:null,
+  gpsStatus:'pending', gpsDistance:null, gpsLat:null, gpsLng:null,
+  liveTimerInterval:null, clockTimeInterval:null,
+  exportWS:null, exportEmpId:null
+};
+function fmtDate(d) { var dt = (d instanceof Date) ? d : new Date(d); return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0'); }
+function fmtTime(d) { var dt = (d instanceof Date) ? d : new Date(d); return String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0'); }
+function todayStr() { return fmtDate(new Date()); }
+function getSiteName(id) { var s = getSites().find(function(x) { return x.id === id; }); return s ? s.name : 'Unknown'; }
+function getEmpSiteIds(emp) {
+  if (!emp) return [];
+  if (Array.isArray(emp.siteIds)) return emp.siteIds;
+  if (emp.siteId) return [emp.siteId];
+  return [];
+}
+function getEmpById(id) { return getEmployees().find(function(x) { return x.id === id; }); }
+function haversine(lat1,lon1,lat2,lon2) { var R=6371000,t=function(n){return n*Math.PI/180;};var dLat=t(lat2-lat1),dLon=t(lon2-lon1);var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(t(lat1))*Math.cos(t(lat2))*Math.sin(dLon/2)*Math.sin(dLon/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+function fmtHrs(h) { var totalMin = Math.round((h || 0) * 60); if (totalMin < 0) totalMin = 0; return String(Math.floor(totalMin / 60)).padStart(2, '0') + ':' + String(totalMin % 60).padStart(2, '0'); }
+function timeAgo(ts) { var s=Math.floor((Date.now()-new Date(ts).getTime())/1000);if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago'; }
+function timeToMinutes(t) { var p = t.split(':'); return parseInt(p[0])*60 + parseInt(p[1]||0); }
+function getTierConfig() { var s = getSettings(); return { target: s.weeklyTarget||45, otAfter: s.overtimeAfter!=null ? s.overtimeAfter : (s.weeklyTarget||45) }; }
+function getEmployeeTierConfig(empId) { var emp = getEmpById(empId); if (emp && emp.weeklyTarget != null && emp.weeklyTarget !== '') { var wt = parseFloat(emp.weeklyTarget); var ot = (emp.overtimeAfter != null && emp.overtimeAfter !== '') ? parseFloat(emp.overtimeAfter) : wt; return { target: wt, otAfter: ot }; } return getTierConfig(); }
+function isSunday(ds) { return new Date(ds + 'T12:00:00').getDay() === 0; }
+function isHoliday(ds) { return getHolidays().indexOf(ds) !== -1; }
+function getDayType(ds) { if (isSunday(ds)) return 'Sunday'; if (isHoliday(ds)) return 'Holiday'; return 'Weekday'; }
+function getWeekStart(ds) { var d = new Date(ds + 'T12:00:00'), day = d.getDay(); d.setDate(d.getDate() - (day === 0 ? 6 : day - 1)); return fmtDate(d); }
+function getWeekDates(ws) { var dates = []; for (var i = 0; i < 7; i++) { var d = new Date(ws + 'T12:00:00'); d.setDate(d.getDate() + i); dates.push(fmtDate(d)); } return dates; }
+function getEmployeeWeekWorkedHours(empId, curDate) { var ws = getWeekStart(curDate), we = new Date(ws + 'T12:00:00'); we.setDate(we.getDate() + 6); var wes = fmtDate(we); return getRecords().filter(function(r) { return r.employeeId === empId && r.status === 'completed' && r.clockIn && r.clockIn.slice(0,10) >= ws && r.clockIn.slice(0,10) <= wes && r.dayType !== 'Sunday' && r.dayType !== 'Holiday'; }).reduce(function(s, r) { return s + (r.totalHours || 0); }, 0); }
+function calcHours(ci, co, bm, weekWorked, dayType, tierCfg) { var totalMs = new Date(co) - new Date(ci), totalMin = Math.max(0, totalMs / 60000 - bm), totalHrs = Math.round(totalMin / 6) / 10; if (dayType === 'Sunday' || dayType === 'Holiday') return { regularHours:0, overtimeHours:0, doubleTimeHours:totalHrs, totalHours:totalHrs }; var start = weekWorked, end = weekWorked + totalHrs, regular = 0, overtime = 0; if (start < tierCfg.otAfter) regular += Math.min(end, tierCfg.otAfter) - start; if (end > tierCfg.otAfter) overtime += end - Math.max(start, tierCfg.otAfter); return { regularHours:regular, overtimeHours:overtime, doubleTimeHours:0, totalHours:totalHrs }; }
+function getGraceMinutes() { return (D.settings && D.settings.graceMinutes != null) ? D.settings.graceMinutes : 10; }
+function checkNeedsApproval(record) { var shift = getShifts().find(function(s) { return s.id === record.shiftId; }); if (!shift) return { needsApproval:true, reason:'No shift scheduled for this day' }; var grace = getGraceMinutes(), ciMin = timeToMinutes(fmtTime(new Date(record.clockIn))), shiftStartMin = timeToMinutes(shift.startTime), shiftEndMin = timeToMinutes(shift.endTime), reasons = []; if (ciMin < shiftStartMin - grace) { var diff = shiftStartMin - ciMin; reasons.push('Clocked in ' + Math.floor(diff/60) + 'h ' + (diff%60) + 'm before shift'); } if (record.clockOut) { var coMin = timeToMinutes(fmtTime(new Date(record.clockOut))); if (coMin > shiftEndMin + grace) { var diff2 = coMin - shiftEndMin; reasons.push('Clocked out ' + Math.floor(diff2/60) + 'h ' + (diff2%60) + 'm after shift'); } } if (reasons.length) return { needsApproval:true, reason:reasons.join('; ') }; return { needsApproval:false, reason:'' }; }
+function getRecordOTBreakdown(r) {
+  var shift = getShifts().find(function(s){ return s.id === r.shiftId; });
+  var earlyMinutes = 0, lateMinutes = 0;
+  if (shift && r.clockIn && r.clockOut) {
+    var ciMin = timeToMinutes(fmtTime(new Date(r.clockIn)));
+    var coMin = timeToMinutes(fmtTime(new Date(r.clockOut)));
+    var sStart = timeToMinutes(shift.startTime);
+    var sEnd = timeToMinutes(shift.endTime);
+    if (ciMin < sStart) earlyMinutes = sStart - ciMin;
+    if (coMin > sEnd) lateMinutes = coMin - sEnd;
+  }
+  var dayType = r.dayType || getDayType(fmtDate(r.clockIn));
+  if (dayType === 'Sunday' || dayType === 'Holiday') return { earlyHours:0, lateHours:0 };
+  return { earlyHours:earlyMinutes/60, lateHours:lateMinutes/60 };
+}
+
+function getOTStatus(r, type) {
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
+  if (r[approvedKey] === true) return 'approved';
+  if (r[rejectedKey] === true) return 'rejected';
+  return 'pending';
+}
+
+function getPendingApprovalCount() {
+  var count = 0;
+  getRecords().forEach(function(r) {
+    if (r.status !== 'completed') return;
+    if (r.needsApproval && !r.approved && !r.rejected) count++;
+    var ot = getRecordOTBreakdown(r);
+    if (ot.earlyHours > 0 && getOTStatus(r,'early') === 'pending') count++;
+    if (ot.lateHours > 0 && getOTStatus(r,'late') === 'pending') count++;
+  });
+  return count;
+}
+
+function updateApprovalBadge() {
+  var pending = getPendingApprovalCount();
+  var badge = document.getElementById('approval-badge');
+  if (badge) {
+    if (pending > 0) {
+      badge.classList.remove('hidden');
+      badge.textContent = pending;
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
+}
+function updateBinBadge() {
+  var bin=getBinItems(), count=0, types=['sites','employees','shifts','records'];
+  for(var i=0;i<types.length;i++){ if(bin[types[i]]) count += Object.keys(bin[types[i]]).length; }
+  var badge=document.getElementById('bin-badge');
+  if(badge){ if(count>0){ badge.classList.remove('hidden'); badge.textContent=count; } else badge.classList.add('hidden'); }
+}
+
+var BIN_TTL = 30*24*60*60*1000;
+function moveToBin(type, id, data) { var binId = cRef('recycleBin/' + type).push().key; fbSet('recycleBin/' + type + '/' + binId, { originalId:id, data:data, deletedAt:new Date().toISOString() }); fbRemove(type + '/' + id); }
+function restoreFromBin(type, binId) {
+  var item = D.recycleBin[type] && D.recycleBin[type][binId];
+  if (!item) return;
+  fbSet(type + '/' + (item.originalId || item.data.id), item.data).then(function(){
+    if(type==='employees' && item.data && item.data.employeeId){
+      return db.ref('employeeLoginIndex/'+normalizeEmployeeLoginId(item.data.employeeId)+'/'+COMPANY_ID).update({active:item.data.active!==false});
+    }
+  }).then(function(){
+    return fbRemove('recycleBin/' + type + '/' + binId);
+  }).then(function(){
+    toast('Restored', 'success'); navigateAdmin('recyclebin');
+  }).catch(function(e){toast('Could not restore: '+(e.message||e),'error');});
+}
+function permanentDeleteBin(type, binId) { openModal('<h3 class="font-bold text-lg mb-3">Permanently Delete?</h3><p class="text-sm mb-4" style="color:var(--muted)">This cannot be undone.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbRemove(\'recycleBin/' + type + '/' + binId + '\');closeModal();navigateAdmin(\'recyclebin\');toast(\'Deleted\',\'success\')"><i class="fas fa-trash"></i> Delete</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>'); }
+function cleanExpiredBin() { var bin = D.recycleBin; if (!bin) return; var now = Date.now(), types = ['sites','employees','shifts','records']; for (var t = 0; t < types.length; t++) { if (!bin[types[t]]) continue; var keys = Object.keys(bin[types[t]]); for (var k = 0; k < keys.length; k++) { var item = bin[types[t]][keys[k]]; if (item.deletedAt && (now - new Date(item.deletedAt).getTime()) > BIN_TTL) fbRemove('recycleBin/' + types[t] + '/' + keys[k]); } } }
+function emptyBin() { openModal('<h3 class="font-bold text-lg mb-3">Empty Entire Recycle Bin?</h3><p class="text-sm mb-4" style="color:var(--muted)">All items permanently deleted.</p><div class="flex gap-3"><button class="btn btn-danger flex-1 justify-center" onclick="fbSet(\'recycleBin\',{});closeModal();navigateAdmin(\'recyclebin\');toast(\'Bin emptied\',\'success\')"><i class="fas fa-trash"></i> Empty</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>'); }
+function renderRecycleBin() { var bin = D.recycleBin, types = [{ key:'sites', label:'Sites', icon:'fa-location-dot', color:'var(--info)' },{ key:'employees', label:'Employees', icon:'fa-users', color:'var(--accent)' },{ key:'shifts', label:'Shifts', icon:'fa-calendar-days', color:'var(--success)' },{ key:'records', label:'Records', icon:'fa-clock-rotate-left', color:'var(--warning)' }]; var totalItems = 0; for (var t = 0; t < types.length; t++) { if (bin[types[t].key]) totalItems += Object.keys(bin[types[t].key]).length; } var h = '<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Recycle Bin</h2><p class="text-sm" style="color:var(--muted)">' + totalItems + ' item(s)</p></div>'; if (totalItems > 0) h += '<button class="btn btn-danger btn-sm" onclick="emptyBin()"><i class="fas fa-trash"></i> Empty Bin</button>'; h += '</div>'; var hasAny = false; for (var t = 0; t < types.length; t++) { var tp = types[t], items = bin[tp.key] ? Object.entries(bin[tp.key]) : []; if (!items.length) continue; hasAny = true; items.sort(function(a,b) { return new Date(b[1].deletedAt) - new Date(a[1].deletedAt); }); h += '<div class="mb-6"><h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><i class="fas ' + tp.icon + '" style="color:' + tp.color + '"></i> ' + tp.label + ' <span class="badge badge-amber">' + items.length + '</span></h3><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Item</th><th>Deleted</th><th>Expires</th><th>Actions</th></tr></thead><tbody>'; for (var i = 0; i < items.length; i++) { var binId = items[i][0], item = items[i][1], d = item.data, name = '\u2014'; if (tp.key==='sites') name=d.name||'Unknown'; else if (tp.key==='employees') name=(d.firstName||'')+' '+(d.lastName||'')+' ('+(d.employeeId||'?')+')'; else if (tp.key==='shifts') { var emp=getEmpById(d.employeeId); name=(emp?emp.firstName+' '+emp.lastName:'?')+' \u2014 '+d.date; } else if (tp.key==='records') { var emp2=getEmpById(d.employeeId); name=(emp2?emp2.firstName+' '+emp2.lastName:'?')+' \u2014 '+(d.clockIn||'').slice(0,10); } var daysLeft=Math.max(0,Math.ceil((new Date(item.deletedAt).getTime()+BIN_TTL-Date.now())/86400000)); var expiryColor=daysLeft<=3?'var(--danger)':daysLeft<=7?'var(--warning)':'var(--muted)'; h+='<tr><td class="font-medium text-sm">'+name+'</td><td class="text-xs" style="color:var(--muted)">'+timeAgo(item.deletedAt)+'</td><td class="text-xs" style="color:'+expiryColor+'">'+daysLeft+'d left</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="restoreFromBin(\''+tp.key+'\',\''+binId+'\')"><i class="fas fa-rotate-left"></i></button><button class="btn btn-danger btn-sm" onclick="permanentDeleteBin(\''+tp.key+'\',\''+binId+'\')"><i class="fas fa-trash"></i></button></div></td></tr>'; } h += '</tbody></table></div></div>'; } if (!hasAny) h += '<div class="card text-center py-16"><i class="fas fa-recycle text-4xl mb-4" style="color:var(--border)"></i><p style="color:var(--muted)">Recycle bin is empty</p></div>'; return h + '</div>'; }
+function toast(msg, type) { type = type || 'info'; var c = document.getElementById('toast-container'), t = document.createElement('div'); t.className = 'toast toast-' + type; var icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' }; t.innerHTML = '<i class="fas ' + (icons[type]||icons.info) + '"></i><span>' + msg + '</span>'; c.appendChild(t); setTimeout(function() { t.style.animation = 'slideOut .3s ease forwards'; setTimeout(function() { t.remove(); }, 300); }, 3500); }
+function openModal(html) { document.getElementById('modal-box').innerHTML = html; document.getElementById('modal-overlay').classList.remove('hidden'); }
+function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+function showScreen(id) { var screens = ['loading-screen','login-screen','admin-layout','employee-layout']; for (var i = 0; i < screens.length; i++) document.getElementById(screens[i]).classList.toggle('hidden', screens[i] !== id); }
+function switchLoginTab(tab) { var btns = document.querySelectorAll('#login-screen .tab-btn'); for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('active', (tab==='admin' && i===0) || (tab==='employee' && i===1)); document.getElementById('login-admin').classList.toggle('hidden', tab !== 'admin'); document.getElementById('login-employee').classList.toggle('hidden', tab !== 'employee'); }
+function signInWithAuth(email,password){
+  email=String(email||'').trim();password=String(password||'');
+  if(!auth){toast('Authentication is not ready. Please wait a moment.','error');return;}
+  if(!email||!password){toast('Email and password are required','error');return;}
+  auth.signInWithEmailAndPassword(email,password).catch(function(e){console.error('Sign in failed:',e);toast(e.message||'Invalid email or password','error');});
+}
+function adminLogin(){
+  signInWithAuth(document.getElementById('admin-user').value,document.getElementById('admin-pass').value);
+}
+function employeeLogin(){
+  var employeeId=String(document.getElementById('emp-id').value||'').trim().toUpperCase();
+  var pin=String(document.getElementById('emp-pin').value||'');
+  if(!employeeId||!pin){toast('Company Number and PIN are required','error');return;}
+  if(pin.length<6){toast('PIN must be at least 6 characters','error');return;}
+  if(!auth||!db){toast('System is not ready. Please wait a moment.','error');return;}
+
+  employeeLoginIndexRef(employeeId).once('value').then(function(s){
+    var matches=s.val()||{};
+    var companyIds=Object.keys(matches);
+    if(!companyIds.length) throw new Error('Company Number '+employeeId+' was not found.');
+    if(companyIds.length>1) throw new Error('This Company Number is used by more than one SitePro company. A company code is required.');
+    var target=matches[companyIds[0]];
+    if(!target || target.active===false) throw new Error('This employee account is inactive.');
+    COMPANY_ID=target.companyId;
+    return auth.signInWithEmailAndPassword(target.authEmail,pin);
+  }).catch(function(e){
+    console.error('Employee sign in failed:',e);
+    toast(e.message||'Could not sign in','error');
+  });
+}
+function logout(){
+  if(state.liveTimerInterval)clearInterval(state.liveTimerInterval);if(state.clockTimeInterval)clearInterval(state.clockTimeInterval);
+  if(auth)auth.signOut().catch(function(e){console.error('Logout failed:',e);});
+  state={loggedIn:false,role:null,currentPage:'dashboard',empPage:'clock',currentEmployee:null,clockState:'idle',activeRecord:null,gpsStatus:'pending',gpsDistance:null,gpsLat:null,gpsLng:null,liveTimerInterval:null,clockTimeInterval:null,exportWS:null,exportEmpId:null};
+  document.getElementById('admin-layout').classList.add('hidden');document.getElementById('employee-layout').classList.add('hidden');showScreen('login-screen');
+  document.getElementById('admin-user').value='';document.getElementById('admin-pass').value='';document.getElementById('emp-id').value='';document.getElementById('emp-pin').value='';
+}
+function showAdmin() { showScreen('admin-layout'); var c=document.getElementById('company-name-label'); if(c)c.textContent=D.companyProfile&&D.companyProfile.name?D.companyProfile.name:''; navigateAdmin(state.currentPage); }
+function showEmployee() { if(!state.currentEmployee){toast('Employee profile is not available','error');return;} showScreen('employee-layout'); document.getElementById('emp-header-name').textContent = state.currentEmployee.firstName + ' ' + state.currentEmployee.lastName; navigateEmp(state.empPage); }
+function navigateAdmin(page) { state.currentPage = page; var links = document.querySelectorAll('#admin-nav .sidebar-link'); for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.page === page); var el = document.getElementById('admin-content'); var R = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, shifts:renderShifts, approvals:renderApprovals, records:renderRecords, timesheets:renderTimesheets, export:renderExport, recyclebin:renderRecycleBin, settings:renderSettings }; if (R[page]) el.innerHTML = R[page](); if (page === 'dashboard') startDashClock(); }
+document.getElementById('admin-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.page) { navigateAdmin(l.dataset.page); document.getElementById('sidebar').classList.remove('open'); } });
+function navigateEmp(page) { state.empPage = page; var links = document.querySelectorAll('#emp-nav .sidebar-link'); for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.epage === page); var el = document.getElementById('emp-content'); if (page === 'clock') { el.innerHTML = renderClockPage(); initClockPage(); } else if (page === 'history') el.innerHTML = renderEmpHistory(); }
+document.getElementById('emp-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.epage) navigateEmp(l.dataset.epage); });
+
+/* --- DASHBOARD --- */
+var dashCI = null;
+function startDashClock() { if (dashCI) clearInterval(dashCI); var u = function() { var e = document.getElementById('dash-live-clock'); if (e) e.textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); else clearInterval(dashCI); }; u(); dashCI = setInterval(u, 1000); }
+function adminClockOut(recordId){
+  var r=getRecords().find(function(x){return x.id===recordId;});
+  if(!r){toast('Clock record not found','error');return;}
+  if(r.status!=='clocked_in'){toast('This employee is already clocked out','info');return;}
+  var emp=getEmpById(r.employeeId);
+  var empName=emp ? (emp.firstName+' '+emp.lastName) : 'Employee';
+  openModal('<h3 class="font-bold text-lg mb-3">Manual Clock Out</h3>'+
+    '<p class="text-sm mb-4" style="color:var(--muted)">Clock out <strong>'+empName+'</strong> now?</p>'+
+    '<p class="text-xs mb-4" style="color:var(--warning)"><i class="fas fa-triangle-exclamation mr-1"></i>This will create a completed clock record using the current time.</p>'+
+    '<div class="flex gap-3">'+
+    '<button class="btn btn-danger flex-1 justify-center" onclick="confirmAdminClockOut(&quot;'+recordId+'&quot;)"><i class="fas fa-person-walking-arrow-right"></i> Clock Out</button>'+
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>');
+}
+
+function confirmAdminClockOut(recordId){
+  var r=getRecords().find(function(x){return x.id===recordId;});
+  if(!r){closeModal();toast('Clock record not found','error');return;}
+  if(r.status!=='clocked_in'){closeModal();toast('This employee is already clocked out','info');return;}
+
+  var co=new Date();
+  var shift=getShifts().find(function(s){return s.id===r.shiftId;});
+  var bm=(shift&&shift.breakMinutes!=null)?parseFloat(shift.breakMinutes):parseFloat(getSettings().defaultBreak||0);
+  var weekWorked=getEmployeeWeekWorkedHours(r.employeeId,r.clockIn);
+  var tierCfg=getEmployeeTierConfig(r.employeeId);
+  var dayType=r.dayType||getDayType(fmtDate(r.clockIn));
+  var hrs=calcHours(r.clockIn,co.toISOString(),bm,weekWorked,dayType,tierCfg);
+  var u={
+    clockOut:co.toISOString(),
+    status:'completed',
+    totalHours:hrs.totalHours,
+    regularHours:hrs.regularHours,
+    overtimeHours:hrs.overtimeHours,
+    doubleTimeHours:hrs.doubleTimeHours,
+    adminClockOut:true,
+    adminClockOutAt:co.toISOString()
+  };
+  var na=checkNeedsApproval(Object.assign({},r,u,{dayType:dayType}));
+  if(na.needsApproval){u.needsApproval=true;u.reason=na.reason;}
+
+  cRef('records/'+recordId).update(u).then(function(){
+    closeModal();
+    toast('Employee clocked out successfully','success');
+    navigateAdmin(state.currentPage||'dashboard');
+  }).catch(function(err){
+    console.error('Admin clock-out failed:',err);
+    toast('Could not clock out employee: '+(err.message||err),'error');
+  });
+}
+
+function renderDashboard() { var emps=getEmployees(),sites=getSites(),shifts=getShifts(),recs=getRecords(),today=todayStr(),todayShifts=shifts.filter(function(s){return s.date===today;}),clockedIn=recs.filter(function(r){return r.status==='clocked_in';}),pendingApp=getPendingApprovalCount(); var bin=getBinItems(),binCount=0,btypes=['sites','employees','shifts','records'];for(var i=0;i<btypes.length;i++){if(bin[btypes[i]])binCount+=Object.keys(bin[btypes[i]]).length;} var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-2"><div><h2 class="text-xl font-bold">Dashboard</h2><p class="text-sm" style="color:var(--muted)">'+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p></div><div class="mono text-2xl font-bold" style="color:var(--accent)" id="dash-live-clock"></div></div>'; h+='<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">'; h+='<div class="card" style="border-left:3px solid var(--accent)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">EMPLOYEES</div><div class="text-2xl font-bold">'+emps.filter(function(e){return e.active;}).length+'</div></div>'; h+='<div class="card" style="border-left:3px solid var(--info)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">SITES</div><div class="text-2xl font-bold">'+sites.length+'</div></div>'; h+='<div class="card" style="border-left:3px solid var(--success)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">TODAY</div><div class="text-2xl font-bold">'+todayShifts.length+'</div></div>'; h+='<div class="card" style="border-left:3px solid var(--warning)"><div class="text-xs font-semibold mb-1" style="color:var(--muted)">CLOCKED IN</div><div class="text-2xl font-bold" style="color:'+(clockedIn.length?'var(--success)':'var(--muted)')+'">'+clockedIn.length+'</div></div>'; h+='<div class="card" style="border-left:3px solid '+(pendingApp?'var(--danger)':'var(--border)')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-clipboard-check mr-1"></i>APPROVALS</div><div class="text-2xl font-bold" style="color:'+(pendingApp?'var(--danger)':'var(--muted)')+'">'+pendingApp+'</div></div>'; h+='<div class="card cursor-pointer hover:border-amber-400" onclick="navigateAdmin(\'recyclebin\')" title="Open Recycle Bin" style="border-left:3px solid '+(binCount?'var(--danger)':'var(--border)')+'"><div class="text-xs font-semibold mb-1" style="color:var(--muted)"><i class="fas fa-recycle mr-1"></i>BIN</div><div class="text-2xl font-bold" style="color:'+(binCount?'var(--danger)':'var(--muted)')+'">'+binCount+'</div><div class="text-xs mt-1" style="color:var(--muted)">Click to open</div></div></div>'; h+='<div class="grid grid-cols-1 lg:grid-cols-2 gap-4"><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-user-clock mr-2" style="color:var(--success)"></i>Clocked In Now</h3>'; if(clockedIn.length){for(var i=0;i<clockedIn.length;i++){var r=clockedIn[i],emp=getEmpById(r.employeeId),start=new Date(r.clockIn),el2=Math.floor((Date.now()-start.getTime())/60000);h+='<div class="flex items-center justify-between py-2 border-b gap-3" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(r.siteId)+' &middot; Since '+fmtTime(start)+'</div></div><div class="text-right flex items-center gap-3"><div><div class="mono text-sm font-semibold" style="color:var(--success)">'+fmtHrs(el2/60)+'</div><span class="badge badge-green">Active</span></div><button class="btn btn-danger btn-sm" onclick="adminClockOut(&quot;'+r.id+'&quot;)" title="Clock out employee"><i class="fas fa-right-from-bracket"></i> Out</button></div></div>';}} else h+='<p class="text-sm" style="color:var(--muted)">Nobody clocked in.</p>'; h+='</div><div class="card"><h3 class="font-semibold text-sm mb-3"><i class="fas fa-calendar-day mr-2" style="color:var(--accent)"></i>Today\'s Shifts</h3>'; var td=getDayType(today);h+='<span class="badge '+(td==='Sunday'?'badge-purple':td==='Holiday'?'badge-red':'badge-blue')+' mb-3">'+td+'</span>'; if(todayShifts.length){for(var i=0;i<Math.min(todayShifts.length,6);i++){var s=todayShifts[i],emp=getEmpById(s.employeeId),rec=null;for(var j=0;j<recs.length;j++){if(recs[j].shiftId===s.id){rec=recs[j];break;}}var st='<span class="badge badge-amber">Pending</span>';if(rec&&rec.status==='clocked_in')st='<span class="badge badge-green">In</span>';else if(rec&&rec.status==='completed')st='<span class="badge badge-blue">Done</span>';h+='<div class="flex items-center justify-between py-2 border-b" style="border-color:var(--border)"><div><div class="text-sm font-medium">'+(emp?emp.firstName+' '+emp.lastName:'\u2014')+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(s.siteId)+' &middot; '+s.startTime+'-'+s.endTime+'</div></div>'+st+'</div>';}} else h+='<p class="text-sm" style="color:var(--muted)">No shifts today.</p>'; h+='</div></div></div>';return h; }
+
+/* --- TIMESHEETS LOGIC (NEW) --- */
+function renderTimesheets() {
+  var startStr = localStorage.getItem('ts_start') || fmtDate(new Date(Date.now() - 30*24*60*60*1000));
+  var endStr = localStorage.getItem('ts_end') || fmtDate(new Date());
+
+  var h = '<div class="fade-in"><div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">';
+  h += '<div><h2 class="text-xl font-bold">Weekly Timesheets</h2><p class="text-sm" style="color:var(--muted)">Review Normal Time, Early OT, Late OT, and Double Time</p></div>';
+  h += '<div class="flex flex-wrap items-center gap-2 card p-2"><div><label class="text-xs mb-1">Start Date</label><input type="date" id="ts-start" value="'+startStr+'" class="text-xs"></div>';
+  h += '<div><label class="text-xs mb-1">End Date</label><input type="date" id="ts-end" value="'+endStr+'" class="text-xs"></div>';
+  h += '<button class="btn btn-primary btn-sm mt-4" onclick="generateTimesheets()"><i class="fas fa-filter"></i> Filter</button></div></div>';
+  h += '<div id="ts-results" class="space-y-4"></div></div>';
+
+  setTimeout(function(){ generateTimesheets(); }, 50);
+  return h;
+}
+
+function generateTimesheets() {
+  var startEl = document.getElementById('ts-start');
+  var endEl = document.getElementById('ts-end');
+  var container = document.getElementById('ts-results');
+  if (!startEl || !endEl || !container) return;
+
+  var startStr = startEl.value;
+  var endStr = endEl.value;
+  localStorage.setItem('ts_start', startStr);
+  localStorage.setItem('ts_end', endStr);
+
+  var startDate = new Date(startStr + 'T00:00:00');
+  var endDate = new Date(endStr + 'T23:59:59');
+
+  if (startDate > endDate) {
+    container.innerHTML = '<p class="text-sm text-red-400">Invalid date range.</p>';
+    return;
+  }
+
+  var recs = getRecords();
+  var weeks = {};
+
+  recs.forEach(function(r) {
+    if (r.status !== 'completed' || !r.clockIn || !r.clockOut) return;
+
+    var d = new Date(r.clockIn);
+    if (d < startDate || d > endDate) return;
+
+    var ws = getWeekStart(fmtDate(d));
+    var key = ws + '_' + r.employeeId;
+
+    if (!weeks[key]) {
+      weeks[key] = { weekStart:ws, empId:r.employeeId, records:[] };
+    }
+    weeks[key].records.push(r);
+  });
+
+  var sortedKeys = Object.keys(weeks).sort();
+  if (sortedKeys.length === 0) {
+    container.innerHTML = '<div class="card text-center py-8 text-sm" style="color:var(--muted)">No records found for selected period.</div>';
+    updateApprovalBadge();
+    return;
+  }
+
+  var html = '';
+
+  sortedKeys.forEach(function(k) {
+    var w = weeks[k];
+    var emp = getEmpById(w.empId);
+    if (!emp) return;
+
+    var totals = {
+      nt:0, earlyOT:0, lateOT:0, dt:0,
+      earlyPending:0, latePending:0,
+      earlyApproved:0, lateApproved:0,
+      earlyRejected:0, lateRejected:0
+    };
+
+    w.records.forEach(function(rec) {
+      var ot = getRecordOTBreakdown(rec);
+      var dayType = rec.dayType || getDayType(fmtDate(rec.clockIn));
+      var totalHrs = parseFloat(rec.totalHours || 0);
+
+      if (dayType === 'Sunday' || dayType === 'Holiday') {
+        totals.dt += totalHrs;
+        return;
+      }
+
+      var earlyHrs = ot.earlyHours;
+      var lateHrs = ot.lateHours;
+      totals.earlyOT += earlyHrs;
+      totals.lateOT += lateHrs;
+
+      var earlyStatus = getOTStatus(rec,'early');
+      var lateStatus = getOTStatus(rec,'late');
+
+      if (earlyStatus === 'pending') totals.earlyPending += earlyHrs;
+      else if (earlyStatus === 'approved') totals.earlyApproved += earlyHrs;
+      else totals.earlyRejected += earlyHrs;
+
+      if (lateStatus === 'pending') totals.latePending += lateHrs;
+      else if (lateStatus === 'approved') totals.lateApproved += lateHrs;
+      else totals.lateRejected += lateHrs;
+
+      totals.nt += Math.max(0, totalHrs - earlyHrs - lateHrs);
+    });
+
+    html += '<div class="card">';
+    html += '<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b pb-2" style="border-color:var(--border)">';
+    html += '<div><div class="font-bold text-lg">'+emp.firstName+' '+emp.lastName+'</div>';
+    html += '<div class="text-sm" style="color:var(--muted)">Week of '+w.weekStart+'</div></div>';
+    html += '<div class="flex gap-3 text-right mt-2 sm:mt-0">';
+    html += '<div class="text-xs"><div style="color:var(--muted)">Normal</div><div class="font-bold mono text-sm">'+fmtHrs(totals.nt)+'</div></div>';
+    html += '<div class="text-xs"><div style="color:var(--muted)">Early OT</div><div class="font-bold mono text-sm '+(totals.earlyPending>0?'text-amber-400':totals.earlyRejected>0?'text-red-400':'text-green-400')+'">'+fmtHrs(totals.earlyOT)+'</div></div>';
+    html += '<div class="text-xs"><div style="color:var(--muted)">Late OT</div><div class="font-bold mono text-sm '+(totals.latePending>0?'text-amber-400':totals.lateRejected>0?'text-red-400':'text-green-400')+'">'+fmtHrs(totals.lateOT)+'</div></div>';
+    html += '<div class="text-xs"><div style="color:var(--muted)">Double</div><div class="font-bold mono text-sm text-purple-400">'+fmtHrs(totals.dt)+'</div></div>';
+    html += '</div></div>';
+
+    if (totals.earlyOT > 0) {
+      html += '<div class="mb-3 p-3 rounded border" style="border-color:var(--border);background:var(--bg2)">';
+      html += '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">';
+      html += '<div class="text-sm"><span class="font-semibold">Early OT:</span> '+fmtHrs(totals.earlyOT);
+      if (totals.earlyPending > 0) html += ' <span class="badge badge-amber ml-2">Pending '+fmtHrs(totals.earlyPending)+'</span>';
+      if (totals.earlyApproved > 0) html += ' <span class="badge badge-green ml-2">Approved '+fmtHrs(totals.earlyApproved)+'</span>';
+      if (totals.earlyRejected > 0) html += ' <span class="badge badge-red ml-2">Rejected '+fmtHrs(totals.earlyRejected)+'</span>';
+      html += '</div><div class="flex gap-2">';
+      if (totals.earlyPending > 0) {
+        html += '<button class="btn btn-success btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',true)"><i class="fas fa-check"></i> Approve Early</button>';
+        html += '<button class="btn btn-danger btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',false)"><i class="fas fa-times"></i> Reject Early</button>';
+      }
+      if (totals.earlyApproved > 0) {
+        html += '<button class="btn btn-secondary btn-sm" onclick="reinstateWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',\'approved\')"><i class="fas fa-rotate-left"></i> Undo / Reinstate</button>';
+      }
+      if (totals.earlyRejected > 0) {
+        html += '<button class="btn btn-secondary btn-sm" onclick="reinstateWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'early\',\'rejected\')"><i class="fas fa-rotate-left"></i> Undo / Reinstate</button>';
+      }
+      html += '</div></div></div>';
+    }
+
+    if (totals.lateOT > 0) {
+      html += '<div class="mb-3 p-3 rounded border" style="border-color:var(--border);background:var(--bg2)">';
+      html += '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">';
+      html += '<div class="text-sm"><span class="font-semibold">Late OT:</span> '+fmtHrs(totals.lateOT);
+      if (totals.latePending > 0) html += ' <span class="badge badge-amber ml-2">Pending '+fmtHrs(totals.latePending)+'</span>';
+      if (totals.lateApproved > 0) html += ' <span class="badge badge-green ml-2">Approved '+fmtHrs(totals.lateApproved)+'</span>';
+      if (totals.lateRejected > 0) html += ' <span class="badge badge-red ml-2">Rejected '+fmtHrs(totals.lateRejected)+'</span>';
+      html += '</div><div class="flex gap-2">';
+      if (totals.latePending > 0) {
+        html += '<button class="btn btn-success btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',true)"><i class="fas fa-check"></i> Approve Late</button>';
+        html += '<button class="btn btn-danger btn-sm" onclick="setWeekOTDecision(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',false)"><i class="fas fa-times"></i> Reject Late</button>';
+      }
+      if (totals.lateApproved > 0) {
+        html += '<button class="btn btn-secondary btn-sm" onclick="reinstateWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',\'approved\')"><i class="fas fa-rotate-left"></i> Undo / Reinstate</button>';
+      }
+      if (totals.lateRejected > 0) {
+        html += '<button class="btn btn-secondary btn-sm" onclick="reinstateWeekOT(\''+w.empId+'\',\''+w.weekStart+'\',\'late\',\'rejected\')"><i class="fas fa-rotate-left"></i> Undo / Reinstate</button>';
+      }
+      html += '</div></div></div>';
+    }
+
+    if (totals.earlyPending === 0 && totals.latePending === 0) {
+      html += '<div class="mb-1 text-sm text-green-400 flex items-center gap-2"><i class="fas fa-check-circle"></i> No overtime approvals pending for this week.</div>';
+    }
+
+    if (totals.earlyRejected > 0 || totals.lateRejected > 0) {
+      html += '<div class="mt-2 text-xs text-red-400">Rejected OT remains visible in the Approvals section for audit history.</div>';
+    }
+
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+  updateApprovalBadge();
+}
+
+function reinstateWeekOT(empId, weekStart, type, previousStatus) {
+  var recs = getRecords();
+  var weekEnd = new Date(weekStart + 'T12:00:00');
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  var weekEndStr = fmtDate(weekEnd);
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
+  var updates = {};
+  var affected = [];
+
+  // IMPORTANT: do not recalculate OT here. Reinstate the existing approval flag
+  // directly so a shift edit, missing shift, or changed schedule cannot block undo.
+  recs.forEach(function(r) {
+    if (r.employeeId !== empId || r.status !== 'completed' || !r.clockIn) return;
+    var rDate = fmtDate(r.clockIn);
+    if (rDate < weekStart || rDate > weekEndStr) return;
+
+    var isMatch = previousStatus === 'approved'
+      ? r[approvedKey] === true
+      : r[rejectedKey] === true;
+    if (!isMatch) return;
+
+    updates['records/' + r.id + '/' + approvedKey] = false;
+    updates['records/' + r.id + '/' + rejectedKey] = false;
+    affected.push(r.id);
+  });
+
+  if (!affected.length) {
+    toast('No ' + type + ' overtime ' + previousStatus + ' record was found for this employee/week.', 'info');
+    return;
+  }
+
+  if (!confirm('Reinstate ' + type + ' overtime for ' + affected.length + ' record(s) and return it to Pending?')) return;
+
+  companyUpdate(updates).then(function() {
+    affected.forEach(function(id) {
+      var local = getRecords().find(function(r){ return r.id === id; });
+      if (local) {
+        local[approvedKey] = false;
+        local[rejectedKey] = false;
+      }
+    });
+    updateApprovalBadge();
+    toast(type.charAt(0).toUpperCase() + type.slice(1) + ' overtime reinstated as Pending', 'success');
+    // Re-render whichever admin screen the user is on.
+    navigateAdmin(state.currentPage || 'timesheets');
+  }).catch(function(err) {
+    console.error('OT reinstate failed:', err);
+    toast('Could not reinstate overtime: ' + (err.message || err), 'error');
+  });
+}
+
+function reinstateSingleOTDecision(id, type) {
+  var rec = getRecords().find(function(r){ return r.id === id; });
+  if (!rec) { toast('Record not found','error'); return; }
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
+  var isApproved = rec[approvedKey] === true;
+  var isRejected = rec[rejectedKey] === true;
+  if (!isApproved && !isRejected) {
+    toast('This request is already pending.', 'info');
+    return;
+  }
+  if (!confirm('Reinstate this ' + type + ' overtime request as Pending?')) return;
+
+  var updates = {};
+  updates[approvedKey] = false;
+  updates[rejectedKey] = false;
+
+  cRef('records/' + id).update(updates).then(function(){
+    rec[approvedKey] = false;
+    rec[rejectedKey] = false;
+    updateApprovalBadge();
+    toast(type.charAt(0).toUpperCase() + type.slice(1) + ' overtime reinstated as Pending', 'success');
+    navigateAdmin(state.currentPage || 'approvals');
+  }).catch(function(err){
+    console.error('OT reinstate failed:',err);
+    toast('Could not reinstate overtime: '+(err.message || err),'error');
+  });
+}
+
+function setWeekOTDecision(empId, weekStart, type, approved) {
+  var recs = getRecords();
+  var weekEnd = new Date(weekStart + 'T12:00:00');
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  var weekEndStr = fmtDate(weekEnd);
+
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
+  var updates = {};
+  var affected = [];
+
+  recs.forEach(function(r) {
+    if (r.employeeId !== empId || r.status !== 'completed' || !r.clockIn || !r.clockOut) return;
+    var rDate = fmtDate(r.clockIn);
+    if (rDate < weekStart || rDate > weekEndStr) return;
+
+    var ot = getRecordOTBreakdown(r);
+    var hours = type === 'early' ? ot.earlyHours : ot.lateHours;
+    if (hours <= 0) return;
+
+    updates['records/' + r.id + '/' + approvedKey] = approved;
+    updates['records/' + r.id + '/' + rejectedKey] = !approved;
+    affected.push(r.id);
+  });
+
+  if (!affected.length) {
+    toast('No '+type+' overtime records found for this week.', 'info');
+    return;
+  }
+
+  companyUpdate(updates).then(function() {
+    affected.forEach(function(id) {
+      var local = getRecords().find(function(r){ return r.id === id; });
+      if (local) {
+        local[approvedKey] = approved;
+        local[rejectedKey] = !approved;
+      }
+    });
+
+    updateApprovalBadge();
+    toast((approved ? 'Approved ' : 'Rejected ') + type + ' overtime for ' + affected.length + ' record(s)', approved ? 'success' : 'error');
+    generateTimesheets();
+    if (state.currentPage === 'approvals') navigateAdmin('approvals');
+  }).catch(function(err) {
+    console.error('OT approval update failed:', err);
+    toast('Could not save overtime decision: ' + (err.message || err), 'error');
+  });
+}
+
+/* --- SITES --- */
+
+function renderSites() { var sites=getSites(),h='<div class="fade-in"><div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Site Locations</h2></div><button class="btn btn-primary" onclick="openSiteModal()"><i class="fas fa-plus"></i> Add Site</button></div><div class="grid gap-4">';for(var i=0;i<sites.length;i++){var s=sites[i];h+='<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div class="flex-1"><div class="font-semibold">'+s.name+'</div><div class="text-sm" style="color:var(--muted)">'+s.address+'</div><div class="flex items-center gap-4 mt-2 text-xs" style="color:var(--muted)"><span><i class="fas fa-map-pin mr-1" style="color:var(--accent)"></i>'+s.lat.toFixed(5)+', '+s.lng.toFixed(5)+'</span><span><i class="fas fa-circle-dot mr-1" style="color:var(--info)"></i>'+s.radius+'m</span><a href="https://www.google.com/maps?q='+s.lat+','+s.lng+'" target="_blank" style="color:var(--accent)"><i class="fas fa-external-link mr-1"></i>Map</a></div></div><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openSiteModal(\''+s.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSite(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>';}if(!sites.length)h+='<div class="card text-center py-12"><i class="fas fa-location-dot text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No sites.</p></div>';return h+'</div></div>'; }
+function openSiteModal(editId) { var s=editId?getSites().find(function(x){return x.id===editId;}):null; openModal('<h3 class="font-bold text-lg mb-4">'+(s?'Edit':'Add')+' Site</h3><div class="grid gap-4"><div><label>Site Name</label><input id="m-site-name" value="'+(s?s.name:'')+'"></div><div><label>Address</label><input id="m-site-addr" value="'+(s?s.address:'')+'"></div><div class="grid grid-cols-2 gap-3"><div><label>Latitude</label><input id="m-site-lat" type="number" step="0.00001" value="'+(s?s.lat:'')+'"></div><div><label>Longitude</label><input id="m-site-lng" type="number" step="0.00001" value="'+(s?s.lng:'')+'"></div></div><div><label>GPS Radius: <span id="m-radius-val">'+(s?s.radius:100)+'</span>m</label><input id="m-site-radius" type="range" min="5" max="300" value="'+(s?s.radius:100)+'" oninput="document.getElementById(\'m-radius-val\').textContent=this.value" style="padding:0;background:transparent;border:none"></div><button class="btn btn-secondary btn-sm" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> Use My Location</button><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveSite(\''+(editId||'')+'\')">'+(s?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
+function getMyLocation() { if(!navigator.geolocation){toast('Not supported','error');return;} toast('Getting location...','info'); navigator.geolocation.getCurrentPosition(function(p){document.getElementById('m-site-lat').value=p.coords.latitude.toFixed(5);document.getElementById('m-site-lng').value=p.coords.longitude.toFixed(5);toast('Done','success');},function(e){toast('Error: '+e.message,'error');},{enableHighAccuracy:true}); }
+function saveSite(editId) { var name=document.getElementById('m-site-name').value.trim(),address=document.getElementById('m-site-addr').value.trim(),lat=parseFloat(document.getElementById('m-site-lat').value),lng=parseFloat(document.getElementById('m-site-lng').value),radius=parseInt(document.getElementById('m-site-radius').value); if(!name){toast('Name required','error');return;} if(isNaN(lat)||isNaN(lng)){toast('Coordinates required','error');return;} if(editId)fbUpdate('sites/'+editId,{name:name,address:address,lat:lat,lng:lng,radius:radius}); else{var id=cRef('sites').push().key;fbSet('sites/'+id,{id:id,name:name,address:address,lat:lat,lng:lng,radius:radius});} closeModal();navigateAdmin('sites');toast(editId?'Updated':'Added','success'); }
+function deleteSite(id) { var s=getSites().find(function(x){return x.id===id;}); if(getEmployees().filter(function(e){return e.siteId===id;}).length){toast('Employees assigned','error');return;} moveToBin('sites',id,s);navigateAdmin('sites');toast('Moved to recycle bin','info'); }
+
+/* --- EMPLOYEES --- */
+function getEffectiveTarget(emp) { if (emp && emp.weeklyTarget != null && emp.weeklyTarget !== '') return parseFloat(emp.weeklyTarget); return getTierConfig().target; }
+function renderEmployees() {
+  var emps=getEmployees(),globalTarget=getTierConfig().target;
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Employees</h2><p class="text-sm" style="color:var(--muted)">'+emps.length+' total &middot; Global default: '+fmtHrs(globalTarget)+'h</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkEmpModal()"><i class="fas fa-users-line"></i> Bulk Add</button><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
+  h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Allocated Sites</th><th>Target</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  for(var i=0;i<emps.length;i++){
+    var e=emps[i],et=getEffectiveTarget(e);
+    var ids=getEmpSiteIds(e), badges='';
+    for(var j=0;j<ids.length;j++){ badges+='<span class="badge badge-blue mr-1">'+getSiteName(ids[j])+'</span>'; }
+    if(!badges) badges='<span class="text-xs" style="color:var(--muted)">None</span>';
+    var targetBadge=(e.weeklyTarget!=null&&e.weeklyTarget!=='')?'<span class="badge badge-amber mono" style="font-size:.7rem">'+fmtHrs(et)+'</span>':'<span class="mono text-xs" style="color:var(--muted)">'+fmtHrs(et)+' <span style="font-size:.6rem">(default)</span></span>';
+    h+='<tr><td class="font-medium">'+e.firstName+' '+e.lastName+'</td><td class="mono text-xs">'+e.employeeId+'</td><td>'+badges+'</td><td>'+targetBadge+'</td><td>'+(e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>')+'</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openEmpModal(\''+e.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(\''+e.id+'\')"><i class="fas fa-trash"></i></button></div></td></tr>';
+  }
+  h+='</tbody></table></div></div>'; return h;
+}
+
+function openEmpModal(editId) {
+  var emps=getEmployees(),sites=getSites(),e=editId?emps.find(function(x){return x.id===editId;}):null;
+  if(!sites.length){toast('Add a site first','error');return;}
+  var checks='<div class="cb-grid" id="m-emp-sites">';
+  for(var i=0;i<sites.length;i++){
+    var checked=e && getEmpSiteIds(e).indexOf(sites[i].id)!==-1;
+    checks+='<label><input type="checkbox" value="'+sites[i].id+'" '+(checked?'checked':'')+'>'+sites[i].name+'</label>';
+  }
+  checks+='</div>';
+  var globalTarget=getTierConfig().target;
+  var wtVal=(e&&e.weeklyTarget!=null)?e.weeklyTarget:'';
+  var otVal=(e&&e.overtimeAfter!=null)?e.overtimeAfter:'';
+  var idReadonly = e ? 'readonly style="opacity:.65;cursor:not-allowed"' : '';
+  var pinHtml = e
+    ? '<div><label>PIN</label><div class="text-sm mono" style="color:var(--muted)">Set when account is created</div></div>'
+    : '<div><label>PIN</label><input id="m-emp-pin" type="password" minlength="6" placeholder="Minimum 6 characters"></div>';
+  openModal('<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-4"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="'+(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="m-emp-ln" value="'+(e?e.lastName:'')+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Company Number</label><input id="m-emp-id" value="'+(e?e.employeeId:'')+'" '+idReadonly+' placeholder="e.g. BC012"></div>'+pinHtml+'</div><div><label>Allocated Sites</label>'+checks+'</div><div class="grid grid-cols-2 gap-3"><div><label>Status</label><select id="m-emp-active"><option value="true" '+(e&&e.active?'selected':'')+'>Active</option><option value="false" '+(!e||!e.active?'selected':'')+'>Inactive</option></div><div></div></div><div class="card" style="background:var(--bg2);border:none"><div class="font-semibold text-xs mb-2" style="color:var(--muted)">Tiers (Optional)</div><div class="grid grid-cols-2 gap-3"><div><label>Weekly Target (h)</label><input id="m-emp-target" type="number" step="0.5" placeholder="'+globalTarget+'" value="'+wtVal+'"></div><div><label>OT After (h)</label><input id="m-emp-ot" type="number" step="0.5" placeholder="Same as Target" value="'+otVal+'"></div></div></div><div class="text-xs" style="color:var(--muted)">Employees sign in using their Company Number and PIN. Firebase stores the authentication account behind the scenes.</div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmployee(\''+(editId||'')+'\')">'+(e?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+}
+function saveEmployee(editId) {
+  var fn=document.getElementById('m-emp-fn').value.trim(),
+      ln=document.getElementById('m-emp-ln').value.trim(),
+      eid=document.getElementById('m-emp-id').value.trim().toUpperCase(),
+      password=editId ? '' : document.getElementById('m-emp-pin').value,
+      active=document.getElementById('m-emp-active').value==='true',
+      wt=document.getElementById('m-emp-target').value,
+      ot=document.getElementById('m-emp-ot').value;
+  var checks=document.querySelectorAll('#m-emp-sites input[type=checkbox]:checked'),
+      siteIds=Array.from(checks).map(function(c){return c.value;});
+
+  if(!fn||!ln||!eid){toast('Name and Company Number are required','error');return;}
+  if(!siteIds.length){toast('Select at least one site','error');return;}
+  if(!editId && (!password || password.length<6)){toast('PIN must be at least 6 characters for Firebase Authentication','error');return;}
+
+  var existing=editId ? getEmployees().find(function(x){return x.id===editId;}) : null;
+  var d={firstName:fn,lastName:ln,employeeId:eid,siteIds:siteIds,active:active};
+  if(existing && existing.authUid) d.authUid=existing.authUid;
+  if(wt!=='')d.weeklyTarget=parseFloat(wt); if(ot!=='')d.overtimeAfter=parseFloat(ot);
+
+  if(editId){
+    fbUpdate('employees/'+editId,d).then(function(){
+      var idxKey=normalizeEmployeeLoginId(eid);
+      return db.ref('employeeLoginIndex/'+idxKey+'/'+COMPANY_ID).update({companyId:COMPANY_ID,active:active});
+    }).then(function(){
+      closeModal();navigateAdmin('employees');toast('Updated','success');
+    }).catch(function(e){toast('Could not update employee: '+e.message,'error');});
+  } else {
+    var authEmail=employeeAuthEmail(eid);
+    createEmployeeAuth(authEmail,password).then(function(authUser){
+      d.id=cRef('employees').push().key;
+      d.authUid=authUser.uid;
+      return fbSet('employees/'+d.id,d).then(function(){
+        return fbSet('users/'+authUser.uid,{
+          uid:authUser.uid,
+          authEmail:authEmail,
+          companyId:COMPANY_ID,
+          role:'employee',
+          employeeId:d.id,
+          createdAt:new Date().toISOString(),
+          active:true
+        });
+      }).then(function(){
+        return db.ref('employeeLoginIndex/'+normalizeEmployeeLoginId(eid)+'/'+COMPANY_ID).set({
+          companyId:COMPANY_ID,
+          authEmail:authEmail,
+          authUid:authUser.uid,
+          active:active
+        });
+      });
+    }).then(function(){
+      closeModal();navigateAdmin('employees');toast('Employee account created. They can log in with Company Number + PIN.','success');
+    }).catch(function(e){
+      console.error(e);
+      toast('Could not create employee account: '+(e.message||e),'error');
+    });
+  }
+}
+function getEmployeeSecondaryApp(){ if(employeeSecondaryApp)return employeeSecondaryApp; employeeSecondaryApp=firebase.initializeApp(EMBEDDED_FB,'siteproEmployeeCreator'); return employeeSecondaryApp; }
+function createEmployeeAuth(email,password){ return getEmployeeSecondaryApp().auth().createUserWithEmailAndPassword(email,password).then(function(cred){return cred.user;}); }
+
+function openBulkEmpModal(){
+  var sites=getSites(); if(!sites.length){toast('Add a site first','error');return;}
+  var so='';for(var i=0;i<sites.length;i++){so+='<option value="'+sites[i].id+'">'+sites[i].name+'</option>';}
+  openModal('<h3 class="font-bold text-lg mb-4">Bulk Add Employees</h3><div class="grid gap-4"><div><label>Site</label><select id="b-site">'+so+'</select></div><div><label>CSV Data (Company Number,First,Last,PIN)</label><textarea id="b-csv" rows="5" placeholder="BC012,John,Doe,123456"></textarea></div><div class="text-xs" style="color:var(--muted)">PIN must be at least 6 characters. Employees will sign in with Company Number + PIN; no email address is needed.</div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="processBulk()">Import</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+}
+function processBulk(){
+  var site=document.getElementById('b-site').value,
+      lines=document.getElementById('b-csv').value.trim().split(/\r?\n/),
+      cnt=0,
+      chain=Promise.resolve();
+
+  for(var i=0;i<lines.length;i++)(function(line){
+    var p=line.split(',');
+    if(p.length===4){
+      chain=chain.then(function(){
+        var id=cRef('employees').push().key,
+            employeeId=p[0].trim().toUpperCase(),
+            password=p[3].trim(),
+            authEmail=employeeAuthEmail(employeeId);
+        if(password.length<6) throw new Error('PIN for '+employeeId+' must be at least 6 characters.');
+        return createEmployeeAuth(authEmail,password).then(function(authUser){
+          var emp={id:id,employeeId:employeeId,firstName:p[1].trim(),lastName:p[2].trim(),authUid:authUser.uid,siteIds:[site],active:true};
+          return fbSet('employees/'+id,emp).then(function(){
+            return fbSet('users/'+authUser.uid,{uid:authUser.uid,authEmail:authEmail,companyId:COMPANY_ID,role:'employee',employeeId:id,createdAt:new Date().toISOString(),active:true});
+          }).then(function(){
+            return db.ref('employeeLoginIndex/'+normalizeEmployeeLoginId(employeeId)+'/'+COMPANY_ID).set({companyId:COMPANY_ID,authEmail:authEmail,authUid:authUser.uid,active:true});
+          }).then(function(){cnt++;});
+        });
+      });
+    }
+  })(lines[i]);
+
+  chain.then(function(){closeModal();navigateAdmin('employees');toast('Imported '+cnt+' employees','success');}).catch(function(e){toast('Bulk import error: '+(e.message||e),'error');});
+}
+function deleteEmployee(id) {
+  var e=getEmployees().find(function(x){return x.id===id;});
+  if(getRecords().filter(function(r){return r.employeeId===id;}).length){toast('Has records','error');return;}
+  if(e){
+    db.ref('employeeLoginIndex/'+normalizeEmployeeLoginId(e.employeeId)+'/'+COMPANY_ID).update({active:false}).catch(function(err){console.error(err);});
+    moveToBin('employees',id,e);navigateAdmin('employees');toast('Moved to recycle bin','info');
+  }
+}
+
+function deleteEmployee(id) { var e=getEmployees().find(function(x){return x.id===id;}); if(getRecords().filter(function(r){return r.employeeId===id;}).length){toast('Has records','error');return;} moveToBin('employees',id,e);navigateAdmin('employees');toast('Moved to recycle bin','info'); }
+
+/* --- SHIFTS --- */
+function renderShifts() {
+  var shifts=getShifts(), emps=getEmployees();
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Shifts</h2><p class="text-sm" style="color:var(--muted)">Create a single shift or generate shifts across a date range and selected days.</p></div><button class="btn btn-primary" onclick="openShiftModal()"><i class="fas fa-plus"></i> Add Shifts</button></div>';
+
+  if(!shifts.length) {
+    h+='<div class="card text-center py-12"><i class="fas fa-calendar-days text-3xl mb-3" style="color:var(--muted)"></i><p style="color:var(--muted)">No shifts.</p></div>';
+  } else {
+    h+='<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+    for(var i=0;i<shifts.length;i++){
+      var s=shifts[i], emp=getEmpById(s.employeeId);
+      var seriesText = s.seriesId ? '<span class="badge badge-blue ml-2">Scheduled</span>' : '';
+      h+='<div class="card"><div class="flex justify-between items-start mb-2"><div><div class="font-semibold">'+s.date+seriesText+'</div><div class="text-xs" style="color:var(--muted)">'+(emp?emp.firstName+' '+emp.lastName:'Unknown')+'</div></div><div class="text-right"><div class="font-bold mono text-sm">'+s.startTime+' - '+s.endTime+'</div><div class="text-xs" style="color:var(--muted)">'+getSiteName(s.siteId)+'</div></div></div><div class="flex gap-2 mt-3 pt-3 border-t" style="border-color:var(--border)"><button class="btn btn-secondary btn-sm flex-1 justify-center" onclick="openShiftModal(\''+s.id+'\')"><i class="fas fa-pen"></i> Edit</button><button class="btn btn-danger btn-sm" onclick="deleteShift(\''+s.id+'\')"><i class="fas fa-trash"></i></button></div></div>';
+    }
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+
+function openShiftModal(editId){
+  var shifts=getShifts(), emps=getEmployees(), sites=getSites();
+  var s=editId?shifts.find(function(x){return x.id===editId;}):null;
+
+  if(!emps.length||!sites.length){toast('Add employees and sites first','error');return;}
+
+  var eo='';
+  for(var i=0;i<emps.length;i++){
+    eo+='<option value="'+emps[i].id+'" '+(s&&s.employeeId===emps[i].id?'selected':'')+'>'+emps[i].firstName+' '+emps[i].lastName+' ('+emps[i].employeeId+')</option>';
+  }
+
+  var so='';
+  for(var j=0;j<sites.length;j++){
+    var selectedSite=s ? s.siteId===sites[j].id : (j===0);
+    var allowed=s ? getEmpSiteIds(getEmpById(s.employeeId)) : [];
+    var disabledForEmployee = s && allowed.length && allowed.indexOf(sites[j].id)===-1;
+    if(!disabledForEmployee) {
+      so+='<option value="'+sites[j].id+'" '+(selectedSite?'selected':'')+'>'+sites[j].name+'</option>';
+    }
+  }
+
+  if(s){
+    openModal(
+      '<h3 class="font-bold text-lg mb-4">Edit Shift</h3>'+
+      '<div class="grid gap-4">'+
+        '<div class="card" style="background:var(--bg2);border-color:var(--border)"><div class="text-xs" style="color:var(--muted)">Editing one shift</div></div>'+
+        '<div><label>Date</label><input id="m-shift-date" type="date" value="'+s.date+'"></div>'+
+        '<div><label>Employee</label><select id="m-shift-emp" onchange="updateEditShiftSites()">'+eo+'</select></div>'+
+        '<div><label>Site</label><select id="m-shift-site">'+so+'</select></div>'+
+        '<div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-shift-start" type="time" value="'+s.startTime+'"></div><div><label>End Time</label><input id="m-shift-end" type="time" value="'+s.endTime+'"></div></div>'+
+        '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\''+editId+'\')"><i class="fas fa-save"></i> Update</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>'+
+      '</div>'
+    );
+  } else {
+    openModal(
+      '<h3 class="font-bold text-lg mb-4">Add Shifts</h3>'+
+      '<div class="grid gap-4">'+
+        '<div class="card" style="background:var(--bg2);border-color:var(--border)"><div class="font-semibold text-sm mb-1">Schedule multiple days</div><div class="text-xs" style="color:var(--muted)">Choose a date range and the weekdays that should receive this shift. One shift will be created for each selected day.</div></div>'+
+        '<div><label>Employee</label><select id="m-shift-emp" onchange="updateRecurringShiftSites()">'+eo+'</select></div>'+
+        '<div><label>Site</label><select id="m-shift-site">'+so+'</select></div>'+
+        '<div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div><label>From Date</label><input id="m-shift-from" type="date" value="'+todayStr()+'"></div><div><label>To Date</label><input id="m-shift-to" type="date" value="'+todayStr()+'"></div></div>'+
+        '<div><label>Days of Week</label><div class="dow-row" id="m-shift-days">'+
+          '<label><input type="checkbox" value="1" checked> Mon</label>'+ 
+          '<label><input type="checkbox" value="2" checked> Tue</label>'+ 
+          '<label><input type="checkbox" value="3" checked> Wed</label>'+ 
+          '<label><input type="checkbox" value="4" checked> Thu</label>'+ 
+          '<label><input type="checkbox" value="5" checked> Fri</label>'+ 
+          '<label><input type="checkbox" value="6"> Sat</label>'+ 
+          '<label><input type="checkbox" value="0"> Sun</label>'+ 
+        '</div><div class="override-hint">Example: Mon–Fri from 24 Sep to 30 Sep creates one shift on each selected weekday.</div></div>'+ 
+        '<div class="grid grid-cols-2 gap-3"><div><label>Start Time</label><input id="m-shift-start" type="time" value="08:00"></div><div><label>End Time</label><input id="m-shift-end" type="time" value="17:00"></div></div>'+ 
+        '<div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveShift(\'\')"><i class="fas fa-calendar-plus"></i> Create Shifts</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>'+ 
+      '</div>'
+    );
+  }
+}
+
+function updateRecurringShiftSites(){
+  var empId=document.getElementById('m-shift-emp').value;
+  var emp=getEmpById(empId);
+  var allowed=getEmpSiteIds(emp);
+  var sites=getSites();
+  var so='';
+  for(var i=0;i<sites.length;i++){
+    if(!allowed.length || allowed.indexOf(sites[i].id)!==-1){
+      so+='<option value="'+sites[i].id+'">'+sites[i].name+'</option>';
+    }
+  }
+  document.getElementById('m-shift-site').innerHTML=so;
+}
+
+function updateEditShiftSites(){
+  var empId=document.getElementById('m-shift-emp').value;
+  var emp=getEmpById(empId);
+  var allowed=getEmpSiteIds(emp);
+  var sites=getSites();
+  var currentSite=document.getElementById('m-shift-site').value;
+  var so='';
+  for(var i=0;i<sites.length;i++){
+    if(!allowed.length || allowed.indexOf(sites[i].id)!==-1){
+      so+='<option value="'+sites[i].id+'" '+(sites[i].id===currentSite?'selected':'')+'>'+sites[i].name+'</option>';
+    }
+  }
+  document.getElementById('m-shift-site').innerHTML=so;
+}
+
+function saveShift(editId){
+  var emp=document.getElementById('m-shift-emp').value;
+  var site=document.getElementById('m-shift-site').value;
+  var st=document.getElementById('m-shift-start').value;
+  var en=document.getElementById('m-shift-end').value;
+
+  if(!emp||!site||!st||!en){toast('Employee, site and times are required','error');return;}
+  if(timeToMinutes(en)<=timeToMinutes(st)){toast('End time must be after start time','error');return;}
+
+  if(editId){
+    var d=document.getElementById('m-shift-date').value;
+    if(!d){toast('Date is required','error');return;}
+    fbUpdate('shifts/'+editId,{date:d,employeeId:emp,siteId:site,startTime:st,endTime:en}).then(function(){
+      closeModal();navigateAdmin('shifts');toast('Shift updated','success');
+    }).catch(function(e){toast('Could not update shift: '+e.message,'error');});
+    return;
+  }
+
+  var from=document.getElementById('m-shift-from').value;
+  var to=document.getElementById('m-shift-to').value;
+  var checks=document.querySelectorAll('#m-shift-days input[type=checkbox]:checked');
+  var days=[];
+  for(var i=0;i<checks.length;i++) days.push(parseInt(checks[i].value,10));
+
+  if(!from||!to){toast('From and To dates are required','error');return;}
+  if(from>to){toast('To Date must be on or after From Date','error');return;}
+  if(!days.length){toast('Select at least one day of the week','error');return;}
+
+  var current=new Date(from+'T12:00:00');
+  var endDate=new Date(to+'T12:00:00');
+  var updates={};
+  var created=0, skipped=0;
+  var seriesId=cRef('shifts').push().key;
+
+  while(current<=endDate){
+    var ds=fmtDate(current);
+    var dow=current.getDay();
+
+    if(days.indexOf(dow)!==-1){
+      var exists=getShifts().some(function(x){
+        return x.employeeId===emp && x.date===ds;
+      });
+
+      if(exists){
+        skipped++;
+      } else {
+        var id=cRef('shifts').push().key;
+        updates['shifts/'+id]={
+          id:id,
+          date:ds,
+          employeeId:emp,
+          siteId:site,
+          startTime:st,
+          endTime:en,
+          seriesId:seriesId
+        };
+        created++;
+      }
+    }
+
+    current.setDate(current.getDate()+1);
+  }
+
+  if(!created){
+    toast(skipped ? 'No new shifts created. '+skipped+' date(s) already have a shift.' : 'No matching dates found','info');
+    return;
+  }
+
+  companyUpdate(updates).then(function(){
+    closeModal();
+    navigateAdmin('shifts');
+    toast('Created '+created+' shift(s)'+(skipped?' · '+skipped+' skipped':''),'success');
+  }).catch(function(e){
+    console.error('Bulk shift creation failed:',e);
+    toast('Could not create shifts: '+e.message,'error');
+  });
+}
+function deleteShift(id){ var s=getShifts().find(function(x){return x.id===id;}); moveToBin('shifts',id,s);navigateAdmin('shifts');toast('Moved to recycle bin','info'); }
+
+/* --- APPROVALS --- */
+function renderApprovals(){
+  var pending = [];
+  var approved = [];
+  var rejected = [];
+
+  getRecords().forEach(function(r) {
+    if (r.status !== 'completed') return;
+
+    var emp = getEmpById(r.employeeId);
+    var name = emp ? emp.firstName + ' ' + emp.lastName : '?';
+    var date = fmtDate(r.clockIn);
+    var time = fmtTime(r.clockIn) + ' - ' + fmtTime(r.clockOut);
+
+    if (r.needsApproval && !r.approved && !r.rejected) {
+      pending.push({id:r.id,kind:'record',name:name,date:date,time:time,reason:r.reason || 'Clock record requires approval'});
+    }
+
+    if (r.approved === true) {
+      approved.push({id:r.id,kind:'record',name:name,date:date,time:time,reason:'Clock record approved'});
+    } else if (r.rejected === true) {
+      rejected.push({id:r.id,kind:'record',name:name,date:date,time:time,reason:'Clock record rejected'});
+    }
+
+    var ot = getRecordOTBreakdown(r);
+
+    if (ot.earlyHours > 0) {
+      var early = {id:r.id,kind:'early',name:name,date:date,time:time,hours:ot.earlyHours};
+      var es = getOTStatus(r,'early');
+      if (es === 'pending') pending.push(early);
+      else if (es === 'approved') approved.push(early);
+      else rejected.push(early);
+    }
+
+    if (ot.lateHours > 0) {
+      var late = {id:r.id,kind:'late',name:name,date:date,time:time,hours:ot.lateHours};
+      var ls = getOTStatus(r,'late');
+      if (ls === 'pending') pending.push(late);
+      else if (ls === 'approved') approved.push(late);
+      else rejected.push(late);
+    }
+  });
+
+  function renderItem(item, status) {
+    var label = item.kind === 'early' ? 'Early OT' : item.kind === 'late' ? 'Late OT' : 'Clock Record';
+    var detail = item.hours != null ? fmtHrs(item.hours) : (item.reason || '');
+    var actions = '';
+
+    if (status === 'pending') {
+      if (item.kind === 'early' || item.kind === 'late') {
+        actions = '<button class="btn btn-success btn-sm" onclick="setSingleOTDecision(\''+item.id+'\',\''+item.kind+'\',true)"><i class="fas fa-check"></i> Approve</button>' +
+                  '<button class="btn btn-danger btn-sm" onclick="setSingleOTDecision(\''+item.id+'\',\''+item.kind+'\',false)"><i class="fas fa-times"></i> Reject</button>';
+      } else {
+        actions = '<button class="btn btn-success btn-sm" onclick="setApproval(\''+item.id+'\',true)"><i class="fas fa-check"></i> Approve</button>' +
+                  '<button class="btn btn-danger btn-sm" onclick="setApproval(\''+item.id+'\',false)"><i class="fas fa-times"></i> Reject</button>';
+      }
+    } else {
+      actions = '<span class="badge '+(status==='approved'?'badge-green':'badge-red')+'">'+(status==='approved'?'Approved':'Rejected')+'</span>';
+      if (item.kind === 'early' || item.kind === 'late') {
+        actions += '<button class="btn btn-secondary btn-sm" onclick="reinstateSingleOTDecision(\''+item.id+'\',\''+item.kind+'\')"><i class="fas fa-rotate-left"></i> Undo / Reinstate</button>';
+      }
+    }
+
+    return '<div class="card flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">' +
+      '<div><div class="font-semibold">'+item.name+'</div>' +
+      '<div class="text-sm" style="color:var(--muted)">'+item.date+' &middot; '+item.time+'</div>' +
+      '<div class="text-xs mt-1" style="color:var(--warning)"><i class="fas fa-clock mr-1"></i>'+label+(detail?' &middot; '+detail:'')+'</div></div>' +
+      '<div class="flex gap-2 items-center flex-wrap">'+actions+'</div></div>';
+  }
+
+  function section(title, count, items, status, colorClass) {
+    var s = '<div class="mb-6"><div class="flex items-center justify-between mb-3"><h3 class="font-semibold">'+title+' <span class="badge '+colorClass+'">'+count+'</span></h3></div>';
+    if (!items.length) {
+      s += '<div class="card text-center py-6 text-sm" style="color:var(--muted)">None</div>';
+    } else {
+      s += '<div class="grid gap-3">';
+      for (var i=0;i<items.length;i++) s += renderItem(items[i], status);
+      s += '</div>';
+    }
+    return s + '</div>';
+  }
+
+  return '<div class="fade-in">' +
+    '<div class="flex items-center justify-between mb-6"><div><h2 class="text-xl font-bold">Approvals</h2>' +
+    '<p class="text-sm" style="color:var(--muted)">Pending: '+pending.length+' &middot; Approved: '+approved.length+' &middot; Rejected: '+rejected.length+'</p></div></div>' +
+    section('Pending Approvals',pending.length,pending,'pending','badge-amber') +
+    section('Approved',approved.length,approved,'approved','badge-green') +
+    section('Rejected',rejected.length,rejected,'rejected','badge-red') +
+    '</div>';
+}
+
+function setSingleOTDecision(id,type,approved){
+  var rec = getRecords().find(function(r){ return r.id === id; });
+  if (!rec) { toast('Record not found','error'); return; }
+
+  var approvedKey = type === 'early' ? 'earlyApproved' : 'lateApproved';
+  var rejectedKey = type === 'early' ? 'earlyRejected' : 'lateRejected';
+  var updates = {};
+  updates[approvedKey] = approved;
+  updates[rejectedKey] = !approved;
+
+  cRef('records/'+id).update(updates).then(function(){
+    rec[approvedKey] = approved;
+    rec[rejectedKey] = !approved;
+    updateApprovalBadge();
+    toast((approved?'Approved ':'Rejected ')+type+' overtime',approved?'success':'error');
+    navigateAdmin('approvals');
+  }).catch(function(err){
+    console.error('OT decision failed:',err);
+    toast('Could not save decision: '+(err.message || err),'error');
+  });
+}
+
+function setApproval(id,app){
+  cRef('records/'+id).update({approved:app,rejected:!app}).then(function(){
+    var local = getRecords().find(function(r){ return r.id === id; });
+    if (local) {
+      local.approved = app;
+      local.rejected = !app;
+    }
+    updateApprovalBadge();
+    toast(app?'Approved':'Rejected',app?'success':'error');
+    navigateAdmin('approvals');
+  }).catch(function(err){
+    console.error('Record approval failed:',err);
+    toast('Could not save approval: '+(err.message || err),'error');
+  });
+}
+
+function renderRecords(){
+  var recs=getRecords().sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);});
+  var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Clock Records</h2><p class="text-sm" style="color:var(--muted)">Active employees can be manually clocked out from here.</p></div></div><div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Date</th><th>Employee</th><th>Site</th><th>In</th><th>Out</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  for(var i=0;i<recs.length;i++){
+    var r=recs[i],emp=getEmpById(r.employeeId),isActive=r.status==='clocked_in';
+    var outText=isActive?'—':fmtTime(r.clockOut);
+    var totalText=isActive?'—':fmtHrs(r.totalHours);
+    var statusBadge=isActive?'<span class="badge badge-green">Clocked In</span>':'<span class="badge badge-blue">Completed</span>';
+    h+='<tr><td class="text-sm">'+fmtDate(r.clockIn)+'</td><td class="font-medium text-sm">'+(emp?emp.firstName+' '+emp.lastName:'?')+'</td><td class="text-xs" style="color:var(--muted)">'+getSiteName(r.siteId)+'</td><td class="text-xs mono">'+fmtTime(r.clockIn)+'</td><td class="text-xs mono">'+outText+'</td><td class="text-xs mono font-bold">'+totalText+'</td><td>'+statusBadge+'</td><td>'+(isActive?'<button class="btn btn-danger btn-sm" onclick="adminClockOut(&quot;'+r.id+'&quot;)"><i class="fas fa-right-from-bracket"></i> Clock Out</button>':'<span class="text-xs" style="color:var(--muted)">—</span>')+'</td></tr>';
+  }
+  if(!recs.length)h+='<tr><td colspan="8" class="text-center py-8" style="color:var(--muted)">No clock records found.</td></tr>';
+  h+='</tbody></table></div></div>';
+  return h;
+}
+function renderExport(){ var emps=getEmployees(),h='<div class="fade-in"><h2 class="text-xl font-bold mb-6">Timesheet Export</h2><div class="card"><div class="mb-4"><label>Select Employee</label><select id="exp-emp"><option value="all">All Employees</option>'; for(var i=0;i<emps.length;i++){h+='<option value="'+emps[i].id+'">'+emps[i].firstName+' '+emps[i].lastName+'</option>';} h+='</select></div><div class="flex gap-3"><button class="btn btn-primary" onclick="doExport()"><i class="fas fa-file-csv"></i> Generate CSV</button></div></div></div>'; return h; }
+function doExport(){ var eid=document.getElementById('exp-emp').value,recs=getRecords().filter(function(r){return eid==='all'||r.employeeId===eid;}),csv='Date,EmployeeID,FirstName,LastName,ClockIn,ClockOut,TotalHours,Type\n'; recs.forEach(function(r){ var e=getEmpById(r.employeeId); csv+=fmtDate(r.clockIn)+','+(e?e.employeeId:'')+','+(e?e.firstName:'')+','+(e?e.lastName:'')+','+fmtTime(r.clockIn)+','+fmtTime(r.clockOut)+','+r.totalHours+','+(r.dayType||'Weekday')+'\n'; }); var blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download='timesheet_'+todayStr()+'.csv'; a.click(); toast('Exported','success'); }
+
+/* --- SETTINGS --- */
+function renderSettings(){ var s=getSettings(),h='<div class="fade-in"><h2 class="text-xl font-bold mb-6">Settings</h2><div class="card mb-4"><div class="grid gap-4"><div><label>Default Weekly Target (Hours)</label><input id="set-target" type="number" value="'+(s.weeklyTarget||45)+'"></div><div><label>Default Overtime After (Hours)</label><input id="set-ot" type="number" value="'+(s.overtimeAfter!=null?s.overtimeAfter:45)+'"></div><div><label>Default Break (Minutes)</label><input id="set-break" type="number" value="'+(s.defaultBreak||30)+'"></div><div><label>Grace Period (Minutes)</label><input id="set-grace" type="number" value="'+(s.graceMinutes||10)+'"></div></div><div class="mt-4"><button class="btn btn-primary" onclick="saveSettings()">Save Settings</button></div></div><div class="card"><div class="flex justify-between items-center mb-4"><div class="font-bold">Holidays</div><button class="btn btn-secondary btn-sm" onclick="openHolidayModal()"><i class="fas fa-plus"></i> Add</button></div><div class="flex flex-wrap gap-2">'; var hol=getHolidays(); for(var i=0;i<hol.length;i++){h+='<span class="badge badge-amber flex items-center gap-1">'+hol[i]+' <i class="fas fa-times cursor-pointer" onclick="removeHoliday(\''+hol[i]+'\')"></i></span>';} if(!hol.length)h+='<span style="color:var(--muted);font-size:0.8rem">None configured</span>'; h+='</div></div></div>'; return h; }
+function saveSettings(){ var u={weeklyTarget:parseFloat(document.getElementById('set-target').value),overtimeAfter:parseFloat(document.getElementById('set-ot').value),defaultBreak:parseInt(document.getElementById('set-break').value),graceMinutes:parseInt(document.getElementById('set-grace').value),holidays:getHolidays()}; fbSet('settings',u); toast('Settings saved','success'); }
+function openHolidayModal(){ openModal('<h3 class="font-bold text-lg mb-4">Add Holiday</h3><div class="grid gap-4"><div><label>Date</label><input id="m-hol-date" type="date"></div><div class="flex gap-3"><button class="btn btn-primary flex-1 justify-center" onclick="addHoliday()">Add</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>'); }
+function addHoliday(){ var d=document.getElementById('m-hol-date').value; if(!d){toast('Date required','error');return;} var h=getHolidays(); h.push(d); fbSet('settings/holidays',h); closeModal(); navigateAdmin('settings'); }
+function removeHoliday(d){ var h=getHolidays().filter(function(x){return x!==d;}); fbSet('settings/holidays',h); navigateAdmin('settings'); }
+
+/* --- EMPLOYEE CLOCK LOGIC --- */
+function renderClockPage(){
+  var emp=state.currentEmployee,s=state.clockState,now=new Date();
+  var siteNames=[];
+  if(emp){
+    getEmpSiteIds(emp).forEach(function(id){ var site=getSites().find(function(x){return x.id===id;}); if(site)siteNames.push(site.name); });
+  }
+  var h='<div class="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center">';
+  h+='<div class="emp-clock-info">';
+  h+='<div class="text-xs uppercase tracking-widest mb-1" style="color:var(--muted)">Employee</div>';
+  h+='<div class="emp-clock-name">'+((emp.firstName||'')+' '+(emp.lastName||'')).trim()+'</div>';
+  h+='<div class="emp-clock-id">Employee ID: '+(emp.employeeId||'—')+'</div>';
+  h+='<div class="emp-clock-meta">';
+  if(siteNames.length) h+='<span class="badge badge-blue"><i class="fas fa-location-dot mr-1"></i>'+siteNames.join(' • ')+'</span>';
+  h+='<span class="badge '+(s==='clocked_in'?'badge-green':'badge-amber')+'"><i class="fas '+(s==='clocked_in'?'fa-circle-check':'fa-circle-pause')+' mr-1"></i>'+(s==='clocked_in'?'Currently Clocked In':'Not Clocked In')+'</span>';
+  h+='</div></div>';
+  h+='<div class="mb-6"><div class="big-time" id="clock-live-time">'+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div><div class="big-date" id="clock-live-date">'+now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>';
+  h+='<div class="clock-face '+ (s==='clocked_in'?'clock-out-face':'clock-in-face') +'" onclick="handleClockAction()"><i class="fas '+ (s==='clocked_in'?'fa-person-walking-arrow-right':'fa-fingerprint') +' cf-icon"></i><div class="cf-label">'+ (s==='clocked_in'?'CLOCK OUT':'CLOCK IN') +'</div><div class="cf-sub" id="clock-sub-label">Tap to action</div></div>';
+  if(s==='clocked_in'){
+    var start=new Date(state.activeRecord.clockIn), diff=Math.floor((Date.now()-start.getTime())/60000);
+    h+='<div class="elapsed-display mt-6">'+fmtHrs(diff/60)+'</div><div class="text-sm mt-2" style="color:var(--muted)">Elapsed Time</div>';
+    h+='<div class="mt-8 card inline-block px-6 py-3"><div class="text-xs" style="color:var(--muted)">Clocked In At</div><div class="font-bold">'+fmtTime(start)+'</div></div>';
+  }
+  return h+'</div>';
+}
+function initClockPage(){ if(state.clockTimeInterval)clearInterval(state.clockTimeInterval); state.clockTimeInterval=setInterval(function(){ var t=document.getElementById('clock-live-time'),d=document.getElementById('clock-live-date'); if(!t||!d){clearInterval(state.clockTimeInterval);return;} var now=new Date(); t.textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); d.textContent=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); },1000); if(state.clockState==='clocked_in'){ if(state.liveTimerInterval)clearInterval(state.liveTimerInterval); state.liveTimerInterval=setInterval(function(){ var start=new Date(state.activeRecord.clockIn), diff=Math.floor((Date.now()-start.getTime())/60000); var el=document.querySelector('.elapsed-display'); if(el)el.textContent=fmtHrs(diff/60); },60000); } }
+function handleClockAction(){ if(state.clockState==='idle'){ startClock(); }else{ stopClock(); } }
+function startClock(){
+  if(!navigator.geolocation){toast('GPS required','error');return;}
+  toast('Locating...','info');
+  navigator.geolocation.getCurrentPosition(function(p){
+    var lat=p.coords.latitude,lng=p.coords.longitude,today=todayStr();
+    var shift=getShifts().find(function(s){return s.employeeId===state.currentEmployee.id&&s.date===today;});
+    var targetSiteId=shift?shift.siteId:null, site=null, dist=0;
+
+    if(targetSiteId){
+      site=getSites().find(function(s){return s.id===targetSiteId;});
+      if(site) dist=haversine(lat,lng,site.lat,site.lng);
+      if(site && dist>site.radius){toast('Outside geofence ('+Math.round(dist)+'m)','error');return;}
+    } else {
+      var allocated=getEmpSiteIds(state.currentEmployee), closest=null, minDist=Infinity;
+      for(var i=0;i<allocated.length;i++){
+        var candidate=getSites().find(function(s){return s.id===allocated[i];});
+        if(!candidate) continue;
+        var d=haversine(lat,lng,candidate.lat,candidate.lng);
+        if(d<=candidate.radius && d<minDist){minDist=d;closest=candidate;}
+      }
+      if(!closest){toast('Outside all allocated site geofences','error');return;}
+      site=closest;targetSiteId=site.id;dist=minDist;
+    }
+
+    var now=new Date().toISOString(),id=cRef('records').push().key;
+    var record={id:id,employeeId:state.currentEmployee.id,siteId:targetSiteId,shiftId:shift?shift.id:null,clockIn:now,status:'clocked_in',dayType:getDayType(today)};
+    fbSet('records/'+id,record);
+    state.activeRecord=record;
+    state.clockState='clocked_in';
+    navigateEmp('clock');
+    toast('Clocked In at '+getSiteName(targetSiteId),'success');
+  },function(e){toast('GPS Error: '+e.message,'error');},{enableHighAccuracy:true,timeout:15000,maximumAge:30000});
+}
+function stopClock(){ var r=state.activeRecord; if(!r)return; var shift=getShifts().find(function(s){return s.id===r.shiftId;}); var co=new Date(); var bm=(shift&&shift.breakMinutes)?shift.breakMinutes:getSettings().defaultBreak||0; var weekWorked=getEmployeeWeekWorkedHours(r.employeeId, r.clockIn); var tierCfg=getEmployeeTierConfig(r.employeeId); var hrs=calcHours(r.clockIn, co.toISOString(), bm, weekWorked, r.dayType, tierCfg); var u={clockOut:co.toISOString(),status:'completed',totalHours:hrs.totalHours,regularHours:hrs.regularHours,overtimeHours:hrs.overtimeHours,doubleTimeHours:hrs.doubleTimeHours}; var na=checkNeedsApproval(Object.assign({},r,u)); if(na.needsApproval){u.needsApproval=true;u.reason=na.reason;} fbUpdate('records/'+r.id,u); state.clockState='idle'; state.activeRecord=null; if(state.liveTimerInterval)clearInterval(state.liveTimerInterval); navigateEmp('clock'); toast('Clocked Out. Total: '+fmtHrs(hrs.totalHours),'success'); }
+function renderEmpHistory(){ var recs=getRecords().filter(function(r){return r.employeeId===state.currentEmployee.id;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);}); var h='<div class="fade-in"><h2 class="text-lg font-bold mb-4">My History</h2><div class="space-y-3">'; for(var i=0;i<recs.length;i++){ var r=recs[i]; h+='<div class="card"><div class="flex justify-between items-center"><div><div class="font-bold">'+fmtDate(r.clockIn)+'</div><div class="text-xs" style="color:var(--muted)">'+fmtTime(r.clockIn)+' - '+fmtTime(r.clockOut)+'</div></div><div class="text-right"><div class="font-bold mono text-lg">'+fmtHrs(r.totalHours)+'</div><div class="text-xs" style="color:var(--muted)">'+(r.dayType||'Workday')+'</div></div></div></div>'; } if(!recs.length)h+='<p class="text-sm text-center" style="color:var(--muted)">No records yet.</p>'; return h+'</div>'; }
+
+function updateConnDots(){
+  var cls=fbConnected?'conn-dot on':'conn-dot off';
+  var dots=document.querySelectorAll('#login-conn-dot,#admin-conn-dot,#emp-conn-dot');
+  for(var i=0;i<dots.length;i++) dots[i].className=cls;
+  var label=document.getElementById('admin-conn-label');
+  if(label) label.textContent=fbConnected?'Synced':'Offline';
+}
+
+/* --- START APP IMMEDIATELY --- */
+(function startApp(){
+  var started = false;
+  function start(){
+    if (started) return;
+    started = true;
+    try {
+      initFirebase(EMBEDDED_FB);
+    } catch (e) {
+      console.error('Application startup error:', e);
+      var ls = document.getElementById('loading-screen');
+      if (ls) {
+        ls.innerHTML = '<div class=\"text-center p-6\"><div class=\"text-red-400 font-semibold mb-2\">Unable to start SitePro Clock In</div><div class=\"text-sm mb-2\" style=\"color:var(--muted)\">'+(e.message||e)+'</div><div class=\"text-xs\" style=\"color:var(--muted)\">Open the browser Console (F12) for details.</div></div>';
+      }
+    }
+  }
+
+  /* The script is at the end of the document, so do not wait for window.load. */
+  start();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, {once:true});
+  }
+
+  /* Absolute watchdog: never leave the user on Syncing forever. */
+  setTimeout(function(){
+    var ls = document.getElementById('loading-screen');
+    if (ls && !ls.classList.contains('hidden')) {
+      ls.innerHTML = '<div class=\"text-center p-6\"><div class=\"text-red-400 font-semibold mb-2\">Startup is taking too long</div><div class=\"text-sm mb-3\" style=\"color:var(--muted)\">Firebase did not finish loading.</div><button class=\"btn btn-primary\" onclick=\"location.reload()\">Reload</button></div>';
+    }
+  }, 10000);
+})();
+
+</script>
+</body>
+</html>
