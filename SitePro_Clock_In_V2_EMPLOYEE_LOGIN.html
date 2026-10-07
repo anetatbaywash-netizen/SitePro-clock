@@ -129,7 +129,6 @@ tr:hover td{background:rgba(232,168,56,.03)}
       <a class="sidebar-link active" data-page="dashboard"><i class="fas fa-gauge-high w-5 text-center"></i> Dashboard</a>
       <a class="sidebar-link" data-page="sites"><i class="fas fa-location-dot w-5 text-center"></i> Sites</a>
       <a class="sidebar-link" data-page="employees"><i class="fas fa-users w-5 text-center"></i> Employees</a>
-      <a class="sidebar-link" data-page="shifts"><i class="fas fa-calendar-days w-5 text-center"></i> Shifts</a>
       <a class="sidebar-link" data-page="approvals"><i class="fas fa-clipboard-check w-5 text-center"></i> Approvals <span id="approval-badge" class="hidden badge badge-red ml-auto" style="font-size:.6rem">0</span></a>
       <div class="px-4 py-2 mt-2 text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);opacity:.5">Data</div>
       <a class="sidebar-link" data-page="timesheets"><i class="fas fa-table-list w-5 text-center"></i> Timesheets</a>
@@ -427,7 +426,7 @@ function logout(){
 }
 function showAdmin() { showScreen('admin-layout'); var c=document.getElementById('company-name-label'); if(c)c.textContent=D.companyProfile&&D.companyProfile.name?D.companyProfile.name:''; navigateAdmin(state.currentPage); }
 function showEmployee() { if(!state.currentEmployee){toast('Employee profile is not available','error');return;} showScreen('employee-layout'); document.getElementById('emp-header-name').textContent = state.currentEmployee.firstName + ' ' + state.currentEmployee.lastName; navigateEmp(state.empPage); }
-function navigateAdmin(page) { state.currentPage = page; var links = document.querySelectorAll('#admin-nav .sidebar-link'); for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.page === page); var el = document.getElementById('admin-content'); var R = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, shifts:renderShifts, approvals:renderApprovals, records:renderRecords, timesheets:renderTimesheets, export:renderExport, recyclebin:renderRecycleBin, settings:renderSettings }; if (R[page]) el.innerHTML = R[page](); if (page === 'dashboard') startDashClock(); }
+function navigateAdmin(page) { state.currentPage = page; var links = document.querySelectorAll('#admin-nav .sidebar-link'); for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.page === page); var el = document.getElementById('admin-content'); var R = { dashboard:renderDashboard, sites:renderSites, employees:renderEmployees, approvals:renderApprovals, records:renderRecords, timesheets:renderTimesheets, export:renderExport, recyclebin:renderRecycleBin, settings:renderSettings }; if (R[page]) el.innerHTML = R[page](); if (page === 'dashboard') startDashClock(); }
 document.getElementById('admin-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.page) { navigateAdmin(l.dataset.page); document.getElementById('sidebar').classList.remove('open'); } });
 function navigateEmp(page) { state.empPage = page; var links = document.querySelectorAll('#emp-nav .sidebar-link'); for (var i = 0; i < links.length; i++) links[i].classList.toggle('active', links[i].dataset.epage === page); var el = document.getElementById('emp-content'); if (page === 'clock') { el.innerHTML = renderClockPage(); initClockPage(); } else if (page === 'history') el.innerHTML = renderEmpHistory(); }
 document.getElementById('emp-nav').addEventListener('click', function(e) { var l = e.target.closest('.sidebar-link'); if (l && l.dataset.epage) navigateEmp(l.dataset.epage); });
@@ -797,17 +796,21 @@ function deleteSite(id) { var s=getSites().find(function(x){return x.id===id;});
 
 /* --- EMPLOYEES --- */
 function getEffectiveTarget(emp) { if (emp && emp.weeklyTarget != null && emp.weeklyTarget !== '') return parseFloat(emp.weeklyTarget); return getTierConfig().target; }
+function getEmployeeSchedule(e){var sc=e&&e.schedule?e.schedule:{},days=sc.days||{};return {days:{sun:days.sun===true,mon:days.mon===true,tue:days.tue===true,wed:days.wed===true,thu:days.thu===true,fri:days.fri===true,sat:days.sat===true},startTime:sc.startTime||'',endTime:sc.endTime||''};}
+function getEmployeeScheduleDayKey(dateStr){var p=String(dateStr||todayStr()).split('-'),d=new Date(Number(p[0]),Number(p[1])-1,Number(p[2]));return ['sun','mon','tue','wed','thu','fri','sat'][d.getDay()];}
+function employeeWorksToday(e,dateStr){var sc=getEmployeeSchedule(e);return !!sc.days[getEmployeeScheduleDayKey(dateStr)];}
+function employeeScheduleText(e){var sc=getEmployeeSchedule(e),map=[['mon','Mon'],['tue','Tue'],['wed','Wed'],['thu','Thu'],['fri','Fri'],['sat','Sat'],['sun','Sun']],a=[];for(var i=0;i<map.length;i++)if(sc.days[map[i][0]])a.push(map[i][1]);return a.length?a.join(', ')+' '+(sc.startTime&&sc.endTime?(sc.startTime+'–'+sc.endTime):''):'No schedule';}
 function renderEmployees() {
   var emps=getEmployees(),globalTarget=getTierConfig().target;
   var h='<div class="fade-in"><div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h2 class="text-xl font-bold">Employees</h2><p class="text-sm" style="color:var(--muted)">'+emps.length+' total &middot; Global default: '+fmtHrs(globalTarget)+'h</p></div><div class="flex gap-2"><button class="btn btn-secondary" onclick="openBulkEmpModal()"><i class="fas fa-users-line"></i> Bulk Add</button><button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-plus"></i> Add</button></div></div>';
-  h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Allocated Sites</th><th>Target</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  h+='<div class="card overflow-x-auto" style="padding:0"><table><thead><tr><th>Name</th><th>ID</th><th>Allocated Sites</th><th>Schedule</th><th>Target</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
   for(var i=0;i<emps.length;i++){
     var e=emps[i],et=getEffectiveTarget(e);
     var ids=getEmpSiteIds(e), badges='';
     for(var j=0;j<ids.length;j++){ badges+='<span class="badge badge-blue mr-1">'+getSiteName(ids[j])+'</span>'; }
     if(!badges) badges='<span class="text-xs" style="color:var(--muted)">None</span>';
     var targetBadge=(e.weeklyTarget!=null&&e.weeklyTarget!=='')?'<span class="badge badge-amber mono" style="font-size:.7rem">'+fmtHrs(et)+'</span>':'<span class="mono text-xs" style="color:var(--muted)">'+fmtHrs(et)+' <span style="font-size:.6rem">(default)</span></span>';
-    h+='<tr><td class="font-medium">'+e.firstName+' '+e.lastName+'</td><td class="mono text-xs">'+e.employeeId+'</td><td>'+badges+'</td><td>'+targetBadge+'</td><td>'+(e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>')+'</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openEmpModal(\''+e.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(\''+e.id+'\')"><i class="fas fa-trash"></i></button></div></td></tr>';
+    h+='<tr><td class="font-medium">'+e.firstName+' '+e.lastName+'</td><td class="mono text-xs">'+e.employeeId+'</td><td>'+badges+'</td><td class="text-xs" style="min-width:150px">'+employeeScheduleText(e)+'</td><td>'+targetBadge+'</td><td>'+(e.active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>')+'</td><td><div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="openEmpModal(\''+e.id+'\')"><i class="fas fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(\''+e.id+'\')"><i class="fas fa-trash"></i></button></div></td></tr>';
   }
   h+='</tbody></table></div></div>'; return h;
 }
@@ -816,20 +819,14 @@ function openEmpModal(editId) {
   var emps=getEmployees(),sites=getSites(),e=editId?emps.find(function(x){return x.id===editId;}):null;
   if(!sites.length){toast('Add a site first','error');return;}
   var checks='<div class="cb-grid" id="m-emp-sites">';
-  for(var i=0;i<sites.length;i++){
-    var checked=e && getEmpSiteIds(e).indexOf(sites[i].id)!==-1;
-    checks+='<label><input type="checkbox" value="'+sites[i].id+'" '+(checked?'checked':'')+'>'+sites[i].name+'</label>';
-  }
+  for(var i=0;i<sites.length;i++){var checked=e && getEmpSiteIds(e).indexOf(sites[i].id)!==-1;checks+='<label><input type="checkbox" value="'+sites[i].id+'" '+(checked?'checked':'')+'>'+sites[i].name+'</label>';}
   checks+='</div>';
-  var globalTarget=getTierConfig().target;
-  var wtVal=(e&&e.weeklyTarget!=null)?e.weeklyTarget:'';
-  var otVal=(e&&e.overtimeAfter!=null)?e.overtimeAfter:'';
-  var idReadonly = e ? 'readonly style="opacity:.65;cursor:not-allowed"' : '';
-  var pinHtml = e
-    ? '<div><label>PIN</label><div class="text-sm mono" style="color:var(--muted)">Set when account is created</div></div>'
-    : '<div><label>PIN</label><input id="m-emp-pin" type="password" minlength="6" placeholder="Minimum 6 characters"></div>';
-  openModal('<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-4"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="'+(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="m-emp-ln" value="'+(e?e.lastName:'')+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Company Number</label><input id="m-emp-id" value="'+(e?e.employeeId:'')+'" '+idReadonly+' placeholder="e.g. BC012"></div>'+pinHtml+'</div><div><label>Allocated Sites</label>'+checks+'</div><div class="grid grid-cols-2 gap-3"><div><label>Status</label><select id="m-emp-active"><option value="true" '+(e&&e.active?'selected':'')+'>Active</option><option value="false" '+(!e||!e.active?'selected':'')+'>Inactive</option></div><div></div></div><div class="card" style="background:var(--bg2);border:none"><div class="font-semibold text-xs mb-2" style="color:var(--muted)">Tiers (Optional)</div><div class="grid grid-cols-2 gap-3"><div><label>Weekly Target (h)</label><input id="m-emp-target" type="number" step="0.5" placeholder="'+globalTarget+'" value="'+wtVal+'"></div><div><label>OT After (h)</label><input id="m-emp-ot" type="number" step="0.5" placeholder="Same as Target" value="'+otVal+'"></div></div></div><div class="text-xs" style="color:var(--muted)">Employees sign in using their Company Number and PIN. Firebase stores the authentication account behind the scenes.</div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmployee(\''+(editId||'')+'\')">'+(e?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
+  var globalTarget=getTierConfig().target,wtVal=(e&&e.weeklyTarget!=null)?e.weeklyTarget:'',otVal=(e&&e.overtimeAfter!=null)?e.overtimeAfter:'',sc=getEmployeeSchedule(e),dayDefs=[['mon','Mon'],['tue','Tue'],['wed','Wed'],['thu','Thu'],['fri','Fri'],['sat','Sat'],['sun','Sun']],dayChecks='<div class="cb-grid" id="m-emp-days">';
+  for(var di=0;di<dayDefs.length;di++)dayChecks+='<label><input type="checkbox" value="'+dayDefs[di][0]+'" '+((e?sc.days[dayDefs[di][0]]:true)?'checked':'')+'>'+dayDefs[di][1]+'</label>';
+  dayChecks+='</div>';
+  openModal('<h3 class="font-bold text-lg mb-4">'+(e?'Edit':'Add')+' Employee</h3><div class="grid gap-4"><div class="grid grid-cols-2 gap-3"><div><label>First Name</label><input id="m-emp-fn" value="'+(e?e.firstName:'')+'"></div><div><label>Last Name</label><input id="m-emp-ln" value="'+(e?e.lastName:'')+'"></div></div><div class="grid grid-cols-2 gap-3"><div><label>Employee ID / Company Number</label><input id="m-emp-id" value="'+(e?e.employeeId:'')+'" '+(e?'readonly style="opacity:.65;cursor:not-allowed"':'')+'></div><div><label>PIN</label><input id="m-emp-pin" type="password" minlength="6" placeholder="Minimum 6 characters"></div></div><div><label>Allocated Sites</label>'+checks+'</div><div class="card" style="background:var(--bg2);border:none"><div class="font-semibold text-xs mb-2">Work Schedule</div><p class="text-xs mb-2" style="color:var(--muted)">Set the employee\'s normal working days and hours. You no longer need to create individual shifts.</p>'+dayChecks+'<div class="grid grid-cols-2 gap-3 mt-3"><div><label>Start Time</label><input id="m-emp-start" type="time" value="'+(sc.startTime||'08:00')+'"></div><div><label>End Time</label><input id="m-emp-end" type="time" value="'+(sc.endTime||'17:00')+'"></div></div></div><div class="grid grid-cols-2 gap-3"><div><label>Status</label><select id="m-emp-active"><option value="true" '+(e&&e.active?'selected':'')+'>Active</option><option value="false" '+(!e||!e.active?'selected':'')+'>Inactive</option></select></div><div></div></div><div class="card" style="background:var(--bg2);border:none"><div class="font-semibold text-xs mb-2" style="color:var(--muted)">Tiers (Optional)</div><div class="grid grid-cols-2 gap-3"><div><label>Weekly Target (h)</label><input id="m-emp-target" type="number" step="0.5" placeholder="'+globalTarget+'" value="'+wtVal+'"></div><div><label>OT After (h)</label><input id="m-emp-ot" type="number" step="0.5" placeholder="Same as Target" value="'+otVal+'"></div></div></div><div class="flex gap-3 mt-2"><button class="btn btn-primary flex-1 justify-center" onclick="saveEmployee(\''+(editId||'')+'\')">'+(e?'Update':'Add')+'</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div></div>');
 }
+
 function saveEmployee(editId) {
   var fn=document.getElementById('m-emp-fn').value.trim(),
       ln=document.getElementById('m-emp-ln').value.trim(),
@@ -838,15 +835,17 @@ function saveEmployee(editId) {
       active=document.getElementById('m-emp-active').value==='true',
       wt=document.getElementById('m-emp-target').value,
       ot=document.getElementById('m-emp-ot').value;
+  var dayChecks=document.querySelectorAll('#m-emp-days input[type=checkbox]:checked'),workDays={};for(var di=0;di<dayChecks.length;di++)workDays[dayChecks[di].value]=true;var startTime=document.getElementById('m-emp-start').value,endTime=document.getElementById('m-emp-end').value;
   var checks=document.querySelectorAll('#m-emp-sites input[type=checkbox]:checked'),
       siteIds=Array.from(checks).map(function(c){return c.value;});
 
   if(!fn||!ln||!eid){toast('Name and Company Number are required','error');return;}
   if(!siteIds.length){toast('Select at least one site','error');return;}
+  if(!dayChecks.length||!startTime||!endTime){toast('Select at least one work day and set start/end times','error');return;}
   if(!editId && (!password || password.length<6)){toast('PIN must be at least 6 characters for Firebase Authentication','error');return;}
 
   var existing=editId ? getEmployees().find(function(x){return x.id===editId;}) : null;
-  var d={firstName:fn,lastName:ln,employeeId:eid,siteIds:siteIds,active:active};
+  var d={firstName:fn,lastName:ln,employeeId:eid,siteIds:siteIds,active:active,schedule:{days:workDays,startTime:startTime,endTime:endTime}};
   if(existing && existing.authUid) d.authUid=existing.authUid;
   if(wt!=='')d.weeklyTarget=parseFloat(wt); if(ot!=='')d.overtimeAfter=parseFloat(ot);
 
@@ -1326,49 +1325,17 @@ function startClock(){
   if(!navigator.geolocation){toast('GPS required','error');return;}
   toast('Locating...','info');
   navigator.geolocation.getCurrentPosition(function(p){
-    var lat=p.coords.latitude,lng=p.coords.longitude,today=todayStr();
-    var shift=getShifts().find(function(s){return s.employeeId===state.currentEmployee.id&&s.date===today;});
-    var targetSiteId=null, site=null, dist=0;
-
-    if(shift){
-      var scheduledSiteIds=getShiftSiteIds(shift), closestScheduled=null, minScheduledDist=Infinity;
-      for(var si=0;si<scheduledSiteIds.length;si++){
-        var scheduledSite=getSites().find(function(s){return s.id===scheduledSiteIds[si];});
-        if(!scheduledSite) continue;
-        var scheduledDist=haversine(lat,lng,scheduledSite.lat,scheduledSite.lng);
-        if(scheduledDist<=scheduledSite.radius && scheduledDist<minScheduledDist){
-          minScheduledDist=scheduledDist;
-          closestScheduled=scheduledSite;
-        }
-      }
-      if(!closestScheduled){
-        toast('Outside scheduled site geofences. Scheduled: '+renderShiftSitesText(shift),'error');
-        return;
-      }
-      site=closestScheduled;
-      targetSiteId=site.id;
-      dist=minScheduledDist;
-    } else {
-      var allocated=getEmpSiteIds(state.currentEmployee), closest=null, minDist=Infinity;
-      for(var i=0;i<allocated.length;i++){
-        var candidate=getSites().find(function(s){return s.id===allocated[i];});
-        if(!candidate) continue;
-        var d=haversine(lat,lng,candidate.lat,candidate.lng);
-        if(d<=candidate.radius && d<minDist){minDist=d;closest=candidate;}
-      }
-      if(!closest){toast('Outside all allocated site geofences','error');return;}
-      site=closest;targetSiteId=site.id;dist=minDist;
-    }
-
-    var now=new Date().toISOString(),id=cRef('records').push().key;
-    var record={id:id,employeeId:state.currentEmployee.id,siteId:targetSiteId,shiftId:shift?shift.id:null,clockIn:now,status:'clocked_in',dayType:getDayType(today)};
-    fbSet('records/'+id,record);
-    state.activeRecord=record;
-    state.clockState='clocked_in';
-    navigateEmp('clock');
-    toast('Clocked In at '+getSiteName(targetSiteId),'success');
+    var lat=p.coords.latitude,lng=p.coords.longitude,today=todayStr(),emp=state.currentEmployee;
+    if(!employeeWorksToday(emp,today)){toast('You are not scheduled to work today.','error');return;}
+    var allocated=getEmpSiteIds(emp),closest=null,minDist=Infinity;
+    for(var i=0;i<allocated.length;i++){var candidate=getSites().find(function(x){return x.id===allocated[i];});if(!candidate)continue;var d=haversine(lat,lng,candidate.lat,candidate.lng);if(d<=candidate.radius&&d<minDist){minDist=d;closest=candidate;}}
+    if(!closest){toast('Outside all allocated site geofences','error');return;}
+    var targetSiteId=closest.id,now=new Date().toISOString(),id=cRef('records').push().key;
+    var record={id:id,employeeId:emp.id,siteId:targetSiteId,shiftId:null,clockIn:now,status:'clocked_in',dayType:getDayType(today)};
+    fbSet('records/'+id,record);state.activeRecord=record;state.clockState='clocked_in';navigateEmp('clock');toast('Clocked In at '+getSiteName(targetSiteId),'success');
   },function(e){toast('GPS Error: '+e.message,'error');},{enableHighAccuracy:true,timeout:15000,maximumAge:30000});
 }
+
 function stopClock(){ var r=state.activeRecord; if(!r)return; var shift=getShifts().find(function(s){return s.id===r.shiftId;}); var co=new Date(); var bm=(shift&&shift.breakMinutes)?shift.breakMinutes:getSettings().defaultBreak||0; var weekWorked=getEmployeeWeekWorkedHours(r.employeeId, r.clockIn); var tierCfg=getEmployeeTierConfig(r.employeeId); var hrs=calcHours(r.clockIn, co.toISOString(), bm, weekWorked, r.dayType, tierCfg); var u={clockOut:co.toISOString(),status:'completed',totalHours:hrs.totalHours,regularHours:hrs.regularHours,overtimeHours:hrs.overtimeHours,doubleTimeHours:hrs.doubleTimeHours}; var na=checkNeedsApproval(Object.assign({},r,u)); if(na.needsApproval){u.needsApproval=true;u.reason=na.reason;} fbUpdate('records/'+r.id,u); state.clockState='idle'; state.activeRecord=null; if(state.liveTimerInterval)clearInterval(state.liveTimerInterval); navigateEmp('clock'); toast('Clocked Out. Total: '+fmtHrs(hrs.totalHours),'success'); }
 function renderEmpHistory(){ var recs=getRecords().filter(function(r){return r.employeeId===state.currentEmployee.id;}).sort(function(a,b){return new Date(b.clockIn)-new Date(a.clockIn);}); var h='<div class="fade-in"><h2 class="text-lg font-bold mb-4">My History</h2><div class="space-y-3">'; for(var i=0;i<recs.length;i++){ var r=recs[i]; h+='<div class="card"><div class="flex justify-between items-center"><div><div class="font-bold">'+fmtDate(r.clockIn)+'</div><div class="text-xs" style="color:var(--muted)">'+fmtTime(r.clockIn)+' - '+fmtTime(r.clockOut)+'</div></div><div class="text-right"><div class="font-bold mono text-lg">'+fmtHrs(r.totalHours)+'</div><div class="text-xs" style="color:var(--muted)">'+(r.dayType||'Workday')+'</div></div></div></div>'; } if(!recs.length)h+='<p class="text-sm text-center" style="color:var(--muted)">No records yet.</p>'; return h+'</div>'; }
 
